@@ -42,6 +42,7 @@ RENAMED = 3              # same barcode, new name
 NEW_SIZE = 2             # new size, and so a new barcode (GS1 rule above)
 DISCONTINUED = 1         # gone from v2. Leftover stock stays on the shelf.
 SHRINK = 0.9             # a new size is 10% smaller
+NEW_FROM_SITE = "openfoodfacts"
 NEW_FROM_CATEGORY = "sodas"   # the one new product is the next real soda not already in v1
 RENAME_RULES = [
     ("'New ' in front", lambda name: "New " + name),
@@ -115,10 +116,15 @@ def build(v1, new_product, rng):
 
 
 def pull_new_product(v1):
-    """One real product that is not in v1: the next row of the category's default order."""
+    """One real product that is not in v1: the next usable row of the category's default order."""
     codes = {p["code"] for p in v1}
-    rows, info = catalog.pull(NEW_FROM_CATEGORY, 20)
-    return next(p for p in rows if p.get("code") and p["code"] not in codes), info
+    for page in range(1, catalog.MAX_PAGES + 1):
+        rows, reported = catalog.pull(NEW_FROM_SITE, NEW_FROM_CATEGORY, page)
+        for p in rows:
+            if catalog.usable(p) and p["code"] not in codes:
+                return p, {"site": NEW_FROM_SITE, "category": NEW_FROM_CATEGORY, "page": page,
+                           "matching_records_reported": reported}
+    sys.exit(f"No product outside v1 found in {catalog.MAX_PAGES} pages of {NEW_FROM_CATEGORY}. Nothing was written.")
 
 
 def save(v2, changes, info):

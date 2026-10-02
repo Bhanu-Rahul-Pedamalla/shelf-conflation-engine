@@ -36,7 +36,8 @@ def truth_path(day):
 
 STORES = {"S001": 1, "S002": 2, "S003": 3}   # store -> seed for its planted problems.
                                              # Same seed, same problems. One plan for all stores.
-AISLES = {"sodas": "A01", "breakfast-cereals": "A02", "snacks": "A03"}
+AISLES = {"sodas": "A01", "breakfast-cereals": "A02", "snacks": "A03", "dairy": "A04",
+          "supplements": "A05", "personal-care": "A06", "household": "A07"}   # catalog group -> aisle
 SHELVES = 4              # per aisle. Shelf 1 is the bottom shelf.
 OUT_OF_STOCK = (2, 3)    # positions left empty, per aisle
 MISPLACED = (1, 2)       # single units sitting in the wrong aisle, whole store

@@ -71,7 +71,9 @@ def main():
         "all three together": score.score(together),
     }
 
-    print(f"\nNAIVE BASELINE - {len(detections)} detections, {len(catalog)} catalog products\n")
+    # A re-sent row repeats an id. The naive matchers answer per id, so repeats change nothing here.
+    print(f"\nNAIVE BASELINE - {len(detections)} rows in the file, {len(together)} distinct detections, "
+          f"{len(catalog)} products in catalog v1\n")
     score.print_table(results)
 
     rows = results["all three together"]

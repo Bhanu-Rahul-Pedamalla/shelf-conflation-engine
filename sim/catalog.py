@@ -1,12 +1,18 @@
 """Step 1.1 - pull a real product catalog slice and count how messy it is.
 
-Three US categories in one catalog: sodas, breakfast cereals, snacks.
+Seven US product groups in one catalog, about 300 products: sodas, breakfast cereals,
+snacks, dairy, supplements, personal care, household.
 
     python sim/catalog.py            # pull once, then always read the saved snapshot
     python sim/catalog.py --refresh  # pull again and overwrite the snapshot
 
-The snapshot is saved exactly as Open Food Facts returned it. Nothing is cleaned here.
-Data: Open Food Facts (https://world.openfoodfacts.org), Open Database Licence (ODbL).
+Every row is saved exactly as the source returned it. Nothing is cleaned here.
+A row with no name or no brand is skipped, and counted.
+
+Data, all under the Open Database Licence (ODbL), contents under the Database Contents Licence:
+  Open Food Facts      https://world.openfoodfacts.org      food, dairy, supplements
+  Open Beauty Facts    https://world.openbeautyfacts.org    personal care
+  Open Products Facts  https://world.openproductsfacts.org  household
 """
 import collections
 import datetime
@@ -23,65 +29,96 @@ ROOT = Path(__file__).resolve().parents[1]
 RAW = ROOT / "data" / "catalog_raw.jsonl"
 META = ROOT / "data" / "catalog_raw.meta.json"
 
-URL = "https://world.openfoodfacts.org/api/v2/search"
+SITES = {
+    "openfoodfacts": "https://world.openfoodfacts.org/api/v2/search",
+    "openbeautyfacts": "https://world.openbeautyfacts.org/api/v2/search",
+    "openproductsfacts": "https://world.openproductsfacts.org/api/v2/search",
+}
 BASE_PARAMS = {
     "countries_tags_en": "united-states",
     "fields": "code,product_name,brands,quantity,categories_tags,countries_tags,"
               "image_front_url,unique_scans_n,last_modified_t",
-    "page": 1,
+    "page_size": 100,
 }
-# (Open Food Facts category, rows wanted). Order matters: a product listed in two
-# categories is kept by the first category that returns it.
-CATEGORIES = [("sodas", 20), ("breakfast-cereals", 15), ("snacks", 15)]
-SPARE = 10  # extra rows asked for per category, to replace products already taken
+# (group, rows wanted, [(site, category), ...]). A group becomes one aisle in the store.
+# Order matters: a product listed in two groups is kept by the first group that returns it.
+# A group with two sources takes about half its rows from each.
+GROUPS = [
+    ("sodas", 60, [("openfoodfacts", "sodas")]),
+    ("breakfast-cereals", 50, [("openfoodfacts", "breakfast-cereals")]),
+    ("snacks", 50, [("openfoodfacts", "snacks")]),
+    ("dairy", 60, [("openfoodfacts", "dairies")]),
+    ("supplements", 30, [("openfoodfacts", "dietary-supplements")]),
+    ("personal-care", 25, [("openbeautyfacts", "toothpastes"), ("openbeautyfacts", "shampoos")]),
+    ("household", 25, [("openproductsfacts", "household-supplies")]),
+]
+MAX_PAGES = 4   # pages of 100 rows asked from one source before giving up on filling its share
 HEADERS = {"User-Agent": "shelf-conflation-engine/0.1"}
 
 
-def pull(category, wanted):
-    """One request for one category. The API often answers 503, so retry."""
-    params = dict(BASE_PARAMS, categories_tags_en=category, page_size=wanted + SPARE)
+def pull(site, category, page=1):
+    """One request: one page of one category from one site. The API often answers 503, so retry."""
+    params = dict(BASE_PARAMS, categories_tags_en=category, page=page)
     for attempt in range(1, 9):
-        r = requests.get(URL, params=params, headers=HEADERS, timeout=90)
+        r = requests.get(SITES[site], params=params, headers=HEADERS, timeout=90)
         is_json = "json" in r.headers.get("content-type", "")
         if r.status_code == 200 and is_json:
             body = r.json()
-            info = {
-                "category": category,
-                "wanted": wanted,
-                "params": params,
-                "attempts": attempt,
-                "matching_records_reported": body.get("count"),
-            }
-            return body["products"], info
-        print(f"  {category} attempt {attempt}: HTTP {r.status_code}, waiting 15 s")
+            time.sleep(7)  # stay under the API's search rate limit
+            return body["products"], body.get("count")
+        print(f"  {site} {category} page {page} attempt {attempt}: HTTP {r.status_code}, waiting 15 s")
         time.sleep(15)
-    sys.exit(f"Open Food Facts did not answer for {category!r} after 8 attempts. Nothing was written.")
+    sys.exit(f"{site} did not answer for {category!r} after 8 attempts. Nothing was written.")
+
+
+def usable(p):
+    """Rule: a product needs a code, a name and a brand. Anything else is skipped."""
+    return bool(p.get("code") and (p.get("product_name") or "").strip() and (p.get("brands") or "").strip())
 
 
 def pull_all():
-    """Pull every category, keep each product code once."""
+    """Pull every group, keep each product code once, skip rows with no name or no brand."""
     products, infos, seen = [], [], set()
-    for category, wanted in CATEGORIES:
-        rows, info = pull(category, wanted)
-        kept, already_taken = [], []
-        for p in rows:
-            code = p.get("code")
-            if code in seen:
-                already_taken.append(code)
-            elif code and len(kept) < wanted:
-                kept.append(p)
-                seen.add(code)
-        info["codes"] = [p["code"] for p in kept]
-        info["already_taken_by_earlier_category"] = already_taken
-        print(f"  {category:<18} kept {len(kept)} of {wanted} wanted"
-              f"  (already taken by an earlier category: {len(already_taken)})")
+    for group, wanted, sources in GROUPS:
+        kept, already_taken, skipped, source_infos = [], [], [], []
+        for n, (site, category) in enumerate(sources):
+            share = -(-(wanted - len(kept)) // (len(sources) - n))   # what is left, split over the sources left
+            mine, reported = [], None
+            for page in range(1, MAX_PAGES + 1):
+                rows, reported = pull(site, category, page)
+                for p in rows:
+                    code = p.get("code")
+                    if code in seen:
+                        already_taken.append(code)
+                    elif not usable(p):
+                        skipped.append(code)
+                    elif len(mine) < share:
+                        mine.append(p)
+                        seen.add(code)
+                if len(mine) >= share or len(rows) < BASE_PARAMS["page_size"]:
+                    break
+            kept += mine
+            source_infos.append({"site": site, "category": category, "url": SITES[site],
+                                 "matching_records_reported": reported, "pages": page,
+                                 "codes": [p["code"] for p in mine]})
+        print(f"  {group:<18} kept {len(kept)} of {wanted} wanted   skipped, no name or brand: {len(skipped)}"
+              f"   already taken by an earlier group: {len(already_taken)}")
         products += kept
-        infos.append(info)
-        time.sleep(6)  # stay under the API's search rate limit
+        infos.append({
+            "category": group,
+            "wanted": wanted,
+            "sources": source_infos,
+            "matching_records_reported": sum(s["matching_records_reported"] or 0 for s in source_infos),
+            "codes": [p["code"] for p in kept],
+            "already_taken_by_earlier_category": already_taken,
+            "skipped_no_name_or_brand": skipped,
+        })
     meta = {
-        "source": "Open Food Facts search API v2",
-        "licence": "ODbL",
-        "url": URL,
+        "source": "Open Food Facts, Open Beauty Facts and Open Products Facts, search API v2",
+        "licence": "ODbL (database), DbCL (contents)",
+        "attribution": "Contains data from Open Food Facts, Open Beauty Facts and Open Products Facts, "
+                       "available under the Open Database License.",
+        "params": BASE_PARAMS,
         "pulled_at_utc": datetime.datetime.now(datetime.timezone.utc).isoformat(timespec="seconds"),
         "rows": len(products),
         "categories": infos,
@@ -108,18 +145,26 @@ def size_shape(quantity):
     return re.sub(r"\d+(?:[.,]\d+)?", "N", quantity)
 
 
-def mess_report(products, meta=None):
+def mess_report(products, meta=None, full=False):
+    """full=False prints the 15 commonest size shapes and the first 10 repeated names."""
     n = len(products)
     print(f"\nCATALOG MESS COUNT - {n} rows")
 
     # 0. where the rows came from
     if meta:
-        print("\n0. Rows by category")
+        print("\n0. Rows by group")
         for info in meta["categories"]:
-            print(f"   {info['category']:<18} {len(info['codes']):>3} rows"
-                  f"   ({info['matching_records_reported']} US records exist)")
-            for code in info["already_taken_by_earlier_category"]:
-                print(f"      {code} also listed here, kept under an earlier category")
+            print(f"   {info['category']:<18} {len(info['codes']):>3} of {info['wanted']} wanted"
+                  f"   skipped, no name or brand: {len(info['skipped_no_name_or_brand'])}"
+                  f"   also in an earlier group: {len(info['already_taken_by_earlier_category'])}")
+            for s in info["sources"]:
+                print(f"      {len(s['codes']):>3} from {s['site']} / {s['category']}"
+                      f"   ({s['matching_records_reported']} US records exist)")
+        wanted = sum(info["wanted"] for info in meta["categories"])
+        kept = sum(len(info["codes"]) for info in meta["categories"])
+        print(f"   CHECK    rows kept, summed over the groups = {kept}, rows in the file = {n}, wanted = {wanted}")
+        print(f"   CHECK    every row has a code, a name and a brand: {all(usable(p) for p in products)}")
+        print(f"   CHECK    every code appears once: {len({p['code'] for p in products}) == n}")
     us_only = sum(1 for p in products if p.get("countries_tags") == ["en:united-states"])
     print(f"   sold only in the US: {us_only}   also sold elsewhere: {n - us_only}")
 
@@ -143,9 +188,12 @@ def mess_report(products, meta=None):
     shapes_no_case = {shape.casefold() for shape in shapes}
     print("\n3. Ways a size is written")
     print(f"   distinct shapes: {len(shapes)}  (still {len(shapes_no_case)} after ignoring upper/lower case)")
-    for shape, count in shapes.most_common():
+    shown = shapes.most_common() if full else shapes.most_common(15)
+    for shape, count in shown:
         example = next(s for s in sizes if s.strip() and size_shape(s) == shape)
         print(f"   {count:>3} x  {shape:<28} e.g. {example}")
+    if len(shown) < len(shapes):
+        print(f"   ... and {len(shapes) - len(shown)} more shapes (python sim/catalog.py --full)")
 
     # 4. brands
     brands = [(p.get("brands") or "").strip() for p in products]
@@ -170,22 +218,37 @@ def mess_report(products, meta=None):
     repeated = {k: v for k, v in by_name.items() if len(v) > 1}
     print("\n5. Same product name on more than one row")
     print(f"   names repeated: {len(repeated)}  covering {sum(len(v) for v in repeated.values())} rows")
-    for rows in repeated.values():
+    shown = list(repeated.values()) if full else list(repeated.values())[:10]
+    for rows in shown:
         print(f"   {rows[0].get('product_name')!r}")
         for p in rows:
             print(f"      {p.get('code'):<14} brand={p.get('brands')!r}  size={p.get('quantity')!r}")
+    if len(shown) < len(repeated):
+        print(f"   ... and {len(repeated) - len(shown)} more repeated names (python sim/catalog.py --full)")
+
+    # 6. same brand in more than one group
+    if meta:
+        group_of = {code: info["category"] for info in meta["categories"] for code in info["codes"]}
+        groups_of_brand = collections.defaultdict(set)
+        for p in products:
+            groups_of_brand[(p.get("brands") or "").strip().casefold()].add(group_of[p["code"]])
+        shared = {b: g for b, g in groups_of_brand.items() if len(g) > 1}
+        print("\n6. Same brand in more than one group")
+        print(f"   brands in 2 or more groups: {len(shared)}")
+        for brand, groups in sorted(shared.items())[:(None if full else 10)]:
+            print(f"   {brand!r}: {sorted(groups)}")
 
 
 def main():
     sys.stdout.reconfigure(encoding="utf-8")
     if "--refresh" in sys.argv or not RAW.exists():
-        print("Pulling from Open Food Facts ...")
+        print("Pulling from Open Food Facts, Open Beauty Facts and Open Products Facts ...")
         products, meta = pull_all()
         save(products, meta)
         print(f"Saved {meta['rows']} rows to {RAW.relative_to(ROOT)}")
     else:
         print(f"Reading saved snapshot {RAW.relative_to(ROOT)} (use --refresh to pull again)")
-    mess_report(load(), json.loads(META.read_text(encoding="utf-8")))
+    mess_report(load(), json.loads(META.read_text(encoding="utf-8")), full="--full" in sys.argv)
 
 
 if __name__ == "__main__":
