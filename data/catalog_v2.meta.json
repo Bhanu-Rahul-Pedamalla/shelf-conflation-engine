@@ -1,0 +1,24 @@
+{
+  "derived_from": "catalog_raw.jsonl",
+  "derived_from_sha256": "f440b1191e64d9897c95a7ee4054b075dc68620ec9279dec82a6004f7cd59ace",
+  "built_at_utc": "2026-10-02T20:36:39+00:00",
+  "seed": 7000,
+  "effective_day": 2,
+  "simulated": "renames, new sizes and new barcodes are simulated; the one new product is real",
+  "new_barcode_rule": "GS1 GTIN Management Standard, rule 'Declared net content': any change to the declared net content printed on the pack requires a new GTIN. https://www.gs1.org/1/gtinrules/en/rule/266/declared-net-content",
+  "new_product_pull": {
+    "category": "sodas",
+    "wanted": 20,
+    "params": {
+      "countries_tags_en": "united-states",
+      "fields": "code,product_name,brands,quantity,categories_tags,countries_tags,image_front_url,unique_scans_n,last_modified_t",
+      "page": 1,
+      "categories_tags_en": "sodas",
+      "page_size": 30
+    },
+    "attempts": 1,
+    "matching_records_reported": 6383
+  },
+  "rows": 50,
+  "sha256": "32e5b309d494eaea9d0c9843f560d4e24df1285b91b8ded8ba8eb76f912d950f"
+}

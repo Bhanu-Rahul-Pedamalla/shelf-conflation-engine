@@ -24,6 +24,7 @@ import random
 import sys
 
 import catalog  # sim/catalog.py: the saved catalog snapshot
+import drift    # sim/drift.py: catalog v2 and the day it takes effect
 
 PLANOGRAM = catalog.ROOT / "data" / "planogram.csv"
 DAYS = 3                 # the shelf is recorded once per day
@@ -143,6 +144,19 @@ def restock(day1, rng):
     return truth
 
 
+def apply_new_barcodes(truth, successor, mark):
+    """From the day catalog v2 takes effect, a new-size product on the shelf carries its new barcode.
+
+    The plan is not touched: planned_code keeps the old barcode.
+    """
+    for slot in truth:
+        if slot["actual_code"] in successor:
+            slot["actual_code"] = successor[slot["actual_code"]]
+            if mark:
+                slot["change"] = "+".join(part for part in (slot["change"], "new_barcode") if part)
+    return truth
+
+
 def write_csv(path, rows):
     # newline="" + lineterminator="\n": same bytes on every operating system
     with path.open("w", encoding="utf-8", newline="") as f:
@@ -240,7 +254,7 @@ def empty_positions(truth):
     return {place(s) for s in truth if s["status"] == "out_of_stock"}
 
 
-def restock_summary(plan, days, products):
+def restock_summary(plan, days, products, successor):
     """What changed overnight in each store, then the shelf totals for every day."""
     by_code = {p["code"]: p for p in products}
     print("\nRESTOCKING - overnight between day 1 and day 2")
@@ -250,14 +264,17 @@ def restock_summary(plan, days, products):
         print(f"\nSTORE {store}  restock seed {seed + RESTOCK_SEED}")
         for row in (r for r in plan if r["store_id"] == store):
             change = next(s["change"] for s in day2 if place(s) == place(row))
-            if change:
-                print(f"  {change.replace('_', ' '):<17} {row['aisle']} shelf {row['shelf']} pos {row['position']}"
-                      f"  {row['code']:<14} {label(by_code[row['code']])}")
+            for part in change.split("+"):
+                if part in ("restocked", "new_out_of_stock"):
+                    print(f"  {part.replace('_', ' '):<17} {row['aisle']} shelf {row['shelf']} pos {row['position']}"
+                          f"  {row['code']:<14} {label(by_code[row['code']])}")
         before, after = empty_positions(day1), empty_positions(day2)
         refilled, emptied = before - after, after - before
         print(f"  CHECK    day 1 out of stock {len(before)} - restocked {len(refilled)} + new {len(emptied)} = "
               f"{len(before) - len(refilled) + len(emptied)}, day 2 out of stock = {len(after)}")
-        misplaced = [(place(s), s["facing"], s["actual_code"]) for s in day1 if s["status"] == "misplaced"]
+        # a misplaced unit of a new-size product is the same unit under its new barcode
+        misplaced = [(place(s), s["facing"], successor.get(s["actual_code"], s["actual_code"]))
+                     for s in day1 if s["status"] == "misplaced"]
         print(f"  CHECK    the misplaced unit did not move: "
               f"{misplaced == [(place(s), s['facing'], s['actual_code']) for s in day2 if s['status'] == 'misplaced']}")
 
@@ -274,10 +291,38 @@ def restock_summary(plan, days, products):
     print(f"  CHECK    the day 3 shelf is the day 2 shelf: {same}")
 
 
+def drift_summary(plan, days, products, successor):
+    """Where the new-size products sit, and that they carry the new barcode from the effective day."""
+    by_code = {p["code"]: p for p in products}
+    day = drift.EFFECTIVE_DAY
+    print(f"\nCATALOG V2 ON THE SHELF - from day {day} a new-size product carries its new barcode")
+    for old, new in successor.items():
+        print(f"  {old} -> {new}   {label(by_code[old])}")
+        for store in STORES:
+            row = next(r for r in plan if r["store_id"] == store and r["code"] == old)
+            held = sum(1 for s in days[day] if s["store_id"] == store and s["actual_code"] == new)
+            print(f"      {store} {row['aisle']} shelf {row['shelf']} pos {row['position']}: "
+                  f"planned {row['facings']} facings of {old}, on the shelf {held} with {new}")
+    new_codes = set(successor.values())
+    for d in sorted(days):
+        old_left = sum(1 for s in days[d] if s["actual_code"] in successor)
+        new_held = sum(1 for s in days[d] if s["actual_code"] in new_codes)
+        print(f"  day {d}   facings with an old-size barcode: {old_left}   with a new-size barcode: {new_held}")
+    before = sum(1 for s in days[day] if s["planned_code"] in successor and s["status"] == "ok")
+    print(f"  CHECK    day {day}: stocked facings planned for a new-size product = {before}, "
+          f"facings holding a new barcode in their own position = "
+          f"{sum(1 for s in days[day] if s['actual_code'] in new_codes and s['status'] == 'ok')}")
+    print(f"  CHECK    no old-size barcode is left on a shelf from day {day}: "
+          f"{all(s['actual_code'] not in successor for d in days if d >= day for s in days[d])}")
+    print(f"  CHECK    the plan still lists the old barcodes, and none of the new ones: "
+          f"{all(any(r['code'] == old for r in plan) for old in successor) and not any(r['code'] in new_codes for r in plan)}")
+
+
 def main():
     sys.stdout.reconfigure(encoding="utf-8")
     products = catalog.load()
     meta = json.loads(catalog.META.read_text(encoding="utf-8"))
+    successor = drift.successors()   # {old barcode: new barcode} for the new-size products
     plan, days = [], {day: [] for day in range(1, DAYS + 1)}
     for store, seed in STORES.items():
         store_plan = build_planogram(products, meta, store)
@@ -288,6 +333,8 @@ def main():
         days[2] += day2
         for day in range(3, DAYS + 1):   # nothing changes after day 2
             days[day] += [dict(slot, change="") for slot in day2]
+    for day in range(drift.EFFECTIVE_DAY, DAYS + 1):
+        apply_new_barcodes(days[day], successor, mark=(day == drift.EFFECTIVE_DAY))
     write_csv(PLANOGRAM, plan)
     for day, truth in days.items():
         write_csv(truth_path(day), truth)
@@ -295,7 +342,8 @@ def main():
           f"{', '.join(truth_path(day).name for day in days)} ({len(days[1])} rows each), {len(STORES)} stores")
     print("\nDAY 1 - the planted problems")
     summary(plan, days[1], products)
-    restock_summary(plan, days, products)
+    restock_summary(plan, days, products, successor)
+    drift_summary(plan, days, products, successor)
     if "--map" in sys.argv:   # full shelf map of one store on one day: python sim/planogram.py --map S002 2
         i = sys.argv.index("--map")
         store = sys.argv[i + 1]

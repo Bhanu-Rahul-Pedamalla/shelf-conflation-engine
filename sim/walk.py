@@ -20,6 +20,7 @@ import statistics
 import sys
 
 import catalog    # sim/catalog.py
+import drift      # sim/drift.py
 import planogram  # sim/planogram.py
 
 DETECTIONS = catalog.ROOT / "data" / "detections.jsonl"
@@ -141,7 +142,22 @@ def read_shelf(day):
     return rows
 
 
-def build_walk(shelf_rows, products, rng, store, badge, walk, start, speed, extra=""):
+def label_sources():
+    """Which catalog the labels on the shelf come from, per day: {day: (products, {code: version})}.
+
+    Before catalog v2 takes effect every label is a v1 label. From that day on a label is
+    the v2 one, except for a product that v2 no longer lists: its leftover stock keeps the v1 label.
+    """
+    v1, v2 = catalog.load(), drift.load_v2()
+    in_v2 = {p["code"] for p in v2}
+    later = v2 + [p for p in v1 if p["code"] not in in_v2]
+    early_version = {p["code"]: "v1" for p in v1}
+    later_version = {p["code"]: "v2" if p["code"] in in_v2 else "v1" for p in later}
+    return {day: (v1, early_version) if day < drift.EFFECTIVE_DAY else (later, later_version)
+            for day in range(1, planogram.DAYS + 1)}
+
+
+def build_walk(shelf_rows, products, rng, store, badge, walk, start, speed, extra="", versions=None):
     """Walk the aisles in shelf_rows in a serpentine: first forward, next back, and so on."""
     by_code = {p["code"]: p for p in products}
     all_aisles = sorted(planogram.AISLES.values())
@@ -224,6 +240,7 @@ def build_walk(shelf_rows, products, rng, store, badge, walk, start, speed, extr
             "true_z": round(s["true_xyz"][2], 3),
             "damage": "+".join(kinds) or "none",
             "clean_text": clean,
+            "label_catalog": versions[row["actual_code"]] if versions else "v1",   # catalog the label came from
             "extra": extra,         # "", "second_badge" or "double_in_frame"
             "duplicate_of": "",     # for a double: the id of the first box
             "times_sent": 1,        # 2 when the frame was re-sent
@@ -374,8 +391,43 @@ def report_duplicates(file_rows, pairs, base):
             print(f"  {store} re-sent frame        none in this store")
 
 
+def report_drift(base, walks):
+    """Catalog v1 against v2, as it shows up in the base detections."""
+    day_of = {key: info["day"] for key, info in walks.items()}
+    early = [(d, t) for d, t in base if day_of[(d["store_id"], d["walk_id"])] < drift.EFFECTIVE_DAY]
+    later = [(d, t) for d, t in base if day_of[(d["store_id"], d["walk_id"])] >= drift.EFFECTIVE_DAY]
+    changes = drift.load_changes()
+    print(f"\nCATALOG DRIFT, AS THE BADGE SAW IT - v1 labels before day {drift.EFFECTIVE_DAY}, v2 labels from then on")
+    for c in changes:
+        if c["change"] == "new":
+            seen = sum(1 for _, t in base if t["true_code"] == c["v2_code"])
+            print(f"  new           {c['v2_code']:<14} in catalog v2 only, on no shelf. Detections: {seen}")
+            continue
+        before = [(d, t) for d, t in early if t["true_code"] == c["v1_code"]]
+        after = [(d, t) for d, t in later if t["true_code"] == (c["v2_code"] or c["v1_code"])]
+        print(f"  {c['change'].replace('_', ' '):<13} {c['v1_code']:<14} "
+              f"{len(before)} detections before, {len(after)} from day {drift.EFFECTIVE_DAY}"
+              f"{' under barcode ' + c['v2_code'] if c['change'] == 'new_size' else ''}")
+        for when, found in (("before", before), ("after ", after)):
+            if found:
+                d, t = found[0]
+                print(f"      {when}  label: {t['clean_text']:<58} read: {d['ocr_text']}")
+    gone = {c["v1_code"] for c in changes if c["change"] == "discontinued"}
+    old_size = {c["v1_code"] for c in changes if c["change"] == "new_size"}
+    new_size = {c["v2_code"] for c in changes if c["change"] == "new_size"}
+    v1_later = [t for _, t in later if t["label_catalog"] == "v1"]
+    print(f"  CHECK    before day {drift.EFFECTIVE_DAY}: {len(early)} detections, labelled from v1: "
+          f"{sum(1 for _, t in early if t['label_catalog'] == 'v1')}")
+    print(f"  CHECK    from day {drift.EFFECTIVE_DAY}: {len(later)} detections, labelled from v2: "
+          f"{len(later) - len(v1_later)}, from v1: {len(v1_later)}, "
+          f"all of those the discontinued product: {all(t['true_code'] in gone for t in v1_later)}")
+    print(f"  CHECK    new-size products from day {drift.EFFECTIVE_DAY}: under the new barcode "
+          f"{sum(1 for _, t in later if t['true_code'] in new_size)}, under the old barcode "
+          f"{sum(1 for _, t in later if t['true_code'] in old_size)}")
+
+
 def report(shelves, file_rows, truth, walks):
-    """All stores and walks together: totals, re-scans, duplicates, damage, barcodes, samples."""
+    """All stores and walks together: totals, re-scans, duplicates, drift, damage, barcodes, samples."""
     by_truth = {t["detection_id"]: t for t in truth}
     first = {}
     for d in file_rows:
@@ -432,6 +484,7 @@ def report(shelves, file_rows, truth, walks):
                     break
 
     report_duplicates(file_rows, pairs, base)
+    report_drift(base, walks)
 
     print(f"\nDAMAGE TO THE TEXT - all {len(pairs)} distinct detections")
     for kind in ("unit", "truncate", "drop", "case"):
@@ -461,9 +514,9 @@ def read_shelves():
     return {day: read_shelf(day) for day in range(1, planogram.DAYS + 1)}
 
 
-def build_all(shelves, products):
-    """Every walk in every store, each past the shelf as it was on the walk's day,
-    then the duplicates on top.
+def build_all(shelves, labels):
+    """Every walk in every store, each past the shelf and the labels as they were on the
+    walk's day, then the duplicates on top.
 
     Returns the rows as they go into the file (re-sent rows included), one truth row
     per detection id, and each walk's details.
@@ -473,12 +526,14 @@ def build_all(shelves, products):
         blocks = []   # one (detections, truth) block per walk in this store
         for w, (walk, day, clock_time, speed) in enumerate(WALKS):
             rows = [r for r in shelves[day + 1] if r["store_id"] == store]
+            products, versions = labels[day + 1]
             badge = f"B{s * len(WALKS) + w + 1:03d}"   # S001: B001-B003, S002: B004-B006, ...
             seed = store_seed + 100 * w                # walk 1 keeps the store's seed: 1, 101, 201
             hour, minute = map(int, clock_time.split(":"))
             start = datetime.datetime.combine(DAY_ONE + datetime.timedelta(days=day),
                                               datetime.time(hour, minute), datetime.timezone.utc)
-            d, t, legs = build_walk(rows, products, random.Random(seed), store, badge, walk, start, speed)
+            d, t, legs = build_walk(rows, products, random.Random(seed), store, badge, walk, start, speed,
+                                    versions=versions)
             blocks.append((d, t))
             walks[(store, walk)] = {"badge": badge, "seed": seed, "start": start, "speed": speed,
                                     "day": day + 1, "aisle": None, "legs": legs}
@@ -493,8 +548,9 @@ def build_all(shelves, products):
         badge = f"B{len(planogram.STORES) * len(WALKS) + s + 1:03d}"   # B010, B011, B012
         seed = store_seed + 100 * len(WALKS)                            # 301, 302, 303
         start = first["start"] + datetime.timedelta(seconds=SECOND_BADGE_GAP_S)
+        products, versions = labels[first["day"]]
         d, t, legs = build_walk(rows, products, random.Random(seed), store, badge, SECOND_BADGE_WALK,
-                                start, first["speed"], extra="second_badge")
+                                start, first["speed"], extra="second_badge", versions=versions)
         blocks.append((d, t))
         walks[(store, SECOND_BADGE_WALK)] = {"badge": badge, "seed": seed, "start": start,
                                              "speed": first["speed"], "day": first["day"],
@@ -510,7 +566,7 @@ def build_all(shelves, products):
 def main():
     sys.stdout.reconfigure(encoding="utf-8")
     shelves = read_shelves()
-    file_rows, truth, walks = build_all(shelves, catalog.load())
+    file_rows, truth, walks = build_all(shelves, label_sources())
     lines = [json.dumps(d, ensure_ascii=False) for d in file_rows]
     DETECTIONS.write_text("\n".join(lines) + "\n", encoding="utf-8", newline="\n")
     planogram.write_csv(DET_TRUTH, truth)

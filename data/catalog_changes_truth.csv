@@ -1,0 +1,8 @@
+change,v1_code,v2_code,field,old_value,new_value,note
+new_size,0049000040869,0049000470116,quantity,20 fl oz,18 fl oz,"simulated: 10% smaller, new barcode per the GS1 net content rule"
+renamed,01280504,01280504,product_name,Diet Pepsi,Diet,simulated: last word dropped
+renamed,0819562022791,0819562022791,product_name,nut granola blueberry cinnamon sweet & crunchy,New nut granola blueberry cinnamon sweet & crunchy,simulated: 'New ' in front
+discontinued,0030000010402,,,,,leftover stock stays on the shelf
+new_size,0016000124790,0016000808294,quantity,10.8 oz,9.7 oz,"simulated: 10% smaller, new barcode per the GS1 net content rule"
+renamed,0044000004637,0044000004637,product_name,Honey Maid Graham Crackers,Honey Maid Graham Crackers Classic,simulated: ' Classic' at the end
+new,,04976400,,,,"real product, in the catalog but not on any shelf"
