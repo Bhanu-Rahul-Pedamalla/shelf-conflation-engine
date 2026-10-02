@@ -24,9 +24,7 @@ import planogram  # sim/planogram.py
 DETECTIONS = catalog.ROOT / "data" / "detections.jsonl"
 DET_TRUTH = catalog.ROOT / "data" / "detections_truth.csv"
 
-SEED = 1
-BADGE = "B001"
-WALK = "W001"
+WALK = "W001"   # one walk per store, by one badge. Each store's seed comes from planogram.STORES.
 WALK_START = datetime.datetime(2026, 10, 2, 9, 0, 0, tzinfo=datetime.timezone.utc)
 
 # ---- ASSUMED: store geometry, in metres. x runs along the aisle, y across the
@@ -116,17 +114,18 @@ def read_shelf():
     for row in rows:
         for field in ("shelf", "position", "facing"):
             row[field] = int(row[field])
-    rows.sort(key=lambda r: (r["aisle"], r["shelf"], r["position"], r["facing"]))
+    rows.sort(key=lambda r: (r["store_id"], r["aisle"], r["shelf"], r["position"], r["facing"]))
     slot = {}
     for row in rows:
-        i = slot.get((row["aisle"], row["shelf"]), 0)
+        shelf = (row["store_id"], row["aisle"], row["shelf"])
+        i = slot.get(shelf, 0)
         row["along"] = (i + 0.5) * FACING_WIDTH   # centre of the facing, metres from shelf start
-        slot[(row["aisle"], row["shelf"])] = i + 1
+        slot[shelf] = i + 1
     return rows
 
 
-def build_walk(shelf_rows, products, rng):
-    """Walk the aisles in a serpentine: A01 forward, A02 back, A03 forward."""
+def build_walk(shelf_rows, products, rng, store, badge):
+    """Walk one store's aisles in a serpentine: A01 forward, A02 back, A03 forward."""
     by_code = {p["code"]: p for p in products}
     seen, legs = [], []
     clock, prev_end_x = 0.0, None
@@ -173,12 +172,12 @@ def build_walk(shelf_rows, products, rng):
         barcode = row["actual_code"] if rng.random() < P_BARCODE else None
         confidence = max(0.30, round(0.95 - 0.12 * len(kinds) - rng.uniform(0, 0.05), 2))
         ts = WALK_START + datetime.timedelta(seconds=s["t"])
-        detection_id = f"D-{WALK}-{i:05d}"
+        detection_id = f"D-{store}-{WALK}-{i:05d}"
 
         detections.append({
             "detection_id": detection_id,
-            "badge_id": BADGE,
-            "store_id": planogram.STORE,
+            "badge_id": badge,
+            "store_id": store,
             "walk_id": WALK,
             "ts": ts.isoformat(timespec="milliseconds").replace("+00:00", "Z"),
             "aisle": row["aisle"],
@@ -189,10 +188,11 @@ def build_walk(shelf_rows, products, rng):
             "ocr_text": text,
             "read_barcode": barcode,
             "confidence": confidence,
-            "image_ref": f"frames/{planogram.STORE}/{BADGE}/{WALK}/{row['aisle']}-{s['frame']:04d}.jpg",
+            "image_ref": f"frames/{store}/{badge}/{WALK}/{row['aisle']}-{s['frame']:04d}.jpg",
         })
         truth.append({
             "detection_id": detection_id,
+            "store_id": store,
             "true_code": row["actual_code"],
             "aisle": row["aisle"],
             "shelf": row["shelf"],
@@ -208,18 +208,30 @@ def build_walk(shelf_rows, products, rng):
     return detections, truth, legs
 
 
-def report(shelf_rows, detections, truth, legs):
-    print("\nTHE WALK")
+def report_walk(store, badge, shelf_rows, detections, legs):
+    """One store's walk: the legs, then stocked facings against detections."""
+    print(f"\nSTORE {store}  badge {badge}  walk {WALK}")
     for leg in legs:
         print(f"  {leg['aisle']}  {leg['direction']:<7}  {leg['length_m']:.1f} m   "
               f"clock {leg['start_s']:5.1f} s -> {leg['end_s']:5.1f} s   "
               f"{leg['facings']} facings, {leg['detections']} detections")
     print(f"  first detection {detections[0]['ts']}   last {detections[-1]['ts']}")
-
     empty = sum(1 for r in shelf_rows if not r["actual_code"])
-    print(f"\nSHELF    {len(shelf_rows)} facings: {len(shelf_rows) - empty} stocked, {empty} empty")
-    print(f"BADGE    {len(detections)} detections in {len({d['image_ref'] for d in detections})} frames")
-    print(f"CHECK    stocked facings = {len(shelf_rows) - empty}, detections = {len(detections)}")
+    print(f"  SHELF    {len(shelf_rows)} facings: {len(shelf_rows) - empty} stocked, {empty} empty")
+    print(f"  BADGE    {len(detections)} detections in {len({d['image_ref'] for d in detections})} frames")
+    print(f"  CHECK    stocked facings = {len(shelf_rows) - empty}, detections = {len(detections)}")
+
+
+def report(shelf_rows, detections, truth):
+    """All stores together: totals, damage, barcodes, confidence, a sample."""
+    empty = sum(1 for r in shelf_rows if not r["actual_code"])
+    stores = sorted({d["store_id"] for d in detections})
+    print(f"\nALL STORES  {len(stores)} stores, {len({d['badge_id'] for d in detections})} badges")
+    print(f"  SHELF    {len(shelf_rows)} facings: {len(shelf_rows) - empty} stocked, {empty} empty")
+    print(f"  BADGE    {len(detections)} detections in {len({d['image_ref'] for d in detections})} frames")
+    print(f"  CHECK    stocked facings = {len(shelf_rows) - empty}, detections = {len(detections)}")
+    print(f"  CHECK    detection ids are unique: "
+          f"{len({d['detection_id'] for d in detections}) == len(detections)}")
 
     print("\nDAMAGE TO THE TEXT")
     for kind in ("unit", "truncate", "drop", "case"):
@@ -244,16 +256,32 @@ def report(shelf_rows, detections, truth, legs):
         print(f"      read : {d['ocr_text']}")
 
 
+def build_all(shelf_rows, products):
+    """One walk in every store. Returns all detections, all truth rows, and the legs per store."""
+    detections, truth, legs = [], [], {}
+    for store, seed in planogram.STORES.items():
+        badge = "B" + store[1:]   # one badge per store: B001 in S001, B002 in S002, ...
+        rows = [r for r in shelf_rows if r["store_id"] == store]
+        d, t, legs[store] = build_walk(rows, products, random.Random(seed), store, badge)
+        detections += d
+        truth += t
+    return detections, truth, legs
+
+
 def main():
     sys.stdout.reconfigure(encoding="utf-8")
     shelf_rows = read_shelf()
-    detections, truth, legs = build_walk(shelf_rows, catalog.load(), random.Random(SEED))
+    detections, truth, legs = build_all(shelf_rows, catalog.load())
     lines = [json.dumps(d, ensure_ascii=False) for d in detections]
     DETECTIONS.write_text("\n".join(lines) + "\n", encoding="utf-8", newline="\n")
     planogram.write_csv(DET_TRUTH, truth)
     print(f"Wrote {DETECTIONS.relative_to(catalog.ROOT)} ({len(detections)} rows) "
-          f"and {DET_TRUTH.relative_to(catalog.ROOT)} ({len(truth)} rows), seed {SEED}")
-    report(shelf_rows, detections, truth, legs)
+          f"and {DET_TRUTH.relative_to(catalog.ROOT)} ({len(truth)} rows), {len(legs)} stores")
+    for store in legs:
+        store_detections = [d for d in detections if d["store_id"] == store]
+        report_walk(store, store_detections[0]["badge_id"],
+                    [r for r in shelf_rows if r["store_id"] == store], store_detections, legs[store])
+    report(shelf_rows, detections, truth)
 
 
 if __name__ == "__main__":

@@ -1,6 +1,9 @@
 """Step 1.2 - the plan for the shelf, and what is really on the shelf.
 
-    python sim/planogram.py
+    python sim/planogram.py               # all stores: problems and totals
+    python sim/planogram.py --map S002    # the same, plus the full shelf map of one store
+
+Three stores share one catalog and one plan. Each store has its own planted problems.
 
 Writes two files:
   data/planogram.csv     the plan: which product belongs in which position
@@ -22,8 +25,8 @@ import catalog  # sim/catalog.py: the saved catalog snapshot
 PLANOGRAM = catalog.ROOT / "data" / "planogram.csv"
 TRUTH = catalog.ROOT / "data" / "shelf_truth.csv"
 
-SEED = 1                 # same seed, same store
-STORE = "S001"
+STORES = {"S001": 1, "S002": 2, "S003": 3}   # store -> seed for its planted problems.
+                                             # Same seed, same problems. One plan for all stores.
 AISLES = {"sodas": "A01", "breakfast-cereals": "A02", "snacks": "A03"}
 SHELVES = 4              # per aisle. Shelf 1 is the bottom shelf.
 OUT_OF_STOCK = (2, 3)    # positions left empty, per aisle
@@ -37,7 +40,7 @@ def facings_by_scans(items):
     return {p["code"]: 3 if i < n / 3 else 2 if i < 2 * n / 3 else 1 for i, p in enumerate(ranked)}
 
 
-def build_planogram(products, meta):
+def build_planogram(products, meta, store):
     """One row per position. Same brand side by side: sorted by brand, then name."""
     by_code = {p["code"]: p for p in products}
     plan = []
@@ -50,7 +53,7 @@ def build_planogram(products, meta):
         per_shelf = math.ceil(len(items) / SHELVES)
         for i, p in enumerate(items):
             plan.append({
-                "store_id": STORE,
+                "store_id": store,
                 "aisle": AISLES[info["category"]],
                 "category": info["category"],
                 "shelf": i // per_shelf + 1,
@@ -155,17 +158,71 @@ def report(plan, truth, products):
           f"plan facings = {sum(row['facings'] for row in plan)}")
 
 
+def problems(truth):
+    """The planted problems of one store, as a set that can be compared with another store's."""
+    return {(place(s), s["facing"], s["status"], s["actual_code"]) for s in truth if s["status"] != "ok"}
+
+
+def summary(plan, truth, products):
+    """Every store's planted problems, then the totals. Use --map S001 for a full shelf map."""
+    by_code = {p["code"]: p for p in products}
+    home_aisle = {row["code"]: row["aisle"] for row in plan}
+    total = {"ok": 0, "out_of_stock": 0, "misplaced": 0}
+
+    for store, seed in STORES.items():
+        store_plan = [row for row in plan if row["store_id"] == store]
+        store_truth = [s for s in truth if s["store_id"] == store]
+        print(f"\nSTORE {store}  seed {seed}")
+        for row in store_plan:
+            slots = [s for s in store_truth if place(s) == place(row)]
+            where = f"{row['aisle']} shelf {row['shelf']} pos {row['position']}"
+            if slots[0]["status"] == "out_of_stock":
+                print(f"  out of stock  {where}  {row['code']:<14} {label(by_code[row['code']])}")
+            for s in slots:
+                if s["status"] == "misplaced":
+                    stray = s["actual_code"]
+                    print(f"  misplaced     {where} facing {s['facing']} holds {stray} "
+                          f"from {home_aisle[stray]}: {label(by_code[stray])}")
+        counts = {status: sum(1 for s in store_truth if s["status"] == status) for status in total}
+        facings = sum(row["facings"] for row in store_plan)
+        empty_positions = len({place(s) for s in store_truth if s["status"] == "out_of_stock"})
+        print(f"  PLAN     {len(store_plan)} positions, {facings} facings")
+        print(f"  REALITY  {counts['ok']} as planned, {counts['out_of_stock']} empty "
+              f"({empty_positions} positions out of stock), {counts['misplaced']} misplaced")
+        print(f"  CHECK    {counts['ok']} + {counts['out_of_stock']} + {counts['misplaced']} = "
+              f"{sum(counts.values())}, plan facings = {facings}")
+        for status in total:
+            total[status] += counts[status]
+
+    facings = sum(row["facings"] for row in plan)
+    sets = [problems([s for s in truth if s["store_id"] == store]) for store in STORES]
+    all_differ = all(a != b for i, a in enumerate(sets) for b in sets[i + 1:])
+    print(f"\nALL STORES  {len(STORES)} stores, one catalog of {len(products)} products")
+    print(f"  PLAN     {len(plan)} positions, {facings} facings")
+    print(f"  REALITY  {total['ok']} as planned, {total['out_of_stock']} empty, {total['misplaced']} misplaced")
+    print(f"  CHECK    as planned + empty + misplaced = {sum(total.values())}, plan facings = {facings}")
+    print(f"  CHECK    every store has a different set of problems: {all_differ}")
+
+
 def main():
     sys.stdout.reconfigure(encoding="utf-8")
     products = catalog.load()
     meta = json.loads(catalog.META.read_text(encoding="utf-8"))
-    plan = build_planogram(products, meta)
-    truth = build_truth(plan, random.Random(SEED))
+    plan, truth = [], []
+    for store, seed in STORES.items():
+        store_plan = build_planogram(products, meta, store)
+        plan += store_plan
+        truth += build_truth(store_plan, random.Random(seed))
     write_csv(PLANOGRAM, plan)
     write_csv(TRUTH, truth)
     print(f"Wrote {PLANOGRAM.relative_to(catalog.ROOT)} ({len(plan)} rows) "
-          f"and {TRUTH.relative_to(catalog.ROOT)} ({len(truth)} rows), seed {SEED}")
-    report(plan, truth, products)
+          f"and {TRUTH.relative_to(catalog.ROOT)} ({len(truth)} rows), {len(STORES)} stores")
+    summary(plan, truth, products)
+    if "--map" in sys.argv:   # full shelf map of one store: python sim/planogram.py --map S002
+        store = sys.argv[sys.argv.index("--map") + 1]
+        print(f"\nFULL MAP OF {store}")
+        report([row for row in plan if row["store_id"] == store],
+               [s for s in truth if s["store_id"] == store], products)
 
 
 if __name__ == "__main__":
