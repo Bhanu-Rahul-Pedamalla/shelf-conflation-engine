@@ -92,9 +92,10 @@ def pull_all():
 def save(products, meta):
     RAW.parent.mkdir(parents=True, exist_ok=True)
     lines = [json.dumps(p, ensure_ascii=False) for p in products]
-    RAW.write_text("\n".join(lines) + "\n", encoding="utf-8")
+    # newline="\n": same bytes on Windows, Mac and Linux, so the checksum holds everywhere
+    RAW.write_text("\n".join(lines) + "\n", encoding="utf-8", newline="\n")
     meta["sha256"] = hashlib.sha256(RAW.read_bytes()).hexdigest()
-    META.write_text(json.dumps(meta, indent=2) + "\n", encoding="utf-8")
+    META.write_text(json.dumps(meta, indent=2) + "\n", encoding="utf-8", newline="\n")
 
 
 def load():

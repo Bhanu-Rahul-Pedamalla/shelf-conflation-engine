@@ -1,0 +1,2 @@
+# Data files keep Unix line endings on every machine, so their checksums never change.
+data/** text eol=lf
