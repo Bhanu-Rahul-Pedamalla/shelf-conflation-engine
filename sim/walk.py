@@ -3,7 +3,7 @@
     python sim/walk.py           # all walks: one line each, totals, re-scans
     python sim/walk.py --legs    # the same, plus every walk aisle by aisle
 
-Reads   data/shelf_truth.csv        what is really on the shelf
+Reads   data/shelf_truth_dayN.csv   what is really on the shelf on each day
 Writes  data/detections.jsonl       what the badge reports. This is the pipeline's input.
         data/detections_truth.csv   the right answer for each detection.
                                     The pipeline never reads this file.
@@ -27,7 +27,8 @@ DET_TRUTH = catalog.ROOT / "data" / "detections_truth.csv"
 
 # ---- ASSUMED: who walks, when, and how fast. Every store gets every walk in this list.
 # ---- Each walk in a store is a different associate with their own badge.
-# ---- The shelf does not change between days, so later walks re-scan the same facings.
+# ---- Each walk goes past the shelf as it was on that day (shelf_truth_day1/2/3.csv),
+# ---- so later walks re-scan the same facings and also see what was restocked or ran out.
 DAY_ONE = datetime.date(2026, 10, 2)
 WALKS = [
     # walk,  day, start (UTC), speed in metres per second
@@ -115,9 +116,9 @@ def damage(text, rng):
     return text, kinds
 
 
-def read_shelf():
-    """The real shelf, with each facing's distance along its shelf added."""
-    with planogram.TRUTH.open(encoding="utf-8") as f:
+def read_shelf(day):
+    """The real shelf on one day, with each facing's distance along its shelf added."""
+    with planogram.truth_path(day).open(encoding="utf-8") as f:
         rows = list(csv.DictReader(f))
     for row in rows:
         for field in ("shelf", "position", "facing"):
@@ -236,56 +237,75 @@ def facing_of(t):
     return (t["store_id"], t["aisle"], t["shelf"], t["position"], t["facing"])
 
 
-def report_walks(shelf_rows, detections, walks):
-    """One line per walk: who, when, how fast, and stocked facings against detections."""
+def report_walks(shelves, detections, walks):
+    """One line per walk: who, when, how fast, and that day's stocked facings against detections."""
     print("\nTHE WALKS")
-    print("  store  walk  badge  start (UTC)       speed    duration  frames  CHECK stocked = detections")
+    print("  store  walk  badge  start (UTC)       shelf  speed    duration  frames  CHECK stocked = detections")
     for (store, walk), info in walks.items():
         mine = [d for d in detections if d["store_id"] == store and d["walk_id"] == walk]
-        stocked = sum(1 for r in shelf_rows if r["store_id"] == store and r["actual_code"])
-        print(f"  {store}   {walk}  {info['badge']}   {info['start']:%Y-%m-%d %H:%M}  {info['speed']:.1f} m/s"
-              f"  {info['legs'][-1]['end_s']:5.1f} s   {len({d['image_ref'] for d in mine}):>5}"
-              f"   {stocked} = {len(mine)}")
+        stocked = sum(1 for r in shelves[info["day"]] if r["store_id"] == store and r["actual_code"])
+        print(f"  {store}   {walk}  {info['badge']}   {info['start']:%Y-%m-%d %H:%M}  day {info['day']}"
+              f"  {info['speed']:.1f} m/s  {info['legs'][-1]['end_s']:5.1f} s   "
+              f"{len({d['image_ref'] for d in mine}):>5}   {stocked} = {len(mine)}")
 
 
-def report(shelf_rows, detections, truth):
+def print_reads(facing, reads, label):
+    print(f"  {facing[0]} {facing[1]} shelf {facing[2]} pos {facing[3]} facing {facing[4]}   {label}")
+    for d, _ in reads:
+        print(f"      {d['walk_id']} {d['ts'][:16]}  conf {d['confidence']:.2f}"
+              f"  barcode {d['read_barcode'] or '-':<14} read: {d['ocr_text']}")
+
+
+def report(shelves, detections, truth, walks):
     """All stores and walks together: totals, re-scans, damage, barcodes, confidence, samples."""
-    empty = sum(1 for r in shelf_rows if not r["actual_code"])
-    stocked = len(shelf_rows) - empty
     stores = sorted({d["store_id"] for d in detections})
     print(f"\nALL STORES  {len(stores)} stores, {len(WALKS)} walks each, "
           f"{len({d['badge_id'] for d in detections})} badges")
-    print(f"  SHELF    {len(shelf_rows)} facings: {stocked} stocked, {empty} empty")
+    for day, rows in shelves.items():
+        empty = sum(1 for r in rows if not r["actual_code"])
+        print(f"  SHELF    day {day}: {len(rows)} facings, {len(rows) - empty} stocked, {empty} empty")
+    expected = sum(1 for (store, _), info in walks.items()
+                   for r in shelves[info["day"]] if r["store_id"] == store and r["actual_code"])
     print(f"  BADGE    {len(detections)} detections in {len({d['image_ref'] for d in detections})} frames")
-    print(f"  CHECK    stocked facings x walks = {stocked} x {len(WALKS)} = {stocked * len(WALKS)}, "
-          f"detections = {len(detections)}")
+    print(f"  CHECK    stocked facings on each walk's day, summed = {expected}, detections = {len(detections)}")
     print(f"  CHECK    detection ids are unique: "
           f"{len({d['detection_id'] for d in detections}) == len(detections)}")
 
-    # Re-scans: the same facing, seen once per walk.
+    # Re-scans: a facing is seen once by every walk on a day when it was stocked.
     reads = {}
     for d, t in zip(detections, truth):
         reads.setdefault(facing_of(t), []).append((d, t))
-    scans = sorted({len(v) for v in reads.values()})
-    print(f"\nRE-SCANS  {len(reads)} facings scanned, times each: {scans}")
-    print(f"  CHECK    every stocked facing is scanned exactly {len(WALKS)} times: "
-          f"{len(reads) == stocked and scans == [len(WALKS)]}")
+    stocked_days = {}
+    for (store, _), info in walks.items():
+        for r in shelves[info["day"]]:
+            if r["store_id"] == store and r["actual_code"]:
+                stocked_days[facing_of(r)] = stocked_days.get(facing_of(r), 0) + 1
+    print(f"\nRE-SCANS  {len(reads)} facings scanned at least once")
+    for k in range(1, len(WALKS) + 1):
+        print(f"  scanned {k} time{'s' if k > 1 else ' '}: {sum(1 for v in reads.values() if len(v) == k)}")
+    print(f"  CHECK    every facing is scanned once for each walk that found it stocked: "
+          f"{ {f: len(v) for f, v in reads.items()} == stocked_days}")
     for k in range(1, len(WALKS) + 1):
         n = sum(1 for v in reads.values() if len({d['ocr_text'] for d, _ in v}) == k)
         print(f"  facings read as {k} different text{'s' if k > 1 else ''}: {n}")
     with_barcode = sum(1 for v in reads.values() if any(d["read_barcode"] for d, _ in v))
     print(f"  facings with a barcode in at least one walk: {with_barcode} of {len(reads)}")
 
-    print("\nONE FACING, EVERY READ - first facing in each store whose reads all differ")
+    print("\nONE FACING, EVERY READ - first facing in each store scanned by every walk, all reads different")
     for store in stores:
         for facing, v in reads.items():
-            if facing[0] == store and len({d["ocr_text"] for d, _ in v}) == len(v):
-                print(f"  {store} {facing[1]} shelf {facing[2]} pos {facing[3]} facing {facing[4]}"
-                      f"   label: {v[0][1]['clean_text']}")
-                for d, _ in v:
-                    print(f"      {d['walk_id']} {d['ts'][:16]}  conf {d['confidence']:.2f}"
-                          f"  barcode {d['read_barcode'] or '-':<14} read: {d['ocr_text']}")
+            if facing[0] == store and len(v) == len(WALKS) and len({d["ocr_text"] for d, _ in v}) == len(v):
+                print_reads(facing, v, f"label: {v[0][1]['clean_text']}")
                 break
+
+    print("\nA CHANGED SHELF, AS THE BADGE SAW IT - first restocked and first newly empty facing per store")
+    change = {facing_of(r): r["change"] for rows in shelves.values() for r in rows if r["change"]}
+    for store in stores:
+        for wanted, note in (("restocked", "empty on day 1, restocked"), ("new_out_of_stock", "stocked on day 1, then empty")):
+            for facing, v in reads.items():
+                if facing[0] == store and change.get(facing) == wanted:
+                    print_reads(facing, v, f"{note}   label: {v[0][1]['clean_text']}")
+                    break
 
     print("\nDAMAGE TO THE TEXT")
     for kind in ("unit", "truncate", "drop", "case"):
@@ -310,12 +330,20 @@ def report(shelf_rows, detections, truth):
         print(f"      read : {d['ocr_text']}")
 
 
-def build_all(shelf_rows, products):
-    """Every walk in every store. Returns all detections, all truth rows, and each walk's details."""
+def read_shelves():
+    """The real shelf on every day: {1: rows, 2: rows, 3: rows}."""
+    return {day: read_shelf(day) for day in range(1, planogram.DAYS + 1)}
+
+
+def build_all(shelves, products):
+    """Every walk in every store, each past the shelf as it was on the walk's day.
+
+    Returns all detections, all truth rows, and each walk's details.
+    """
     detections, truth, walks = [], [], {}
     for s, (store, store_seed) in enumerate(planogram.STORES.items()):
-        rows = [r for r in shelf_rows if r["store_id"] == store]
         for w, (walk, day, clock_time, speed) in enumerate(WALKS):
+            rows = [r for r in shelves[day + 1] if r["store_id"] == store]
             badge = f"B{s * len(WALKS) + w + 1:03d}"   # S001: B001-B003, S002: B004-B006, ...
             seed = store_seed + 100 * w                # walk 1 keeps the store's seed: 1, 101, 201
             hour, minute = map(int, clock_time.split(":"))
@@ -324,28 +352,29 @@ def build_all(shelf_rows, products):
             d, t, legs = build_walk(rows, products, random.Random(seed), store, badge, walk, start, speed)
             detections += d
             truth += t
-            walks[(store, walk)] = {"badge": badge, "seed": seed, "start": start, "speed": speed, "legs": legs}
+            walks[(store, walk)] = {"badge": badge, "seed": seed, "start": start, "speed": speed,
+                                    "day": day + 1, "legs": legs}
     return detections, truth, walks
 
 
 def main():
     sys.stdout.reconfigure(encoding="utf-8")
-    shelf_rows = read_shelf()
-    detections, truth, walks = build_all(shelf_rows, catalog.load())
+    shelves = read_shelves()
+    detections, truth, walks = build_all(shelves, catalog.load())
     lines = [json.dumps(d, ensure_ascii=False) for d in detections]
     DETECTIONS.write_text("\n".join(lines) + "\n", encoding="utf-8", newline="\n")
     planogram.write_csv(DET_TRUTH, truth)
     print(f"Wrote {DETECTIONS.relative_to(catalog.ROOT)} ({len(detections)} rows) "
           f"and {DET_TRUTH.relative_to(catalog.ROOT)} ({len(truth)} rows), "
           f"{len(planogram.STORES)} stores, {len(walks)} walks")
-    report_walks(shelf_rows, detections, walks)
+    report_walks(shelves, detections, walks)
     if "--legs" in sys.argv:   # every walk aisle by aisle
         for (store, walk), info in walks.items():
             report_walk(store, info["badge"], walk,
-                        [r for r in shelf_rows if r["store_id"] == store],
+                        [r for r in shelves[info["day"]] if r["store_id"] == store],
                         [d for d in detections if d["store_id"] == store and d["walk_id"] == walk],
                         info["legs"])
-    report(shelf_rows, detections, truth)
+    report(shelves, detections, truth, walks)
 
 
 if __name__ == "__main__":

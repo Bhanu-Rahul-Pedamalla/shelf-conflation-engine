@@ -1,13 +1,16 @@
 """Step 1.2 - the plan for the shelf, and what is really on the shelf.
 
-    python sim/planogram.py               # all stores: problems and totals
-    python sim/planogram.py --map S002    # the same, plus the full shelf map of one store
+    python sim/planogram.py                 # all stores: problems, restocking, totals
+    python sim/planogram.py --map S002 2    # the same, plus the full shelf map of one store on one day
 
 Three stores share one catalog and one plan. Each store has its own planted problems.
+Overnight between day 1 and day 2 some empty positions are refilled and new ones run out.
 
-Writes two files:
-  data/planogram.csv     the plan: which product belongs in which position
-  data/shelf_truth.csv   the real shelf: the plan, plus planted problems
+Writes:
+  data/planogram.csv           the plan: which product belongs in which position
+  data/shelf_truth_day1.csv    the real shelf on day 1: the plan, plus planted problems
+  data/shelf_truth_day2.csv    the real shelf on day 2, after restocking
+  data/shelf_truth_day3.csv    the real shelf on day 3, same as day 2
 
 The plan has no problems in it. The problems live only in shelf_truth, because a
 problem is a difference between the plan and the shelf.
@@ -23,7 +26,12 @@ import sys
 import catalog  # sim/catalog.py: the saved catalog snapshot
 
 PLANOGRAM = catalog.ROOT / "data" / "planogram.csv"
-TRUTH = catalog.ROOT / "data" / "shelf_truth.csv"
+DAYS = 3                 # the shelf is recorded once per day
+
+
+def truth_path(day):
+    return catalog.ROOT / "data" / f"shelf_truth_day{day}.csv"
+
 
 STORES = {"S001": 1, "S002": 2, "S003": 3}   # store -> seed for its planted problems.
                                              # Same seed, same problems. One plan for all stores.
@@ -31,6 +39,11 @@ AISLES = {"sodas": "A01", "breakfast-cereals": "A02", "snacks": "A03"}
 SHELVES = 4              # per aisle. Shelf 1 is the bottom shelf.
 OUT_OF_STOCK = (2, 3)    # positions left empty, per aisle
 MISPLACED = (1, 2)       # single units sitting in the wrong aisle, whole store
+
+# What changes overnight between day 1 and day 2. Day 3 is the same shelf as day 2.
+RESTOCK_SHARE = 0.5          # this share of the out-of-stock positions is refilled, rounded down
+NEW_OUT_OF_STOCK = (1, 2)    # stocked positions that newly run out, per store
+RESTOCK_SEED = 1000          # a store's restock seed = its seed + 1000, so day 1 is not disturbed
 
 
 def facings_by_scans(items):
@@ -108,6 +121,25 @@ def build_truth(plan, rng):
             if place(slot) == place(host) and slot["facing"] == host["facings"]:
                 slot["actual_code"] = stray["code"]
                 slot["status"] = "misplaced"
+    return truth
+
+
+def restock(day1, rng):
+    """One store's shelf on day 2: day 1, with some empty positions refilled and new ones emptied.
+
+    The misplaced unit stays where it is.
+    """
+    truth = [dict(slot, change="") for slot in day1]
+    empty = sorted({place(s) for s in truth if s["status"] == "out_of_stock"})
+    refilled = set(rng.sample(empty, int(len(empty) * RESTOCK_SHARE)))
+    hosting_a_stray = {place(s) for s in truth if s["status"] == "misplaced"}
+    stocked = sorted({place(s) for s in truth} - set(empty) - hosting_a_stray)
+    emptied = set(rng.sample(stocked, rng.randint(*NEW_OUT_OF_STOCK)))
+    for slot in truth:
+        if place(slot) in refilled:
+            slot.update(actual_code=slot["planned_code"], status="ok", change="restocked")
+        elif place(slot) in emptied:
+            slot.update(actual_code="", status="out_of_stock", change="new_out_of_stock")
     return truth
 
 
@@ -204,25 +236,73 @@ def summary(plan, truth, products):
     print(f"  CHECK    every store has a different set of problems: {all_differ}")
 
 
+def empty_positions(truth):
+    return {place(s) for s in truth if s["status"] == "out_of_stock"}
+
+
+def restock_summary(plan, days, products):
+    """What changed overnight in each store, then the shelf totals for every day."""
+    by_code = {p["code"]: p for p in products}
+    print("\nRESTOCKING - overnight between day 1 and day 2")
+    for store, seed in STORES.items():
+        day1 = [s for s in days[1] if s["store_id"] == store]
+        day2 = [s for s in days[2] if s["store_id"] == store]
+        print(f"\nSTORE {store}  restock seed {seed + RESTOCK_SEED}")
+        for row in (r for r in plan if r["store_id"] == store):
+            change = next(s["change"] for s in day2 if place(s) == place(row))
+            if change:
+                print(f"  {change.replace('_', ' '):<17} {row['aisle']} shelf {row['shelf']} pos {row['position']}"
+                      f"  {row['code']:<14} {label(by_code[row['code']])}")
+        before, after = empty_positions(day1), empty_positions(day2)
+        refilled, emptied = before - after, after - before
+        print(f"  CHECK    day 1 out of stock {len(before)} - restocked {len(refilled)} + new {len(emptied)} = "
+              f"{len(before) - len(refilled) + len(emptied)}, day 2 out of stock = {len(after)}")
+        misplaced = [(place(s), s["facing"], s["actual_code"]) for s in day1 if s["status"] == "misplaced"]
+        print(f"  CHECK    the misplaced unit did not move: "
+              f"{misplaced == [(place(s), s['facing'], s['actual_code']) for s in day2 if s['status'] == 'misplaced']}")
+
+    facings = sum(row["facings"] for row in plan)
+    print(f"\nALL STORES, DAY BY DAY  plan facings = {facings}")
+    for day in sorted(days):
+        counts = {status: sum(1 for s in days[day] if s["status"] == status)
+                  for status in ("ok", "out_of_stock", "misplaced")}
+        print(f"  day {day}   {counts['ok']} as planned, {counts['out_of_stock']} empty "
+              f"({len({(s['store_id'],) + place(s) for s in days[day] if s['status'] == 'out_of_stock'})} positions), "
+              f"{counts['misplaced']} misplaced   CHECK sum = {sum(counts.values())}")
+    same = [{k: v for k, v in s.items() if k != "change"} for s in days[2]] == \
+           [{k: v for k, v in s.items() if k != "change"} for s in days[3]]
+    print(f"  CHECK    the day 3 shelf is the day 2 shelf: {same}")
+
+
 def main():
     sys.stdout.reconfigure(encoding="utf-8")
     products = catalog.load()
     meta = json.loads(catalog.META.read_text(encoding="utf-8"))
-    plan, truth = [], []
+    plan, days = [], {day: [] for day in range(1, DAYS + 1)}
     for store, seed in STORES.items():
         store_plan = build_planogram(products, meta, store)
         plan += store_plan
-        truth += build_truth(store_plan, random.Random(seed))
+        day1 = [dict(slot, change="") for slot in build_truth(store_plan, random.Random(seed))]
+        day2 = restock(day1, random.Random(seed + RESTOCK_SEED))
+        days[1] += day1
+        days[2] += day2
+        for day in range(3, DAYS + 1):   # nothing changes after day 2
+            days[day] += [dict(slot, change="") for slot in day2]
     write_csv(PLANOGRAM, plan)
-    write_csv(TRUTH, truth)
-    print(f"Wrote {PLANOGRAM.relative_to(catalog.ROOT)} ({len(plan)} rows) "
-          f"and {TRUTH.relative_to(catalog.ROOT)} ({len(truth)} rows), {len(STORES)} stores")
-    summary(plan, truth, products)
-    if "--map" in sys.argv:   # full shelf map of one store: python sim/planogram.py --map S002
-        store = sys.argv[sys.argv.index("--map") + 1]
-        print(f"\nFULL MAP OF {store}")
+    for day, truth in days.items():
+        write_csv(truth_path(day), truth)
+    print(f"Wrote {PLANOGRAM.relative_to(catalog.ROOT)} ({len(plan)} rows) and "
+          f"{', '.join(truth_path(day).name for day in days)} ({len(days[1])} rows each), {len(STORES)} stores")
+    print("\nDAY 1 - the planted problems")
+    summary(plan, days[1], products)
+    restock_summary(plan, days, products)
+    if "--map" in sys.argv:   # full shelf map of one store on one day: python sim/planogram.py --map S002 2
+        i = sys.argv.index("--map")
+        store = sys.argv[i + 1]
+        day = int(sys.argv[i + 2]) if len(sys.argv) > i + 2 else 1
+        print(f"\nFULL MAP OF {store}, DAY {day}")
         report([row for row in plan if row["store_id"] == store],
-               [s for s in truth if s["store_id"] == store], products)
+               [s for s in days[day] if s["store_id"] == store], products)
 
 
 if __name__ == "__main__":
