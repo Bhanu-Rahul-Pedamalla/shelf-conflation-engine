@@ -1,0 +1,110 @@
+{
+  "source": "Open Food Facts search API v2",
+  "licence": "ODbL",
+  "url": "https://world.openfoodfacts.org/api/v2/search",
+  "pulled_at_utc": "2026-10-02T18:32:33+00:00",
+  "rows": 50,
+  "categories": [
+    {
+      "category": "sodas",
+      "wanted": 20,
+      "params": {
+        "countries_tags_en": "united-states",
+        "fields": "code,product_name,brands,quantity,categories_tags,countries_tags,image_front_url,unique_scans_n,last_modified_t",
+        "page": 1,
+        "categories_tags_en": "sodas",
+        "page_size": 30
+      },
+      "attempts": 1,
+      "matching_records_reported": 6383,
+      "codes": [
+        "04965802",
+        "0049000042566",
+        "0070847012474",
+        "0709586514856",
+        "04913207",
+        "04904403",
+        "01208500",
+        "01201303",
+        "0049000040869",
+        "0813694026672",
+        "0850027702896",
+        "04904500",
+        "0049000002485",
+        "0078000082401",
+        "0049000061017",
+        "01212901",
+        "0724190812877",
+        "01280504",
+        "07811403",
+        "0611269818994"
+      ],
+      "already_taken_by_earlier_category": []
+    },
+    {
+      "category": "breakfast-cereals",
+      "wanted": 15,
+      "params": {
+        "countries_tags_en": "united-states",
+        "fields": "code,product_name,brands,quantity,categories_tags,countries_tags,image_front_url,unique_scans_n,last_modified_t",
+        "page": 1,
+        "categories_tags_en": "breakfast-cereals",
+        "page_size": 25
+      },
+      "attempts": 1,
+      "matching_records_reported": 3835,
+      "codes": [
+        "0058449770565",
+        "0016000264694",
+        "0884912004710",
+        "0096619194261",
+        "0016000275263",
+        "0016000170032",
+        "0819562022791",
+        "0058449770206",
+        "0675625371189",
+        "0030000010402",
+        "0855140002175",
+        "0016000147652",
+        "0016000435094",
+        "0016000124790",
+        "0030000012000"
+      ],
+      "already_taken_by_earlier_category": []
+    },
+    {
+      "category": "snacks",
+      "wanted": 15,
+      "params": {
+        "countries_tags_en": "united-states",
+        "fields": "code,product_name,brands,quantity,categories_tags,countries_tags,image_front_url,unique_scans_n,last_modified_t",
+        "page": 1,
+        "categories_tags_en": "snacks",
+        "page_size": 25
+      },
+      "attempts": 2,
+      "matching_records_reported": 97439,
+      "codes": [
+        "0044000050986",
+        "0857777004232",
+        "0857777004195",
+        "0731216103987",
+        "0047495112900",
+        "0044000031930",
+        "0028400147408",
+        "0044000004637",
+        "0096619656493",
+        "0180999001001",
+        "0044000028282",
+        "0850251004001",
+        "0850036699187",
+        "0028400147392",
+        "0856069005957"
+      ],
+      "already_taken_by_earlier_category": [
+        "0016000264694"
+      ]
+    }
+  ],
+  "sha256": "d2fd32d05547df6e6151565966f3789b174afb72f862c1ef86c98f2fe889babe"
+}
