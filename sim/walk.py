@@ -37,6 +37,14 @@ WALKS = [
     ("W003", 2, "11:15", 1.1),
 ]
 
+# ---- ASSUMED: three ways the same facing reaches the pipeline more than once.
+P_DOUBLE = 0.05            # a detection is reported twice in the same frame: second box, new id
+DOUBLE_BOX_SHIFT = 12      # the second box sits up to this many pixels away from the first
+SECOND_BADGE_WALK = "W004" # a second associate walks one aisle of each store on day 1 ...
+SECOND_BADGE_GAP_S = 120   # ... starting this many seconds after walk W001
+P_RESEND_FRAME = 0.03      # a frame's detections are sent again, byte for byte, same ids
+DUPLICATE_SEED = 5000      # a store's duplicate seed = its seed + 5000, so nothing above is disturbed
+
 # ---- ASSUMED: store geometry, in metres. x runs along the aisle, y across the
 # ---- store from aisle to aisle, z up from the floor.
 AISLE_X0 = 2.0          # every aisle starts 2 m from the store's front wall
@@ -133,14 +141,16 @@ def read_shelf(day):
     return rows
 
 
-def build_walk(shelf_rows, products, rng, store, badge, walk, start, speed):
-    """Walk one store's aisles in a serpentine: A01 forward, A02 back, A03 forward."""
+def build_walk(shelf_rows, products, rng, store, badge, walk, start, speed, extra=""):
+    """Walk the aisles in shelf_rows in a serpentine: first forward, next back, and so on."""
     by_code = {p["code"]: p for p in products}
+    all_aisles = sorted(planogram.AISLES.values())
     seen, legs = [], []
     clock, prev_end_x = 0.0, None
 
     for n, aisle in enumerate(sorted({r["aisle"] for r in shelf_rows})):
         rows = [r for r in shelf_rows if r["aisle"] == aisle]
+        aisle_y = AISLE_Y0 + all_aisles.index(aisle) * AISLE_PITCH   # where this aisle is in the store
         length = max(r["along"] for r in rows) + FACING_WIDTH / 2
         forward = n % 2 == 0
         start_x = AISLE_X0 if forward else AISLE_X0 + length
@@ -158,7 +168,7 @@ def build_walk(shelf_rows, products, rng, store, badge, walk, start, speed):
                 "t": aisle_start + frame / FRAME_HZ,
                 "frame": frame,
                 "camera_x": start_x + (1 if forward else -1) * speed * frame / FRAME_HZ,
-                "true_xyz": (AISLE_X0 + row["along"], AISLE_Y0 + n * AISLE_PITCH, SHELF_Z[row["shelf"]]),
+                "true_xyz": (AISLE_X0 + row["along"], aisle_y, SHELF_Z[row["shelf"]]),
             })
 
         clock = aisle_start + length / speed
@@ -214,8 +224,56 @@ def build_walk(shelf_rows, products, rng, store, badge, walk, start, speed):
             "true_z": round(s["true_xyz"][2], 3),
             "damage": "+".join(kinds) or "none",
             "clean_text": clean,
+            "extra": extra,         # "", "second_badge" or "double_in_frame"
+            "duplicate_of": "",     # for a double: the id of the first box
+            "times_sent": 1,        # 2 when the frame was re-sent
         })
     return detections, truth, legs
+
+
+def add_doubles(detections, truth, rng):
+    """Some detections are reported twice in the same frame: a second, overlapping box.
+
+    The second box has a new id, numbered after the walk's last detection, and sits
+    right after the first in the file. Its text is read again, so it can differ.
+    """
+    out_d, out_t = [], []
+    prefix = detections[0]["detection_id"].rsplit("-", 1)[0]
+    number = len(detections)
+    for d, t in zip(detections, truth):
+        out_d.append(d)
+        out_t.append(t)
+        if rng.random() < P_DOUBLE:
+            number += 1
+            x, y, z = (round(v + rng.gauss(0, POSITION_JITTER), 3) for v in (t["true_x"], t["true_y"], t["true_z"]))
+            text, kinds = damage(t["clean_text"], rng)
+            out_d.append({
+                **d,
+                "detection_id": f"{prefix}-{number:05d}",
+                "position_x": round(x - AISLE_X0, 3),
+                "x": x, "y": y, "z": z,
+                "bbox": [d["bbox"][0] + rng.randint(-DOUBLE_BOX_SHIFT, DOUBLE_BOX_SHIFT),
+                         d["bbox"][1] + rng.randint(-DOUBLE_BOX_SHIFT, DOUBLE_BOX_SHIFT),
+                         d["bbox"][2], d["bbox"][3]],
+                "ocr_text": text,
+                "read_barcode": t["true_code"] if rng.random() < P_BARCODE else None,
+                "confidence": max(0.30, round(0.95 - 0.12 * len(kinds) - rng.uniform(0, 0.05), 2)),
+            })
+            out_t.append({**t, "detection_id": f"{prefix}-{number:05d}", "damage": "+".join(kinds) or "none",
+                          "extra": "double_in_frame", "duplicate_of": d["detection_id"]})
+    return out_d, out_t
+
+
+def add_resends(detections, truth, rng):
+    """Some frames are sent twice. The copies arrive after the walk's other rows, unchanged."""
+    frames = list(dict.fromkeys(d["image_ref"] for d in detections))
+    resent = {frame for frame in frames if rng.random() < P_RESEND_FRAME}
+    copies = [dict(d) for d in detections if d["image_ref"] in resent]
+    ids = {d["detection_id"] for d in copies}
+    for t in truth:
+        if t["detection_id"] in ids:
+            t["times_sent"] = 2
+    return detections + copies
 
 
 def report_walk(store, badge, walk, shelf_rows, detections, legs):
@@ -237,16 +295,22 @@ def facing_of(t):
     return (t["store_id"], t["aisle"], t["shelf"], t["position"], t["facing"])
 
 
-def report_walks(shelves, detections, walks):
-    """One line per walk: who, when, how fast, and that day's stocked facings against detections."""
+def report_walks(shelves, detections, truth, walks):
+    """One line per walk: who, when, how fast, and that day's stocked facings against detections.
+
+    Doubles and re-sent rows are left out of the count here. They are counted under DUPLICATES.
+    """
+    doubles = {t["detection_id"] for t in truth if t["extra"] == "double_in_frame"}
     print("\nTHE WALKS")
-    print("  store  walk  badge  start (UTC)       shelf  speed    duration  frames  CHECK stocked = detections")
+    print("  store  walk  badge  start (UTC)       shelf  aisles  speed    duration  frames  CHECK stocked = detections")
     for (store, walk), info in walks.items():
-        mine = [d for d in detections if d["store_id"] == store and d["walk_id"] == walk]
-        stocked = sum(1 for r in shelves[info["day"]] if r["store_id"] == store and r["actual_code"])
+        mine = {d["detection_id"]: d for d in detections
+                if d["store_id"] == store and d["walk_id"] == walk and d["detection_id"] not in doubles}
+        stocked = sum(1 for r in shelves[info["day"]] if r["store_id"] == store and r["actual_code"]
+                      and info["aisle"] in (None, r["aisle"]))
         print(f"  {store}   {walk}  {info['badge']}   {info['start']:%Y-%m-%d %H:%M}  day {info['day']}"
-              f"  {info['speed']:.1f} m/s  {info['legs'][-1]['end_s']:5.1f} s   "
-              f"{len({d['image_ref'] for d in mine}):>5}   {stocked} = {len(mine)}")
+              f"  {info['aisle'] or 'all':<6}  {info['speed']:.1f} m/s  {info['legs'][-1]['end_s']:5.1f} s   "
+              f"{len({d['image_ref'] for d in mine.values()}):>5}   {stocked} = {len(mine)}")
 
 
 def print_reads(facing, reads, label):
@@ -256,27 +320,87 @@ def print_reads(facing, reads, label):
               f"  barcode {d['read_barcode'] or '-':<14} read: {d['ocr_text']}")
 
 
-def report(shelves, detections, truth, walks):
-    """All stores and walks together: totals, re-scans, damage, barcodes, confidence, samples."""
+def report_duplicates(file_rows, pairs, base):
+    """The three kinds of duplicate, counted, with one example of each per store."""
+    doubles = [(d, t) for d, t in pairs if t["extra"] == "double_in_frame"]
+    second = [(d, t) for d, t in pairs if t["extra"] == "second_badge"]
+    resent_rows = len(file_rows) - len(pairs)
+    resent_frames = {d["image_ref"] for d, t in pairs if t["times_sent"] == 2}
+    print("\nDUPLICATES - the same facing reaching the pipeline more than once")
+    print(f"  base detections         {len(base):>5}")
+    print(f"  twice in one frame     +{len(doubles):>5}   new id, same frame, text read again")
+    print(f"  second badge           +{len(second):>5}   new id, another badge, walk {SECOND_BADGE_WALK}, "
+          f"{SECOND_BADGE_GAP_S} s after W001")
+    print(f"  re-sent rows           +{resent_rows:>5}   {len(resent_frames)} frames, same ids, sent again")
+    print(f"  CHECK    {len(base)} + {len(doubles)} + {len(second)} + {resent_rows} = "
+          f"{len(base) + len(doubles) + len(second) + resent_rows}, rows in the file = {len(file_rows)}")
+    print(f"  CHECK    distinct ids in the file = {len({d['detection_id'] for d in file_rows})}, "
+          f"truth rows = {len(pairs)}")
+    first = {}
+    for d in file_rows:
+        first.setdefault(d["detection_id"], d)
+    print(f"  CHECK    every re-sent row is an exact copy of its first sending: "
+          f"{all(d == first[d['detection_id']] for d in file_rows)}")
+    print(f"  CHECK    rows sent twice in truth = {sum(1 for _, t in pairs if t['times_sent'] == 2)}, "
+          f"re-sent rows in the file = {resent_rows}")
+
+    by_id = {d["detection_id"]: d for d, _ in pairs}
+    line_of = {}
+    for n, d in enumerate(file_rows, start=1):
+        line_of.setdefault(d["detection_id"], []).append(n)
+    print("\nONE EXAMPLE OF EACH KIND PER STORE")
+    for store in sorted({d["store_id"] for d in file_rows}):
+        d, t = next(((d, t) for d, t in doubles if d["store_id"] == store), (None, None))
+        if d:
+            o = by_id[t["duplicate_of"]]
+            print(f"  {store} twice in one frame   {d['image_ref']}   label: {t['clean_text']}")
+            print(f"      {o['detection_id']}  box {o['bbox']}  read: {o['ocr_text']}")
+            print(f"      {d['detection_id']}  box {d['bbox']}  read: {d['ocr_text']}")
+        else:
+            print(f"  {store} twice in one frame   none in this store")
+        d, t = second[[t["store_id"] for _, t in second].index(store)]
+        o = next(bd for bd, bt in base if facing_of(bt) == facing_of(t) and bd["walk_id"] == WALKS[0][0])
+        print(f"  {store} two badges           {t['aisle']} shelf {t['shelf']} pos {t['position']} "
+              f"facing {t['facing']}   label: {t['clean_text']}")
+        print(f"      {o['detection_id']}  {o['badge_id']}  {o['ts'][11:19]}  read: {o['ocr_text']}")
+        print(f"      {d['detection_id']}  {d['badge_id']}  {d['ts'][11:19]}  read: {d['ocr_text']}")
+        frame = next((f for f in sorted(resent_frames) if f.split("/")[1] == store), None)
+        if frame:
+            ids = [d["detection_id"] for d, _ in pairs if d["image_ref"] == frame]
+            print(f"  {store} re-sent frame        {frame}   {len(ids)} rows")
+            print(f"      first sent at file lines {line_of[ids[0]][0]}-{line_of[ids[-1]][0]}, "
+                  f"sent again at lines {line_of[ids[0]][1]}-{line_of[ids[-1]][1]}")
+        else:
+            print(f"  {store} re-sent frame        none in this store")
+
+
+def report(shelves, file_rows, truth, walks):
+    """All stores and walks together: totals, re-scans, duplicates, damage, barcodes, samples."""
+    by_truth = {t["detection_id"]: t for t in truth}
+    first = {}
+    for d in file_rows:
+        first.setdefault(d["detection_id"], d)
+    pairs = [(d, by_truth[i]) for i, d in first.items()]    # every distinct detection, once
+    base = [(d, t) for d, t in pairs if t["extra"] == ""]    # without doubles and the second badge
+    detections = [d for d, _ in base]
     stores = sorted({d["store_id"] for d in detections})
-    print(f"\nALL STORES  {len(stores)} stores, {len(WALKS)} walks each, "
-          f"{len({d['badge_id'] for d in detections})} badges")
+    print(f"\nALL STORES  {len(stores)} stores, {len(WALKS)} full walks each, "
+          f"{len({d['badge_id'] for d in detections})} badges on full walks")
     for day, rows in shelves.items():
         empty = sum(1 for r in rows if not r["actual_code"])
         print(f"  SHELF    day {day}: {len(rows)} facings, {len(rows) - empty} stocked, {empty} empty")
-    expected = sum(1 for (store, _), info in walks.items()
+    full_walks = {key: info for key, info in walks.items() if info["aisle"] is None}
+    expected = sum(1 for (store, _), info in full_walks.items()
                    for r in shelves[info["day"]] if r["store_id"] == store and r["actual_code"])
-    print(f"  BADGE    {len(detections)} detections in {len({d['image_ref'] for d in detections})} frames")
-    print(f"  CHECK    stocked facings on each walk's day, summed = {expected}, detections = {len(detections)}")
-    print(f"  CHECK    detection ids are unique: "
-          f"{len({d['detection_id'] for d in detections}) == len(detections)}")
+    print(f"  BADGE    {len(detections)} base detections in {len({d['image_ref'] for d in detections})} frames")
+    print(f"  CHECK    stocked facings on each walk's day, summed = {expected}, base detections = {len(detections)}")
 
-    # Re-scans: a facing is seen once by every walk on a day when it was stocked.
+    # Re-scans: a facing is seen once by every full walk on a day when it was stocked.
     reads = {}
-    for d, t in zip(detections, truth):
+    for d, t in base:
         reads.setdefault(facing_of(t), []).append((d, t))
     stocked_days = {}
-    for (store, _), info in walks.items():
+    for (store, _), info in full_walks.items():
         for r in shelves[info["day"]]:
             if r["store_id"] == store and r["actual_code"]:
                 stocked_days[facing_of(r)] = stocked_days.get(facing_of(r), 0) + 1
@@ -307,23 +431,25 @@ def report(shelves, detections, truth, walks):
                     print_reads(facing, v, f"{note}   label: {v[0][1]['clean_text']}")
                     break
 
-    print("\nDAMAGE TO THE TEXT")
+    report_duplicates(file_rows, pairs, base)
+
+    print(f"\nDAMAGE TO THE TEXT - all {len(pairs)} distinct detections")
     for kind in ("unit", "truncate", "drop", "case"):
-        print(f"  {kind:<9} {sum(1 for t in truth if kind in t['damage'].split('+')):>3}")
-    per_detection = [0 if t["damage"] == "none" else len(t["damage"].split("+")) for t in truth]
+        print(f"  {kind:<9} {sum(1 for _, t in pairs if kind in t['damage'].split('+')):>3}")
+    per_detection = [0 if t["damage"] == "none" else len(t["damage"].split("+")) for _, t in pairs]
     for k in sorted(set(per_detection)):
         print(f"  {k} kinds of damage: {per_detection.count(k)} detections")
-    changed = sum(1 for d, t in zip(detections, truth) if d["ocr_text"] != t["clean_text"])
-    print(f"  text differs from the clean label: {changed} of {len(detections)}")
+    changed = sum(1 for d, t in pairs if d["ocr_text"] != t["clean_text"])
+    print(f"  text differs from the clean label: {changed} of {len(pairs)}")
 
-    barcodes = sum(1 for d in detections if d["read_barcode"])
-    conf = [d["confidence"] for d in detections]
-    print(f"\nBARCODE READ   {barcodes} of {len(detections)}")
+    barcodes = sum(1 for d, _ in pairs if d["read_barcode"])
+    conf = [d["confidence"] for d, _ in pairs]
+    print(f"\nBARCODE READ   {barcodes} of {len(pairs)}")
     print(f"CONFIDENCE     min {min(conf):.2f}   median {statistics.median(conf):.2f}   max {max(conf):.2f}")
 
     print("\nSAMPLE - clean label, then what the badge read")
-    step = max(1, len(detections) // 10)
-    for d, t in list(zip(detections, truth))[::step][:10]:
+    step = max(1, len(pairs) // 10)
+    for d, t in pairs[::step][:10]:
         print(f"  {d['detection_id']}  {d['aisle']} shelf {d['shelf']}  x={d['x']:.3f} y={d['y']:.3f} z={d['z']:.3f}"
               f"  conf {d['confidence']:.2f}  barcode {d['read_barcode'] or '-'}")
         print(f"      label: {t['clean_text']}")
@@ -336,12 +462,15 @@ def read_shelves():
 
 
 def build_all(shelves, products):
-    """Every walk in every store, each past the shelf as it was on the walk's day.
+    """Every walk in every store, each past the shelf as it was on the walk's day,
+    then the duplicates on top.
 
-    Returns all detections, all truth rows, and each walk's details.
+    Returns the rows as they go into the file (re-sent rows included), one truth row
+    per detection id, and each walk's details.
     """
-    detections, truth, walks = [], [], {}
+    file_rows, truth, walks = [], [], {}
     for s, (store, store_seed) in enumerate(planogram.STORES.items()):
+        blocks = []   # one (detections, truth) block per walk in this store
         for w, (walk, day, clock_time, speed) in enumerate(WALKS):
             rows = [r for r in shelves[day + 1] if r["store_id"] == store]
             badge = f"B{s * len(WALKS) + w + 1:03d}"   # S001: B001-B003, S002: B004-B006, ...
@@ -350,31 +479,55 @@ def build_all(shelves, products):
             start = datetime.datetime.combine(DAY_ONE + datetime.timedelta(days=day),
                                               datetime.time(hour, minute), datetime.timezone.utc)
             d, t, legs = build_walk(rows, products, random.Random(seed), store, badge, walk, start, speed)
-            detections += d
-            truth += t
+            blocks.append((d, t))
             walks[(store, walk)] = {"badge": badge, "seed": seed, "start": start, "speed": speed,
-                                    "day": day + 1, "legs": legs}
-    return detections, truth, walks
+                                    "day": day + 1, "aisle": None, "legs": legs}
+
+        # Duplicates. One generator per store, separate from the walks' own.
+        dup_rng = random.Random(store_seed + DUPLICATE_SEED)
+
+        # A second associate walks one aisle on day 1, shortly after the first walk starts.
+        first = walks[(store, WALKS[0][0])]
+        aisle = dup_rng.choice(sorted(planogram.AISLES.values()))
+        rows = [r for r in shelves[first["day"]] if r["store_id"] == store and r["aisle"] == aisle]
+        badge = f"B{len(planogram.STORES) * len(WALKS) + s + 1:03d}"   # B010, B011, B012
+        seed = store_seed + 100 * len(WALKS)                            # 301, 302, 303
+        start = first["start"] + datetime.timedelta(seconds=SECOND_BADGE_GAP_S)
+        d, t, legs = build_walk(rows, products, random.Random(seed), store, badge, SECOND_BADGE_WALK,
+                                start, first["speed"], extra="second_badge")
+        blocks.append((d, t))
+        walks[(store, SECOND_BADGE_WALK)] = {"badge": badge, "seed": seed, "start": start,
+                                             "speed": first["speed"], "day": first["day"],
+                                             "aisle": aisle, "legs": legs}
+
+        for d, t in blocks:
+            d, t = add_doubles(d, t, dup_rng)           # twice in one frame
+            file_rows += add_resends(d, t, dup_rng)     # frames sent again
+            truth += t
+    return file_rows, truth, walks
 
 
 def main():
     sys.stdout.reconfigure(encoding="utf-8")
     shelves = read_shelves()
-    detections, truth, walks = build_all(shelves, catalog.load())
-    lines = [json.dumps(d, ensure_ascii=False) for d in detections]
+    file_rows, truth, walks = build_all(shelves, catalog.load())
+    lines = [json.dumps(d, ensure_ascii=False) for d in file_rows]
     DETECTIONS.write_text("\n".join(lines) + "\n", encoding="utf-8", newline="\n")
     planogram.write_csv(DET_TRUTH, truth)
-    print(f"Wrote {DETECTIONS.relative_to(catalog.ROOT)} ({len(detections)} rows) "
+    print(f"Wrote {DETECTIONS.relative_to(catalog.ROOT)} ({len(file_rows)} rows) "
           f"and {DET_TRUTH.relative_to(catalog.ROOT)} ({len(truth)} rows), "
           f"{len(planogram.STORES)} stores, {len(walks)} walks")
-    report_walks(shelves, detections, walks)
+    report_walks(shelves, file_rows, truth, walks)
     if "--legs" in sys.argv:   # every walk aisle by aisle
+        doubles = {t["detection_id"] for t in truth if t["extra"] == "double_in_frame"}
         for (store, walk), info in walks.items():
+            mine = {d["detection_id"]: d for d in file_rows
+                    if d["store_id"] == store and d["walk_id"] == walk and d["detection_id"] not in doubles}
             report_walk(store, info["badge"], walk,
-                        [r for r in shelves[info["day"]] if r["store_id"] == store],
-                        [d for d in detections if d["store_id"] == store and d["walk_id"] == walk],
-                        info["legs"])
-    report(shelves, detections, truth, walks)
+                        [r for r in shelves[info["day"]] if r["store_id"] == store
+                         and info["aisle"] in (None, r["aisle"])],
+                        list(mine.values()), info["legs"])
+    report(shelves, file_rows, truth, walks)
 
 
 if __name__ == "__main__":
