@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Shelf walk replay</title>
+<title>Realogram · what the badge reads</title>
 <meta name="description" content="A wearable badge camera walks a simulated store stocked with real products. A replay of every read, the shelf problems planted for it, and what a plain lookup can match.">
 <!--
   Replays the simulated badge walks over the real data files in ../data.
@@ -40,7 +40,48 @@
 
   /* view 1: the story */
   #story { padding: 16px 16px 28px; border-bottom: 1px solid var(--line); }
-  #story h1 { margin: 0 0 12px; font-size: clamp(20px, 3.2vw, 36px); line-height: 1.15; font-weight: 700; letter-spacing: -.01em; }
+  #story h1 { margin: 0 0 10px; font-size: clamp(20px, 3.2vw, 36px); line-height: 1.15; font-weight: 700; letter-spacing: -.01em; }
+  /* the five steps: small headings a visitor can read on their own, short text under each */
+  #why { list-style: none; counter-reset: step; margin: 0 0 12px; padding: 0; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 0 18px;
+         border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); padding: 8px 0; }
+  #why li { counter-increment: step; min-width: 0; }
+  #why h3 { margin: 0 0 2px; font-size: 13px; font-weight: 700; color: var(--accent); }
+  #why h3::before { content: counter(step) " "; color: var(--dim); font-weight: 600; }
+  #why p { margin: 0; font-size: 12px; line-height: 1.4; color: var(--text); }
+  #why q { font-family: ui-monospace, Consolas, monospace; quotes: '"' '"'; }
+  @media (max-width: 1100px) { #why { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px 16px; } }
+  @media (max-width: 700px) {         /* on a phone the five steps are cards to swipe through, so the viewfinder stays on the first screen */
+    #why { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; gap: 12px; -webkit-overflow-scrolling: touch; }
+    #why li { flex: 0 0 86%; scroll-snap-align: start; }
+  }
+  body.snapshot #why { display: none; }
+  /* ?clip=1 (9:16) or ?clip=square (1:1): the story alone, sized for a phone screen recording. Nothing else is shown. */
+  body.clip #why, body.clip #storyplay, body.clip #closing, body.clip #full, body.clip #card { display: none !important; }
+  body.clip #story { min-height: 100vh; display: flex; flex-direction: column; padding: 40px 40px 30px; border: 0; }
+  body.clip #story h1 { font-size: 46px; margin-bottom: 22px; }
+  body.clip .storybar { margin-bottom: 22px; }
+  body.clip #storycount { gap: 40px; font-size: 24px; }
+  body.clip #storycount b { font-size: 72px; margin-right: 12px; }
+  body.clip #storycount .small { font-size: 20px; }
+  body.clip #finder { max-width: none; gap: 14px; }
+  body.clip #frame { border-radius: 14px; }
+  body.clip #frame::before, body.clip #frame::after { width: 40px; height: 40px; border-width: 3px; }
+  body.clip .pack { width: min(100%, 860px); height: min(100%, 760px); border-radius: 18px; gap: 12px; padding: 24px 32px; }
+  body.clip .pack .brand { font-size: 70px; } body.clip .pack .name { font-size: 38px; } body.clip .pack .size { font-size: 26px; }
+  body.clip .pack .tagline { font-size: 22px; padding: 4px 14px; }
+  body.clip #scan { height: 5px; }
+  body.clip #readout { font-size: 36px; padding: 14px 20px; border-radius: 10px; }
+  body.clip #verdict { font-size: 26px; gap: 20px; min-height: 48px; }
+  body.clip #verdict .pill { padding: 6px 22px; }
+  body.clip #verdict .truth { font-size: 24px; }
+  body.clip #stagecap { font-size: 20px; margin-top: 14px; }
+  body.clip-square #story { padding: 28px 32px 22px; }
+  body.clip-square .pack { height: min(100%, 560px); }
+  body.clip-square #story h1 { font-size: 38px; margin-bottom: 12px; }
+  body.clip-square #storycount b { font-size: 56px; }
+  body.clip-square .pack .brand { font-size: 54px; } body.clip-square .pack .name { font-size: 30px; }
+  body.clip-square #readout { font-size: 30px; }
+  body.clip-square #verdict { font-size: 22px; } body.clip-square #verdict .truth { font-size: 20px; }
   #storyplay { min-width: 0; width: 52px; height: 52px; padding: 0; justify-content: center; border-radius: 12px; }
   #storyplay svg { width: 24px; height: 24px; }
   #stage { position: relative; width: 100%; }
@@ -215,7 +256,15 @@
 
 <!-- VIEW 1: the story. One aisle as the badge sees it: one facing at a time in a viewfinder, the aisle as a strip under it. Starts by itself a second after the page loads. -->
 <section id="story">
-  <h1>A badge walks a store of real products. This is what it reads.</h1>
+  <h1>Realogram · what the badge reads</h1>
+  <!-- why this simulation exists, in five steps a stranger can read in the order they are numbered -->
+  <ol id="why">
+    <li><h3>The problem</h3><p>Retailers do not know what is on their shelves right now: empty spots, wrong products, promotions not set up. Chemist Warehouse's CIO said his associates used to spend hours auditing.</p></li>
+    <li><h3>Augmodo's answer</h3><p>A camera badge on workers already walking the aisles; every walk becomes a scan. Augmodo says it is 100 times cheaper than a shelf robot. The Realogram: a live map of the front-facing product in every shelf spot, updated dozens of times a day. Front-facing only: a product hidden behind another stays invisible until a worker finds it.</p></li>
+    <li><h3>The problem inside it</h3><p>The badge reads text, not products: <q id="example"></q>. The retailer's catalog is a separate, messy list. Until each read is tied to one catalog row, the map is a guess. Augmodo says it processes hundreds of terabytes a day.</p></li>
+    <li><h3>The obvious fix, and why not</h3><p>Send every read to an LLM. It would name most of them. Its cost grows with every read, and the reads grow with every walk.</p></li>
+    <li><h3>The job</h3><p>Rules and regex first, cheap and exact. Fuzzy matching with blocking next. An LLM only for the few reads nothing else can name, its confidence capped. One trusted record per shelf spot, versioned as the catalog changes. This simulation is the input to that job.</p></li>
+  </ol>
   <div class="storybar">
     <button id="storyplay" class="go" aria-label="Pause or play the walk"><svg viewBox="0 0 16 16" aria-hidden="true"><path id="storyicon" d="M3 1.5v13l11-6.5z"/></svg></button>
     <div id="storycount"></div>
@@ -300,6 +349,7 @@
 const DATA = "../data/";
 const Q = new URLSearchParams(location.search);
 const SNAPSHOT = Q.get("snapshot") === "1";
+const CLIP = Q.get("clip") === "1" ? "vertical" : Q.get("clip") === "square" ? "square" : "";   // a frame for a short screen recording: the story only
 const STATUS = {
   stocked: "stocked", restocked: "restocked since day 1", misplaced: "misplaced, wrong aisle",
   empty: "empty, out of stock", newempty: "newly empty since day 1",
@@ -399,6 +449,7 @@ async function boot() {
 
   const storyShot = SNAPSHOT && Q.get("view") === "story";
   document.body.classList.toggle("snapshot", SNAPSHOT);
+  document.body.classList.toggle("clip", !!CLIP); document.body.classList.toggle("clip-square", CLIP === "square");
   document.body.classList.toggle("story", storyShot);
   buildControls();
   $("main").hidden = false; $("strip").hidden = false; $("counters").hidden = false; $("context").hidden = !SNAPSHOT;
@@ -419,7 +470,7 @@ async function boot() {
   // The story starts by itself one second after load, so a visitor who never clicks still sees it.
   // Not in a snapshot, not when the link opens the full store, and not for a visitor who asked for reduced motion.
   if (!SNAPSHOT && Q.get("view") !== "full" && !matchMedia("(prefers-reduced-motion: reduce)").matches)
-    setTimeout(() => { if (!ST.on && !ST.done && ST.i === 0) storyStart(); }, 1000);
+    setTimeout(() => { if (!ST.on && !ST.done && ST.i === 0) storyStart(); }, CLIP ? 1500 : 1000);   // a clip keeps a clean first frame a little longer
   requestAnimationFrame(tick);
 }
 
@@ -669,9 +720,9 @@ function pin(key) {
 
 /* ---------- view 1: the story - one aisle of one store on day 1, as the badge sees it: one facing at a time ---------- */
 const STORY_STORE = "S001", STORY_AISLE = "A05";   // an aisle with empty slots and a misplaced unit on day 1
-const READ_MS = 800;           // how long each read stays in the viewfinder
-const TYPE_MS = 300;           // of which, how long the read takes to type out
-const EMPTY_MS = 450;          // how long an empty slot stays in the viewfinder
+const READ_MS = CLIP ? 1100 : 800;   // how long each read stays in the viewfinder; a clip holds a little longer for a phone viewer
+const TYPE_MS = CLIP ? 450 : 300;    // of which, how long the read takes to type out
+const EMPTY_MS = CLIP ? 550 : 450;   // how long an empty slot stays in the viewfinder
 let story = null;
 const ST = { on: false, i: 0, hold: 0, done: false, n: null, drawn: -1 };
 
@@ -722,10 +773,14 @@ function buildStory() {
   $("scope").textContent = `Every read in the data: ${D.stores.length} stores, ${Object.keys(D.shelf).length} days, ` +
     `${new Set(D.walks.walks.map(w => w.store_id + w.walk_id)).size} walks.`;
   const empty = facings.filter(f => !f.actual_code).length, misplaced = facings.filter(f => f.status === "misplaced").length;
-  $("stagecap").textContent = `Store ${sc.store} · aisle ${leg.aisle} ${D.category.get(leg.aisle)} · day 1 · ${facings.length} facings, ` +
+  if (CLIP) $("stagecap").textContent = `Store ${sc.store} · aisle ${leg.aisle} ${D.category.get(leg.aisle)} · day 1 · ${reads.length} reads, each held ` +
+    `${(READ_MS / 1000).toFixed(1)} s · simulated store, real products · verdicts from a naive lookup`;
+  else $("stagecap").textContent = `Store ${sc.store} · aisle ${leg.aisle} ${D.category.get(leg.aisle)} · day 1 · ${facings.length} facings, ` +
     `${empty} empty, ${misplaced} misplaced · ${reads.length} reads in ${(leg.end_s - leg.start_s).toFixed(1)} s of walking, ` +
     `shown one at a time for ${(READ_MS / 1000).toFixed(1)} s each. The read is as the badge reported it; the verdict is the naive ` +
     `baseline's; the label is from the simulation's truth file. Red: characters that do not fit the label. Amber: characters the badge lost.`;
+  const example = reads.find(e => D.base.get(e.d.detection_id).outcome === "no answer") || reads[0];
+  $("example").textContent = example.d.ocr_text;   // the aisle's first read that a simple lookup could not name, as the badge reported it
   $("storyplay").onclick = storyToggle;
   $("explore").onclick = () => $("full").scrollIntoView({ behavior: "smooth" });
   storyClear();                               // the viewfinder and the strip are on screen from the first moment
@@ -736,9 +791,9 @@ function drawStage() {                      // the viewfinder's size, and the ai
   // The viewfinder and the strip take the rest of the first screen, down to the caption. The closing numbers come
   // below when the walk ends, and the page moves down to them. A snapshot keeps them shorter so everything fits one frame.
   const stageTop = stage.getBoundingClientRect().top + window.scrollY, captionH = $("stagecap").offsetHeight;
-  const room = SNAPSHOT ? Math.floor(window.innerHeight * 0.55) : window.innerHeight - stageTop - captionH - 24;
-  const stripH = Math.max(72, Math.min(132, Math.floor(room * 0.24)));
-  const finderH = Math.max(200, Math.min(640, room - stripH - 14));
+  const room = SNAPSHOT ? Math.floor(window.innerHeight * 0.55) : window.innerHeight - stageTop - captionH - (CLIP ? 48 : 24);
+  const stripH = CLIP ? Math.max(90, Math.min(200, Math.floor(room * 0.14))) : Math.max(72, Math.min(132, Math.floor(room * 0.24)));
+  const finderH = Math.max(200, Math.min(CLIP ? 9999 : 640, room - stripH - 14));
   $("finder").style.height = finderH + "px";
   // the strip: the aisle's four shelves, fronts coloured by brand, empty slots dashed, the misplaced unit pink
   const pad = 6, walkH = 22, board = 3, row = (stripH - walkH) / 4;
@@ -758,7 +813,8 @@ function drawStage() {                      // the viewfinder's size, and the ai
       const fill = f.status === "misplaced" ? "var(--misplaced)" : `hsl(${brandHue(brand)} 42% 36%)`;
       g.append(svgEl("rect", { x, y: top, width: w, height: frontH, rx: 1.5, class: "front", style: "fill:" + fill }));
     }
-    g.append(svgEl("rect", { x, y: top + frontH - 3, width: w, height: 3, class: "mark" }));   // takes the verdict's colour once read
+    const markH = Math.max(3, Math.round(frontH * 0.16));
+    g.append(svgEl("rect", { x, y: top + frontH - markH, width: w, height: markH, class: "mark" }));   // takes the verdict's colour once read
     strip.append(g);
     story.el.set(facingKey(f), g);
     story.at.set(facingKey(f), { cx: x + w / 2, top, bottom: top + frontH });
@@ -857,7 +913,7 @@ function storyEnd() {                      // the closing numbers appear under t
   storySet(false); ST.done = true;
   ST.i = story.steps.length; storyApply(); storyShow();
   $("closing").classList.remove("pending");
-  if (!SNAPSHOT) $("closing").scrollIntoView({ block: "end", behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
+  if (!SNAPSHOT && !CLIP) $("closing").scrollIntoView({ block: "end", behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
 }
 function storyFreeze(seconds) {            // for screenshots: the story stopped this many seconds in, or at its end
   storyClear(); storySet(false);
