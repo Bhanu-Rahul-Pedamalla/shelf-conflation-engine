@@ -90,14 +90,15 @@ def build():
         # catalog v2
         f"Catalog v2 takes effect on day {drift.EFFECTIVE_DAY}: {kinds['renamed']} products renamed by a fixed rule, "
         f"{kinds['new_size']} given a size {pct(1 - drift.SHRINK)} smaller and a new barcode, {kinds['discontinued']} "
-        f"discontinued, and {kinds['new']} real product added. The renames, the sizes and the new barcodes are simulated.",
+        f"discontinued, and {kinds['new']} real product added. A name that carries its size is rewritten with the new size. "
+        f"The renames, the sizes and the new barcodes are simulated.",
         "A simulated barcode keeps the first 7 digits of the barcode it replaces and carries a valid check digit.",
         f"From day {drift.EFFECTIVE_DAY} all stock of a resized product carries the new barcode. Stock of the discontinued "
         "product stays on the shelf with its old label. The planogram is not updated.",
         "\"Sold in the United States\" is the sources' own tag. Some personal care and household rows are products made "
         "for other markets.",
         # the replay page
-        "The replay page's opening view plays one aisle slower than the walk, and states by how much.",
+        "The replay page's opening view shows one aisle's reads one at a time, each held for a fixed time, and states how long the walk itself took.",
         "The replay page draws a repeated detection a quarter of a second after the first, and a re-sent row just after "
         "its walk ends: the data gives a re-sent row no arrival time.",
     ]

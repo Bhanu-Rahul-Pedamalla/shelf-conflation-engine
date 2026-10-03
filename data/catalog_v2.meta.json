@@ -1,7 +1,7 @@
 {
   "derived_from": "catalog_raw.jsonl",
   "derived_from_sha256": "f2c513676047f4c07f8e4a60fd5ea1dbf1b2feeef220c36412ed86c092268a92",
-  "built_at_utc": "2026-10-02T20:59:07+00:00",
+  "built_at_utc": "2026-10-03T18:03:30+00:00",
   "seed": 7000,
   "effective_day": 2,
   "simulated": "renames, new sizes and new barcodes are simulated; the one new product is real",
@@ -13,5 +13,5 @@
     "matching_records_reported": 6383
   },
   "rows": 300,
-  "sha256": "78dee9379a547c8e766f5eaf3c7d425113c82c2654f95347661582e074b42348"
+  "sha256": "fa0007c3803ff30e0cf03cb4d12ed808677b53e7917789c79b46242222ffbcbb"
 }

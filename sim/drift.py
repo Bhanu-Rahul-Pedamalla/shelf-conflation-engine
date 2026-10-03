@@ -2,6 +2,7 @@
 
     python sim/drift.py            # build catalog v2 once, then always read the saved files
     python sim/drift.py --refresh  # build it again (pulls the one new product again)
+    python sim/drift.py --rebuild  # apply the rules again, keeping the saved new product (no network)
 
 Reads   data/catalog_raw.jsonl            catalog v1, the real snapshot. Never changed.
 Writes  data/catalog_v2.jsonl             catalog v2: v1 with seven changes
@@ -74,6 +75,11 @@ def shrink(quantity):
     return NUMBER.sub(f"{value:g}", quantity, count=1)
 
 
+def resize_name(name, old_quantity, new_quantity):
+    """A name that carries its size ('Diet Coke - 6pk/16.9 fl oz Bottles') carries the new size after a resize."""
+    return name.replace(old_quantity, new_quantity) if old_quantity and old_quantity in name else name
+
+
 def build(v1, new_product, rng):
     """Returns the v2 rows and the list of changes."""
     codes = {p["code"] for p in v1}
@@ -98,10 +104,13 @@ def build(v1, new_product, rng):
             changes.append({"change": "discontinued", "v1_code": code, "v2_code": "", "field": "",
                             "old_value": "", "new_value": "", "note": "leftover stock stays on the shelf"})
         elif code in successor:
-            v2.append(dict(p, code=successor[code], quantity=shrink(p["quantity"])))
+            size = shrink(p["quantity"])
+            name = resize_name(p.get("product_name") or "", p["quantity"], size)
+            v2.append(dict(p, code=successor[code], quantity=size, product_name=name))
             changes.append({"change": "new_size", "v1_code": code, "v2_code": successor[code], "field": "quantity",
-                            "old_value": p["quantity"], "new_value": shrink(p["quantity"]),
-                            "note": "simulated: 10% smaller, new barcode per the GS1 net content rule"})
+                            "old_value": p["quantity"], "new_value": size,
+                            "note": "simulated: 10% smaller, new barcode per the GS1 net content rule"
+                                    + ("; the size inside the name is rewritten too" if name != p.get("product_name") else "")})
         elif code in new_name:
             name, note = new_name[code]
             v2.append(dict(p, product_name=name))
@@ -208,7 +217,17 @@ def report(v1, v2, changes):
 def main():
     sys.stdout.reconfigure(encoding="utf-8")
     v1 = catalog.load()
-    if "--refresh" in sys.argv or not V2.exists():
+    if "--rebuild" in sys.argv and V2.exists():
+        # the rules again, over v1, with the new product already saved: no network
+        print("Rebuilding catalog v2 from the saved new product ...")
+        new_code = next(c["v2_code"] for c in load_changes() if c["change"] == "new")
+        new_product = next(p for p in load_v2() if p["code"] == new_code)
+        info = json.loads(V2_META.read_text(encoding="utf-8"))["new_product_pull"]
+        v2, changes = build(v1, new_product, random.Random(SEED))
+        save(v2, changes, info)
+        print(f"Saved {len(v2)} rows to {V2.relative_to(catalog.ROOT)} and "
+              f"{len(changes)} changes to {CHANGES.relative_to(catalog.ROOT)}")
+    elif "--refresh" in sys.argv or not V2.exists():
         print("Building catalog v2 ...")
         new_product, info = pull_new_product(v1)
         v2, changes = build(v1, new_product, random.Random(SEED))

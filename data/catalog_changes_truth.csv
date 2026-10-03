@@ -1,5 +1,5 @@
 change,v1_code,v2_code,field,old_value,new_value,note
-new_size,0049000024692,0049000701135,quantity,16.9 fl oz,15.2 fl oz,"simulated: 10% smaller, new barcode per the GS1 net content rule"
+new_size,0049000024692,0049000701135,quantity,16.9 fl oz,15.2 fl oz,"simulated: 10% smaller, new barcode per the GS1 net content rule; the size inside the name is rewritten too"
 renamed,0028400147392,0028400147392,product_name,Harvest Cheddar,Harvest Cheddar Classic,simulated: ' Classic' at the end
 new_size,0689544083009,0689544082941,quantity,32oz,28.8oz,"simulated: 10% smaller, new barcode per the GS1 net content rule"
 renamed,4099100150889,4099100150889,product_name,NONFAT GREEK YOGURT,New NONFAT GREEK YOGURT,simulated: 'New ' in front
