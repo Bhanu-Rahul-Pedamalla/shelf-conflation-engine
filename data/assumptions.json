@@ -1,0 +1,40 @@
+{
+ "verified": [
+  "The 300 products are real catalog rows from Open Food Facts, Open Beauty Facts and Open Products Facts, pulled on 2026-10-02 and published under the Open Database License.",
+  "Each product row is stored exactly as its source returned it. The checksum of the file is recorded in data/catalog_raw.meta.json.",
+  "A row with no name or no brand was left out: 66 rows, each listed in data/catalog_raw.meta.json.",
+  "All 280 of the 280 thirteen-digit barcodes in the catalog pass the GS1 check digit.",
+  "A change of declared net content requires a new barcode: GS1 GTIN Management Standard, rule \"Declared net content\" (https://www.gs1.org/1/gtinrules/en/rule/266/declared-net-content).",
+  "Every script is deterministic: the same seeds give the same files, byte for byte.",
+  "Every number on the replay page is counted from the files in data/ when the page loads."
+ ],
+ "assumed": [
+  "3 stores share one planogram of 300 products: 7 aisles, 4 shelves per aisle, shelf 1 at the bottom.",
+  "Products of one brand sit side by side: each aisle is ordered by brand, then by name.",
+  "A product gets 1, 2 or 3 facings, by how often it was scanned in its source catalog.",
+  "Every facing is 0.2 m wide. Aisles are 3 m apart. Shelf heights are 0.3, 0.7, 1.1, 1.5 m.",
+  "Out of stock: 2 to 3 positions per aisle are empty on day 1.",
+  "Misplaced: 1 to 2 single units per store sit in the wrong aisle, and stay there on every day.",
+  "Restocking: overnight after day 1, 50% of the empty positions are refilled, rounded down, and 1 to 2 stocked positions per store run out. Nothing changes after day 2.",
+  "3 full walks per store, one per day, each by a different badge, starting 2026-10-02: day 1 at 09:00 UTC and 1 m/s; day 2 at 14:30 UTC and 0.9 m/s; day 3 at 11:15 UTC and 1.1 m/s.",
+  "A walk is a serpentine: the first aisle forward, the next one back.",
+  "The camera takes 5 frames per second. Each stocked facing is read once per walk, in the frame taken closest to it. An empty facing gives no detection.",
+  "A detection's 3D position is the facing's true position plus noise of 0.03 m standard deviation per axis.",
+  "The bounding box is a flat projection onto a 3840 x 2160 frame, with no lens distortion.",
+  "The fields of a detection record are a guess at what a shelf-reading camera reports.",
+  "No image is used. image_ref names a frame that does not exist.",
+  "A label's text is the catalog row's brand, name and size joined together. Real labels differ more from their catalog rows, so matching is easier here than on real images.",
+  "The read text is damaged in four independent ways: a unit is respelled on 30% of reads, the text is cut short on 30%, 1 to 3 characters are lost on 35%, and the case changes on 40%.",
+  "A barcode is read on 15% of detections, and is never misread.",
+  "Confidence is highest for an undamaged read and falls with each kind of damage.",
+  "5% of detections are reported twice in the same frame, with a new id and the text read again.",
+  "A second badge walks one aisle of each store on day 1, 120 seconds after the first walk starts.",
+  "3% of frames are sent twice, unchanged.",
+  "Catalog v2 takes effect on day 2: 3 products renamed by a fixed rule, 2 given a size 10% smaller and a new barcode, 1 discontinued, and 1 real product added. The renames, the sizes and the new barcodes are simulated.",
+  "A simulated barcode keeps the first 7 digits of the barcode it replaces and carries a valid check digit.",
+  "From day 2 all stock of a resized product carries the new barcode. Stock of the discontinued product stays on the shelf with its old label. The planogram is not updated.",
+  "\"Sold in the United States\" is the sources' own tag. Some personal care and household rows are products made for other markets.",
+  "The replay page's opening view plays one aisle slower than the walk, and states by how much.",
+  "The replay page draws a repeated detection a quarter of a second after the first, and a re-sent row just after its walk ends: the data gives a re-sent row no arrival time."
+ ]
+}

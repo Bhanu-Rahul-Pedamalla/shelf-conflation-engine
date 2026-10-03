@@ -1,4 +1,4 @@
-"""Widen step 4 - catalog drift: a second version of the catalog.
+"""Catalog drift: a second version of the catalog.
 
     python sim/drift.py            # build catalog v2 once, then always read the saved files
     python sim/drift.py --refresh  # build it again (pulls the one new product again)

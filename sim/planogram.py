@@ -1,4 +1,4 @@
-"""Step 1.2 - the plan for the shelf, and what is really on the shelf.
+"""The plan for the shelf, and what is really on the shelf.
 
     python sim/planogram.py                 # all stores: problems, restocking, totals
     python sim/planogram.py --map S002 2    # the same, plus the full shelf map of one store on one day

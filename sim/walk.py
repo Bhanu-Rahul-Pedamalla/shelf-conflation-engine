@@ -1,4 +1,4 @@
-"""Step 1.3 - badge walks past the real shelf. Three walks per store, on three days.
+"""Badge walks past the real shelf. Three walks per store, on three days.
 
     python sim/walk.py           # all walks: one line each, totals, re-scans
     python sim/walk.py --legs    # the same, plus every walk aisle by aisle
@@ -25,6 +25,7 @@ import planogram  # sim/planogram.py
 
 DETECTIONS = catalog.ROOT / "data" / "detections.jsonl"
 DET_TRUTH = catalog.ROOT / "data" / "detections_truth.csv"
+WALKS_FILE = catalog.ROOT / "data" / "walks.json"   # each walk's schedule and path, and the assumed numbers
 
 # ---- ASSUMED: who walks, when, and how fast. Every store gets every walk in this list.
 # ---- Each walk in a store is a different associate with their own badge.
@@ -563,6 +564,28 @@ def build_all(shelves, labels):
     return file_rows, truth, walks
 
 
+def walks_record(walks):
+    """Every walk's schedule and path, plus the assumed numbers behind them. Read by the replay page."""
+    return {
+        "note": "Every value under 'assumed' is a guess written in sim/walk.py, not a measurement.",
+        "assumed": {
+            "facing_width_m": FACING_WIDTH, "aisle_x0_m": AISLE_X0, "aisle_y0_m": AISLE_Y0,
+            "aisle_pitch_m": AISLE_PITCH, "shelf_height_m": SHELF_Z, "position_jitter_m": POSITION_JITTER,
+            "frames_per_second": FRAME_HZ, "camera_height_m": CAMERA_Z, "image_px": [IMAGE_W, IMAGE_H],
+            "p_unit": P_UNIT, "p_truncate": P_TRUNCATE, "p_drop": P_DROP, "p_case": P_CASE,
+            "p_barcode": P_BARCODE, "p_double": P_DOUBLE, "p_resend_frame": P_RESEND_FRAME,
+            "second_badge_gap_s": SECOND_BADGE_GAP_S, "catalog_v2_effective_day": drift.EFFECTIVE_DAY,
+        },
+        "walks": [{
+            "store_id": store, "walk_id": walk, "badge_id": info["badge"], "day": info["day"],
+            "start_utc": info["start"].isoformat(timespec="seconds").replace("+00:00", "Z"),
+            "speed_m_per_s": info["speed"], "only_aisle": info["aisle"], "seed": info["seed"],
+            "legs": [{**leg, "length_m": round(leg["length_m"], 3), "start_s": round(leg["start_s"], 3),
+                      "end_s": round(leg["end_s"], 3)} for leg in info["legs"]],
+        } for (store, walk), info in walks.items()],
+    }
+
+
 def main():
     sys.stdout.reconfigure(encoding="utf-8")
     shelves = read_shelves()
@@ -570,9 +593,10 @@ def main():
     lines = [json.dumps(d, ensure_ascii=False) for d in file_rows]
     DETECTIONS.write_text("\n".join(lines) + "\n", encoding="utf-8", newline="\n")
     planogram.write_csv(DET_TRUTH, truth)
+    WALKS_FILE.write_text(json.dumps(walks_record(walks), indent=1) + "\n", encoding="utf-8", newline="\n")
     print(f"Wrote {DETECTIONS.relative_to(catalog.ROOT)} ({len(file_rows)} rows) "
           f"and {DET_TRUTH.relative_to(catalog.ROOT)} ({len(truth)} rows), "
-          f"{len(planogram.STORES)} stores, {len(walks)} walks")
+          f"{len(planogram.STORES)} stores, {len(walks)} walks, and {WALKS_FILE.relative_to(catalog.ROOT)}")
     report_walks(shelves, file_rows, truth, walks)
     if "--legs" in sys.argv:   # every walk aisle by aisle
         doubles = {t["detection_id"] for t in truth if t["extra"] == "double_in_frame"}

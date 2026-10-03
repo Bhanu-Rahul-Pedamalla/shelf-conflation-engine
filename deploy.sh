@@ -1,0 +1,34 @@
+#!/usr/bin/env bash
+# Assemble the replay page and its data into public/ and deploy.
+#   /web/   <- web
+#   /data/  <- data
+#
+# The page reads its data from ../data/, so the two folders go up together, side by side,
+# exactly as they sit in the repository. Nothing is built or rewritten on the way.
+#
+# Before anything is published, every data file the page asks for must exist. The page
+# fetches all of them at load and shows an error if one is missing, so a missing file
+# would put a broken page in front of a reader.
+set -euo pipefail
+cd "$(dirname "$0")"
+
+missing=0
+for name in $(grep -oE '"[a-z0-9_]+\.(csv|jsonl|json)"' web/index.html | tr -d '"' | sort -u); do
+  if [ ! -f "data/$name" ]; then
+    echo "STOP: web/index.html loads data/$name, which does not exist." >&2
+    missing=1
+  fi
+done
+if [ "$missing" -ne 0 ]; then
+  echo "      Run the scripts in sim/ and pipeline/ first. Nothing was deployed." >&2
+  exit 1
+fi
+
+rm -rf public
+mkdir -p public/web public/data
+cp -r web/. public/web/
+cp -r data/. public/data/
+echo "assembled:"
+echo "  public/web   $(find public/web -type f | wc -l) files"
+echo "  public/data  $(find public/data -type f | wc -l) files, $(du -sk public/data | cut -f1) KB"
+firebase deploy --only hosting --project shelf-replay

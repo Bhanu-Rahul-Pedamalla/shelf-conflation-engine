@@ -1,4 +1,4 @@
-"""Step 1.1 - pull a real product catalog slice and count how messy it is.
+"""Pull a real product catalog slice and count how messy it is.
 
 Seven US product groups in one catalog, about 300 products: sodas, breakfast cereals,
 snacks, dairy, supplements, personal care, household.
@@ -72,7 +72,7 @@ def pull(site, category, page=1):
 
 
 def usable(p):
-    """Rule: a product needs a code, a name and a brand. Anything else is skipped."""
+    """A product needs a code, a name and a brand. Anything else is skipped."""
     return bool(p.get("code") and (p.get("product_name") or "").strip() and (p.get("brands") or "").strip())
 
 

@@ -1,15 +1,16 @@
-"""Step 1.4 - the simplest matchers anyone would write, and how far they get.
+"""The simplest matchers anyone would write, and how far they get.
 
     python pipeline/baseline.py
 
 Reads   data/catalog_raw.jsonl    the catalog
         data/detections.jsonl     what the badge reported
-Writes  nothing. It prints a table.
+Writes  data/baseline_results.csv   one row per detection: the answer and how it scored
 
 The matchers here never read the truth file. Only score.py does.
 Best case for a naive matcher: catalog_text() joins brand, name and size the same
 way the simulated label was built. A real label would not line up this neatly.
 """
+import csv
 import json
 import sys
 from pathlib import Path
@@ -19,6 +20,7 @@ import score  # pipeline/score.py
 ROOT = Path(__file__).resolve().parents[1]
 CATALOG = ROOT / "data" / "catalog_raw.jsonl"
 DETECTIONS = ROOT / "data" / "detections.jsonl"
+RESULTS = ROOT / "data" / "baseline_results.csv"
 
 
 def load_jsonl(path):
@@ -92,7 +94,18 @@ def main():
         print(f"  {'any with ' + kind:<22} {len(hit):>10} {t['right']:>6} {t['no answer']:>10}")
 
     t = score.tally(rows)
-    print(f"\nLEFT FOR PHASE 2   {t['no answer']} of {len(rows)} detections have no answer, {t['wrong']} are wrong")
+    print(f"\nLEFT UNMATCHED   {t['no answer']} of {len(rows)} detections have no answer, {t['wrong']} are wrong")
+
+    # One row per detection: what the three matchers together answered, and how it scored.
+    # Read by the replay page, so the page shows these results and computes none of its own.
+    with RESULTS.open("w", encoding="utf-8", newline="") as f:
+        writer = csv.writer(f, lineterminator="\n")
+        writer.writerow(["detection_id", "method", "answer", "outcome"])
+        for row in rows:
+            i = row["detection_id"]
+            method = "barcode" if barcode[i] else "exact text" if exact[i] else "text ignoring case" if nocase[i] else ""
+            writer.writerow([i, method, row["answer"] or "", row["outcome"]])
+    print(f"Wrote {RESULTS.relative_to(ROOT)} ({len(rows)} rows)")
 
 
 if __name__ == "__main__":

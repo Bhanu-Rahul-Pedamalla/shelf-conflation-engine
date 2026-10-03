@@ -1,0 +1,890 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Shelf walk replay</title>
+<!--
+  Replays the simulated badge walks over the real data files in ../data.
+  Every number on this page is counted from those files at load time. Nothing is typed in.
+  Serve the repo root (python -m http.server) and open /web/.
+
+  Two views on one page: the story (one aisle, slowed down) and, below it, the full store.
+
+  URL flags:  ?view=full&store=S002&day=2&t=30   open the full store at a store, a day and a moment
+              &facing=A01-3-7-1                  pin the card of one facing (aisle-shelf-position-facing)
+              ?snapshot=1&store=..&day=..&t=..   the full store only: title, legend, map and counters, for clean screenshots
+              ?snapshot=1&view=story             the story alone, at the start of the aisle, with no buttons
+              ?snapshot=1&view=story&t=3         the story frozen 3 seconds into the aisle
+              ?snapshot=1&view=story&t=end       the story with its closing numbers under the aisle
+-->
+<style>
+  :root {
+    --bg: #0b0d10; --panel: #12161b; --line: #262e38; --text: #d9dfe7; --dim: #8693a3;
+    --accent: #4fc3b0; --go: #2fbf71;
+    --stocked: #56667a; --empty: #e0a23c; --misplaced: #e06aa8; --restocked: #5aa2f0; --newempty: #f0703c;
+    --drift: #c8d65a; --right: #4fc3b0; --wrong: #e06a6a; --none: #55606e;
+  }
+  * { box-sizing: border-box; }
+  [hidden] { display: none !important; }
+  body { overflow-x: clip;    /* clip, not hidden: hidden would stop the sticky bars from sticking */
+         margin: 0; background: var(--bg); color: var(--text); font: 14px/1.45 system-ui, "Segoe UI", sans-serif; }
+  a { color: var(--accent); }
+
+  /* the big green button, used once in each view */
+  .go { display: inline-flex; align-items: center; gap: 10px; background: var(--go); color: #04170c; border: 0; cursor: pointer;
+        border-radius: 10px; padding: 11px 26px 11px 20px; font: inherit; font-size: 18px; font-weight: 700; min-width: 132px; }
+  .go:hover { filter: brightness(1.1); border: 0; }
+  .go svg { width: 20px; height: 20px; fill: #04170c; }
+
+  /* view 1: the story */
+  #story { min-height: 100vh; padding: 16px 16px 28px; border-bottom: 1px solid var(--line); }
+  #story h1 { margin: 0 0 12px; font-size: clamp(20px, 3.2vw, 36px); line-height: 1.15; font-weight: 700; letter-spacing: -.01em; }
+  #storyplay { min-width: 0; width: 52px; height: 52px; padding: 0; justify-content: center; border-radius: 12px; margin-bottom: 6px; }
+  #storyplay svg { width: 24px; height: 24px; }
+  #stage { position: relative; width: 100%; }
+  #stage svg { display: block; }
+  #stagecap { color: var(--dim); font-size: 12px; margin-top: 6px; }
+  .shelfline { stroke: var(--line); stroke-width: 2; }
+  .beam { stroke: var(--accent); stroke-width: 1; opacity: .35; }
+  #storybadge circle { fill: var(--accent); stroke: var(--bg); stroke-width: 2; }
+  .float { position: absolute; font: 13px/1.3 ui-monospace, Consolas, monospace; color: #fff; background: rgba(11, 13, 16, .92);
+           border: 1px solid var(--dim); border-radius: 5px; padding: 1px 7px; white-space: nowrap; max-width: 94vw; overflow: hidden;
+           text-overflow: ellipsis; pointer-events: none; transform: translate(var(--tx, -50%), 0); animation: floatup 1.15s ease-out forwards; }
+  .float.dup { border-color: var(--misplaced); }
+  .float.still { animation: none; }
+  @keyframes floatup { 0% { opacity: 0; transform: translate(var(--tx, -50%), 5px); } 12% { opacity: 1; transform: translate(var(--tx, -50%), 0); }
+                       75% { opacity: 1; } 100% { opacity: 0; transform: translate(var(--tx, -50%), -10px); } }
+  /* the closing numbers sit under the aisle. Their space is kept from the start, so nothing moves when they appear. */
+  #closing { margin-top: 14px; }
+  #closing.pending { visibility: hidden; }
+  #nums { display: flex; flex-wrap: wrap; gap: 8px 44px; }
+  #nums b { display: block; font-size: clamp(26px, 4vw, 44px); font-weight: 700; line-height: 1.05; font-variant-numeric: tabular-nums; }
+  #nums span { color: var(--dim); font-size: 13px; }
+  #closing p.job { font-size: clamp(18px, 2.4vw, 26px); font-weight: 700; margin: 10px 0 12px; }
+  #closing p.scope { color: var(--dim); font-size: 12px; margin: 8px 0 0; }
+
+  header { padding: 12px 16px 10px; border-bottom: 1px solid var(--line); }
+  h2.title { margin: 0 0 4px; font-size: 17px; font-weight: 600; color: var(--text); text-transform: none; letter-spacing: 0; }
+  #intro { margin: 0; padding: 0; list-style: none; color: var(--dim); font-size: 13px; max-width: 110ch; }
+  #intro b { color: var(--text); font-weight: 600; }
+  #context { margin: 0; color: var(--dim); font-size: 13px; font-variant-numeric: tabular-nums; }
+
+  .bar { display: flex; flex-wrap: wrap; gap: 8px 14px; align-items: center; padding: 10px 16px; border-bottom: 1px solid var(--line); }
+  .group { display: flex; gap: 4px; align-items: center; }
+  .group > span { color: var(--dim); font-size: 12px; margin-right: 4px; }
+  button { background: var(--panel); color: var(--text); border: 1px solid var(--line); border-radius: 6px; padding: 5px 10px; font: inherit; cursor: pointer; }
+  button:hover { border-color: var(--dim); }
+  button.on { border-color: var(--accent); color: var(--accent); }
+  #scrub { flex: 1 1 160px; min-width: 120px; accent-color: var(--accent); }
+  #clock { font-variant-numeric: tabular-nums; color: var(--dim); font-size: 13px; }
+
+  #counters { position: sticky; top: 0; z-index: 4; background: var(--bg); border-bottom: 1px solid var(--line);
+              display: flex; flex-wrap: wrap; gap: 4px 18px; padding: 8px 16px; font-variant-numeric: tabular-nums; font-size: 13px; }
+  #counters span.c { overflow-wrap: anywhere; }
+  #counters small { color: var(--dim); font-size: 12px; }
+  #counters b { font-weight: 600; }
+
+  main { display: grid; grid-template-columns: minmax(0, 1fr) 330px; }
+  #legend { display: flex; flex-wrap: wrap; gap: 4px 14px; padding: 10px 16px 6px; color: var(--dim); font-size: 12.5px; }
+  #legend i { display: inline-block; width: 11px; height: 11px; border-radius: 2px; vertical-align: -1px; margin-right: 5px; }
+  #legend i.dot { width: 5px; height: 5px; border-radius: 50%; background: #fff; vertical-align: 2px; }
+  #mapwrap { margin: 0 16px 12px; }
+  svg#map { display: block; }
+  aside { border-left: 1px solid var(--line); padding: 10px 14px; }
+  h2 { margin: 0 0 6px; font-size: 12px; font-weight: 600; color: var(--dim); text-transform: uppercase; letter-spacing: .04em; }
+  #reads { list-style: none; margin: 0; padding: 0; }
+  #reads li { padding: 6px 0; border-bottom: 1px solid var(--line); font-size: 12.5px; }
+  .where { color: var(--dim); }
+  .txt { font-family: ui-monospace, Consolas, monospace; overflow-wrap: anywhere; }
+  .lab { color: var(--dim); overflow-wrap: anywhere; }
+  .tag { display: inline-block; padding: 0 5px; border-radius: 4px; border: 1px solid var(--line); font-size: 11px; margin-left: 4px; color: var(--dim); }
+  .tag.dup { color: var(--misplaced); border-color: var(--misplaced); }
+  .tag.v2 { color: var(--drift); border-color: var(--drift); cursor: help; }
+  .tag.right { color: var(--right); border-color: var(--right); }
+  .tag.wrong { color: var(--wrong); border-color: var(--wrong); }
+  #strip { border-top: 1px solid var(--line); padding: 8px 16px 12px; position: sticky; bottom: 0; background: var(--bg); z-index: 3; }
+  #basebar { display: flex; height: 14px; border-radius: 4px; overflow: hidden; background: var(--panel); border: 1px solid var(--line); margin: 5px 0; }
+  #basebar div { height: 100%; }
+  #basetext { font-variant-numeric: tabular-nums; font-size: 13px; }
+  #facts { padding: 14px 16px 16px; border-top: 1px solid var(--line); }
+  #facts p { margin: 0 0 10px; color: var(--dim); font-size: 13px; }
+  #facts .cols { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 2fr); gap: 8px 28px; }
+  #facts h3 { margin: 0 0 6px; font-size: 13px; font-weight: 600; }
+  #facts ul { margin: 0; padding-left: 18px; font-size: 13px; }
+  #facts li { margin-bottom: 4px; overflow-wrap: anywhere; }
+  footer { padding: 10px 16px 18px; color: var(--dim); font-size: 12px; border-top: 1px solid var(--line); }
+  footer p { margin: 0 0 4px; }
+  footer p.next { color: var(--text); font-size: 13px; }
+  #error { padding: 16px; color: var(--empty); }
+
+  /* the card that opens on a facing or on a v2 tag */
+  #card { position: absolute; z-index: 10; width: min(340px, calc(100vw - 16px)); background: var(--panel); border: 1px solid var(--dim);
+          border-radius: 8px; padding: 10px 12px; font-size: 12.5px; box-shadow: 0 6px 24px rgba(0,0,0,.5); }
+  #card h3 { margin: 0 0 4px; font-size: 13px; font-weight: 600; }
+  #card dl { margin: 0; display: grid; grid-template-columns: auto 1fr; gap: 2px 8px; }
+  #card dt { color: var(--dim); }
+  #card dd { margin: 0; overflow-wrap: anywhere; }
+  #card .sep { border-top: 1px solid var(--line); margin: 7px 0 6px; }
+  #card .read { padding: 3px 0; }
+  #card .later { opacity: .5; }
+  #card .note { color: var(--drift); }
+
+  /* the map */
+  .facing { stroke-width: 1.2; cursor: pointer; }
+  .st-stocked   { fill: var(--stocked);   fill-opacity: 1; stroke: var(--stocked);   opacity: .38; }
+  .st-restocked { fill: var(--restocked); fill-opacity: 1; stroke: var(--restocked); opacity: .5; }
+  .st-misplaced { fill: var(--misplaced); fill-opacity: 1; stroke: var(--misplaced); opacity: .55; }
+  .st-empty     { fill: var(--empty);     fill-opacity: 0; stroke: var(--empty);     opacity: 1; }
+  .st-newempty  { fill: var(--newempty);  fill-opacity: 0; stroke: var(--newempty);  opacity: 1; stroke-dasharray: 3 2; }
+  .facing.read  { opacity: 1; }
+  .facing.drift { stroke: var(--drift); }
+  .facing.pinned { stroke: #fff; stroke-width: 2; }
+  .facing.morph { transition: fill 1s, fill-opacity 1s, stroke 1s, opacity 1s; }
+  .facing.flash  { animation: flash .7s ease-out; }
+  .facing.flash2 { animation: flash2 .9s ease-out; }
+  @keyframes flash  { from { fill: #fff; fill-opacity: 1; stroke: #fff; } }
+  @keyframes flash2 { 0% { fill: #fff; fill-opacity: 1; stroke: var(--misplaced); stroke-width: 4; } 60% { stroke: var(--misplaced); stroke-width: 3; } }
+  .hardmark { fill: #fff; pointer-events: none; }
+  .aisle-name { fill: var(--text); font-size: 12px; font-weight: 600; }
+  .aisle-sub { fill: var(--dim); font-size: 10.5px; }
+  .shelf-no { fill: var(--dim); font-size: 9px; }
+  .walkway { stroke: var(--line); stroke-width: 2; stroke-dasharray: 2 4; }
+  #badge circle { fill: var(--accent); stroke: var(--bg); stroke-width: 2; }
+  #badge text { fill: var(--accent); font-size: 10px; font-weight: 600; }
+
+  /* ?snapshot=1            : the full store only - title, legend, map and counters
+     ?snapshot=1&view=story : the story only, with no buttons */
+  body.snapshot .bar, body.snapshot aside, body.snapshot #strip, body.snapshot footer, body.snapshot #intro,
+  body.snapshot #facts { display: none; }
+  body.snapshot main { grid-template-columns: minmax(0, 1fr); }
+  body.snapshot #counters { position: static; }
+  body.snapshot:not(.story) #story { display: none; }
+  body.snapshot.story #full, body.snapshot.story #storyplay, body.snapshot.story #explore { display: none; }
+
+  @media (max-width: 900px) {
+    main, #facts .cols { grid-template-columns: minmax(0, 1fr); }      /* minmax(0, ..): the map must be free to shrink */
+    #basetext .more { display: none; }
+    aside { border-left: 0; border-top: 1px solid var(--line); }
+  }
+  @media (prefers-reduced-motion: reduce) { .facing.morph { transition: none; } .facing.flash, .facing.flash2 { animation: none; } }
+</style>
+</head>
+<body>
+
+<!-- VIEW 1: the story. One aisle, shown at once. The badge starts walking by itself a second after the page loads. -->
+<section id="story">
+  <h1>A badge walks a real store. This is what it reads.</h1>
+  <button id="storyplay" class="go" aria-label="Pause or play the walk"><svg viewBox="0 0 16 16" aria-hidden="true"><path id="storyicon" d="M3 1.5v13l11-6.5z"/></svg></button>
+  <div id="stage"><svg id="aisle" xmlns="http://www.w3.org/2000/svg"></svg></div>
+  <div id="stagecap"></div>
+  <div id="closing" class="pending">
+    <div id="nums"></div>
+    <p class="job">That's the job.</p>
+    <button id="explore" class="go">Explore the full store</button>
+    <p class="scope" id="scope"></p>
+  </div>
+</section>
+
+<!-- VIEW 2: the full store, every control. -->
+<section id="full">
+<header>
+  <h2 class="title">The full store</h2>
+  <p id="context" hidden></p>
+  <ul id="intro">
+    <li><b>The badge</b> is a small camera worn by a store associate. As they walk past a shelf it reads the label of every product facing, and sometimes its barcode.</li>
+    <li id="intro-store"></li>
+    <li><b>Real:</b> the products, from open product databases. <b>Assumed:</b> the store layout, the shelf problems, the walks and the damage to what the badge reads. Each one is listed under <a href="#facts">Verified and assumed</a>.</li>
+  </ul>
+</header>
+
+<div class="bar">
+  <button id="play" class="go" aria-label="Play the walk"><svg viewBox="0 0 16 16" aria-hidden="true"><path id="playicon" d="M3 1.5v13l11-6.5z"/></svg><span id="playtext">Play</span></button>
+  <div class="group"><button id="restart">Restart</button></div>
+  <div class="group" id="speeds"><span>Speed</span></div>
+  <div class="group" id="stores"><span>Store</span></div>
+  <div class="group" id="days"><span>Day</span></div>
+  <input id="scrub" type="range" min="0" max="1" step="0.05" value="0" aria-label="Walk time">
+  <div id="clock"></div>
+</div>
+
+<div id="error" hidden></div>
+<div id="counters" hidden></div>
+<main id="main" hidden>
+  <div>
+    <div id="legend"></div>
+    <div id="mapwrap"><svg id="map" xmlns="http://www.w3.org/2000/svg"></svg></div>
+  </div>
+  <aside>
+    <h2>Latest reads</h2>
+    <ul id="reads"></ul>
+  </aside>
+</main>
+
+<div id="strip" hidden>
+  <h2>Naive baseline on these reads</h2>
+  <div id="basebar"></div>
+  <div id="basetext"></div>
+</div>
+
+<div id="facts" hidden>
+  <h2>Verified and assumed</h2>
+  <p>What in this simulation can be checked, and what was made up to make it run.</p>
+  <div class="cols">
+    <div><h3 id="vsum"></h3><ul id="vlist"></ul></div>
+    <div><h3 id="asum"></h3><ul id="alist"></ul></div>
+  </div>
+</div>
+
+<footer>
+  <p class="next">This is the simulation. The conflation pipeline comes next.</p>
+  <p>Contains data from Open Food Facts, Open Beauty Facts and Open Products Facts, available under the Open Database License.
+  The products are real. The stores, shelf problems, walks, read damage, duplicates and catalog v2 changes are simulated.</p>
+</footer>
+</section>
+
+<div id="card" hidden></div>
+
+<script>
+const DATA = "../data/";
+const Q = new URLSearchParams(location.search);
+const SNAPSHOT = Q.get("snapshot") === "1";
+const STATUS = {
+  stocked: "stocked", restocked: "restocked since day 1", misplaced: "misplaced, wrong aisle",
+  empty: "empty, out of stock", newempty: "newly empty since day 1",
+};
+const PLAY = "M3 1.5v13l11-6.5z", PAUSE = "M3 2h4v12H3zM9 2h4v12H9z";
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const svgEl = (name, attrs = {}, text) => {
+  const el = document.createElementNS("http://www.w3.org/2000/svg", name);
+  for (const [k, v] of Object.entries(attrs)) el.setAttribute(k, v);
+  if (text !== undefined) el.textContent = text;
+  return el;
+};
+
+/* ---------- loading ---------- */
+async function load(name) {
+  const r = await fetch(DATA + name);
+  if (!r.ok) throw new Error(name + " - HTTP " + r.status);
+  return r.text();
+}
+function parseCSV(text) {            // RFC 4180: quoted fields, doubled quotes, commas inside quotes
+  const rows = []; let row = [], field = "", quoted = false;
+  for (let i = 0; i < text.length; i++) {
+    const c = text[i];
+    if (quoted) {
+      if (c === '"') { if (text[i + 1] === '"') { field += '"'; i++; } else quoted = false; }
+      else field += c;
+    } else if (c === '"') quoted = true;
+    else if (c === ",") { row.push(field); field = ""; }
+    else if (c === "\n") { row.push(field); rows.push(row); row = []; field = ""; }
+    else if (c !== "\r") field += c;
+  }
+  if (field !== "" || row.length) { row.push(field); rows.push(row); }
+  const head = rows.shift();
+  return rows.map(r => Object.fromEntries(head.map((h, i) => [h, r[i]])));
+}
+const parseJSONL = text => text.split("\n").filter(Boolean).map(line => JSON.parse(line));
+const facingKey = r => [r.aisle, r.shelf, r.position, r.facing].join("|");
+const productLine = p => p ? [p.brands, p.product_name, p.quantity].filter(Boolean).join(" · ") : "unknown";
+
+let D = null;        // everything loaded
+let scene = null;    // the chosen store and day
+let M = null;        // map measurements, in screen pixels
+const S = { store: "S001", day: 1, t: 0, playing: false, speed: 1, applied: 0, last: 0, pinned: null };
+
+async function boot() {
+  const names = ["planogram.csv", "shelf_truth_day1.csv", "shelf_truth_day2.csv", "shelf_truth_day3.csv",
+                 "detections.jsonl", "detections_truth.csv", "catalog_raw.jsonl", "catalog_v2.jsonl",
+                 "catalog_changes_truth.csv", "walks.json", "baseline_results.csv", "assumptions.json"];
+  const [plan, d1, d2, d3, det, truth, cat1, cat2, changes, walks, base, facts] = await Promise.all(names.map(load));
+  D = {
+    plan: parseCSV(plan),
+    shelf: { 1: parseCSV(d1), 2: parseCSV(d2), 3: parseCSV(d3) },
+    truth: new Map(parseCSV(truth).map(t => [t.detection_id, t])),
+    base: new Map(parseCSV(base).map(b => [b.detection_id, b])),
+    walks: JSON.parse(walks),
+    v1: new Map(parseJSONL(cat1).map(p => [p.code, p])),
+    v2: new Map(parseJSONL(cat2).map(p => [p.code, p])),
+    first: new Map(), change: new Map(), hard: new Map(),
+  };
+  D.product = new Map([...D.v2, ...D.v1]);                       // v1 wins where both list a code
+  for (const d of parseJSONL(det)) if (!D.first.has(d.detection_id)) D.first.set(d.detection_id, d);
+  for (const c of parseCSV(changes)) {                           // what catalog v2 changed, by the barcode on the shelf
+    if (c.change === "renamed") D.change.set(c.v1_code, c);
+    if (c.change === "new_size") D.change.set(c.v2_code, c);
+    if (c.change === "discontinued") D.change.set(c.v1_code, c);
+  }
+  // hard cases: a product whose name is also the name of another product with a different size
+  const byName = new Map();
+  for (const p of D.product.values()) {
+    const name = (p.product_name || "").trim().toLowerCase();
+    if (name) byName.set(name, [...(byName.get(name) || []), p]);
+  }
+  const size = p => (p.quantity || "").trim().toLowerCase();
+  for (const rows of byName.values())
+    for (const p of rows) {
+      const others = rows.filter(o => o.code !== p.code && size(o) !== size(p));
+      if (others.length) D.hard.set(p.code, others);
+    }
+  D.stores = [...new Set(D.plan.map(r => r.store_id))].sort();
+  D.category = new Map(D.plan.map(r => [r.aisle, r.category]));
+  D.effective = D.walks.assumed.catalog_v2_effective_day;
+
+  // the list of what is verified and what is assumed, as written by sim/assumptions.py
+  const list = JSON.parse(facts);
+  const linked = s => esc(s).replace(/https?:\/\/[^\s)]+/g, url => `<a href="${url}">${url}</a>`);
+  $("vsum").textContent = `Verified - ${list.verified.length} things that can be checked`;
+  $("asum").textContent = `Assumed - ${list.assumed.length} things made up to make it run`;
+  $("vlist").innerHTML = list.verified.map(x => `<li>${linked(x)}</li>`).join("");
+  $("alist").innerHTML = list.assumed.map(x => `<li>${linked(x)}</li>`).join("");
+  $("facts").hidden = false;
+
+  const storyShot = SNAPSHOT && Q.get("view") === "story";
+  document.body.classList.toggle("snapshot", SNAPSHOT);
+  document.body.classList.toggle("story", storyShot);
+  buildControls();
+  $("main").hidden = false; $("strip").hidden = false; $("counters").hidden = false; $("context").hidden = !SNAPSHOT;
+  if (SNAPSHOT) $("facts").hidden = true;
+  choose(D.stores.includes(Q.get("store")) ? Q.get("store") : S.store, [1, 2, 3].includes(+Q.get("day")) ? +Q.get("day") : S.day);
+  const one = D.plan.filter(r => r.store_id === S.store);
+  $("intro-store").innerHTML = `<b>The store</b> is one of ${D.stores.length} simulated stores: ${scene.aisles.length} aisles, ` +
+    `${new Set(one.map(r => r.code)).size} products, ${scene.total.facings} facings. Each box below is one facing, one unit of a product at the shelf edge.`;
+  buildStory();
+  if (storyShot) {                                               // ?snapshot=1&view=story&t=3 freezes the story; t=end shows its closing numbers
+    if (Q.get("t")) storyFreeze(Q.get("t") === "end" ? Infinity : +Q.get("t") || 0);
+  } else {
+    if (Q.get("t")) seek(Math.min(+Q.get("t") || 0, scene.end));
+    else if (SNAPSHOT) seek(scene.end);                          // a snapshot with no time given shows the finished day
+    if (Q.get("view") === "full") $("full").scrollIntoView();    // a link can open straight on the full store
+    if (Q.get("facing")) pin(Q.get("facing").split("-").join("|"));
+  }
+  // The story starts by itself one second after load, so a visitor who never clicks still sees it.
+  // Not in a snapshot, not when the link opens the full store, and not for a visitor who asked for reduced motion.
+  if (!SNAPSHOT && Q.get("view") !== "full" && !matchMedia("(prefers-reduced-motion: reduce)").matches)
+    setTimeout(() => { if (!ST.on && !ST.done && ST.applied === 0) storyStart(); }, 1000);
+  requestAnimationFrame(tick);
+}
+
+/* ---------- one store on one day ---------- */
+function buildScene(store, day) {
+  const W = D.walks.assumed.facing_width_m;
+  const day1 = new Map(D.shelf[1].filter(r => r.store_id === store).map(r => [facingKey(r), r]));
+  const rows = D.shelf[day].filter(r => r.store_id === store)
+    .sort((a, b) => a.aisle.localeCompare(b.aisle) || a.shelf - b.shelf || a.position - b.position || a.facing - b.facing);
+  const next = {}, facings = new Map();
+  for (const r of rows) {
+    const shelf = r.aisle + "|" + r.shelf;
+    const slot = next[shelf] || 0; next[shelf] = slot + 1;
+    const was = day1.get(facingKey(r));
+    let status;
+    if (!r.actual_code) status = day > 1 && was.actual_code ? "newempty" : "empty";
+    else if (r.status === "misplaced") status = "misplaced";
+    else status = day > 1 && !was.actual_code ? "restocked" : "stocked";
+    facings.set(facingKey(r), { ...r, slot, along: (slot + 0.5) * W, status,
+                                change: day >= D.effective ? D.change.get(r.actual_code) : undefined,
+                                hard: D.hard.get(r.actual_code || r.planned_code) });
+  }
+  const aisles = [...new Set(rows.map(r => r.aisle))].sort();
+  const walks = D.walks.walks.filter(w => w.store_id === store && w.day === day)
+    .sort((a, b) => a.start_utc.localeCompare(b.start_utc));
+  const dayStart = Date.parse(walks[0].start_utc);
+  for (const w of walks) {
+    w.offset = (Date.parse(w.start_utc) - dayStart) / 1000;
+    w.duration = w.legs[w.legs.length - 1].end_s;
+  }
+
+  // every detection of this store and day becomes one event on the clock
+  const events = [];
+  for (const w of walks) {
+    const resent = [];
+    for (const d of D.first.values()) {
+      if (d.store_id !== store || d.walk_id !== w.walk_id) continue;
+      const tr = D.truth.get(d.detection_id);
+      const kind = tr.extra === "double_in_frame" ? "double" : tr.extra === "second_badge" ? "second" : "base";
+      // a double has the same timestamp as its first box; it is shown a quarter second later so both flashes can be seen
+      const t = (Date.parse(d.ts) - dayStart) / 1000 + (kind === "double" ? 0.25 : 0);
+      events.push({ t, d, tr, kind, key: facingKey(tr) });
+      if (tr.times_sent === "2") resent.push({ d, tr, key: facingKey(tr) });
+    }
+    // re-sent rows carry no arrival time in the data; they are shown just after their walk ends
+    resent.forEach((r, i) => events.push({ ...r, t: w.offset + w.duration + 0.4 + i * 0.05, kind: "resent" }));
+  }
+  events.sort((a, b) => a.t - b.t);
+  const reads = new Map();                    // facing -> its reads today, for the card
+  for (const e of events) if (e.kind !== "resent") reads.set(e.key, [...(reads.get(e.key) || []), e]);
+
+  // when the first full walk passes each empty facing
+  const full = walks.find(w => !w.only_aisle);
+  const empties = [];
+  for (const f of facings.values()) {
+    if (f.actual_code) continue;
+    const leg = full.legs.find(l => l.aisle === f.aisle);
+    const walked = leg.direction === "forward" ? f.along : leg.length_m - f.along;
+    empties.push({ t: full.offset + leg.start_s + walked / full.speed_m_per_s, position: f.aisle + "|" + f.shelf + "|" + f.position });
+  }
+  empties.sort((a, b) => a.t - b.t);
+
+  const distinct = events.filter(e => e.kind !== "resent");
+  const all = [...facings.values()];
+  const total = {
+    facings: facings.size,
+    stocked: all.filter(f => f.actual_code).length,
+    detections: distinct.length,
+    barcodes: distinct.filter(e => e.d.read_barcode).length,
+    double: distinct.filter(e => e.kind === "double").length,
+    second: distinct.filter(e => e.kind === "second").length,
+    resent: events.length - distinct.length,
+    emptyFacings: empties.length,
+    emptyPositions: new Set(empties.map(e => e.position)).size,
+    misplaced: all.filter(f => f.status === "misplaced").length,
+    drift: distinct.filter(e => D.change.has(e.tr.true_code) && day >= D.effective).length,
+    right: 0, wrong: 0, "no answer": 0,
+  };
+  for (const e of distinct) total[D.base.get(e.d.detection_id).outcome]++;
+  const end = Math.max(...walks.map(w => w.offset + w.duration)) + 2.5;
+  const slots = Math.max(...all.map(f => f.slot)) + 1;
+  return { store, day, W, facings, aisles, walks, dayStart, events, reads, empties, total, end, slots };
+}
+
+/* ---------- drawing: the whole store is fitted to the width of the page ---------- */
+function measure() {
+  const wrap = $("mapwrap");
+  const width = Math.max(240, Math.floor(wrap.clientWidth));
+  const narrow = width < 640;
+  const left = narrow ? 12 : 116;                  // room for the aisle name beside the shelves, or above them when narrow
+  const labelRow = narrow ? 17 : 0;
+  const slot = (width - left - 4) / scene.slots;   // a facing shrinks until the longest shelf fits
+  let row = 12;
+  if (!narrow) {                                   // and the rows shrink until all aisles fit in the window, within limits
+    const top = wrap.getBoundingClientRect().top - $("full").getBoundingClientRect().top;   // from the top of this view
+    const strip = SNAPSHOT ? 0 : $("strip").offsetHeight;
+    const room = window.innerHeight - top - strip - 14;
+    row = Math.max(7, Math.min(16, (room / scene.aisles.length - 18) / 4));
+  }
+  M = { width, narrow, left, labelRow, slot, row, band: 4 * row + 18 + labelRow, gap: slot > 9 ? 3 : slot > 5 ? 2 : 1 };
+}
+const xOf = along => M.left + along / scene.W * M.slot;
+const bandTop = i => i * M.band + M.labelRow;
+const walkwayY = i => bandTop(i) + 4 * M.row + 9;
+
+function drawMap() {
+  measure();
+  hideCard(true);
+  const svg = $("map"); svg.replaceChildren();
+  const height = scene.aisles.length * M.band + 4;
+  svg.setAttribute("width", M.width); svg.setAttribute("height", height); svg.setAttribute("viewBox", `0 0 ${M.width} ${height}`);
+  scene.el = new Map();
+  const all = [...scene.facings.values()];
+  scene.aisles.forEach((aisle, i) => {
+    if (M.narrow) {
+      svg.append(svgEl("text", { x: 0, y: bandTop(i) - 5, class: "aisle-name" }, aisle));
+      svg.append(svgEl("text", { x: 30, y: bandTop(i) - 5, class: "aisle-sub" }, D.category.get(aisle)));
+    } else {
+      svg.append(svgEl("text", { x: 2, y: bandTop(i) + 2 * M.row - 1, class: "aisle-name" }, aisle));
+      svg.append(svgEl("text", { x: 2, y: bandTop(i) + 2 * M.row + 12, class: "aisle-sub" }, D.category.get(aisle)));
+      if (M.row >= 9) for (let shelf = 4; shelf >= 1; shelf--)
+        svg.append(svgEl("text", { x: M.left - 9, y: bandTop(i) + (4 - shelf) * M.row + M.row * 0.75, class: "shelf-no" }, shelf));
+    }
+    const length = Math.max(...all.filter(f => f.aisle === aisle).map(f => f.slot)) + 1;
+    svg.append(svgEl("line", { x1: M.left, x2: M.left + length * M.slot, y1: walkwayY(i), y2: walkwayY(i), class: "walkway" }));
+  });
+  for (const f of all) {
+    const i = scene.aisles.indexOf(f.aisle);
+    const w = M.slot - M.gap, h = M.row - 2;
+    const fx = M.left + f.slot * M.slot + M.gap / 2, fy = bandTop(i) + (4 - f.shelf) * M.row + 1;
+    const rect = svgEl("rect", { x: fx, y: fy, width: w, height: h, rx: Math.min(2, w / 3), "data-key": facingKey(f),
+                                 class: "facing st-" + f.status + (f.change ? " drift" : "") });
+    svg.append(rect);
+    if (f.hard) {
+      const r = Math.max(0.9, Math.min(2, Math.min(w, h) / 5));
+      svg.append(svgEl("circle", { cx: fx + w - r - 0.6, cy: fy + r + 0.6, r, class: "hardmark" }));
+    }
+    scene.el.set(facingKey(f), rect);
+  }
+  const badge = svgEl("g", { id: "badge" });
+  badge.append(svgEl("circle", { r: 5 }), svgEl("text", { y: 4 }));
+  svg.append(badge);
+
+  const count = {};
+  for (const f of all) count[f.status] = (count[f.status] || 0) + 1;
+  const changed = all.filter(f => f.change).length, hard = all.filter(f => f.hard).length;
+  $("legend").innerHTML = Object.keys(STATUS).filter(k => count[k]).map(k => {
+    const hollow = k === "empty" || k === "newempty";
+    return `<span><i style="${hollow ? "border:1.5px " + (k === "newempty" ? "dashed" : "solid") + " var(--" + k + ")" : "background:var(--" + k + ")"}"></i>${STATUS[k]} ${count[k]}</span>`;
+  }).join("") + (changed ? `<span><i style="border:1.5px solid var(--drift)"></i>label changed in catalog v2 ${changed}</span>` : "") +
+    (hard ? `<span><i class="dot"></i>same name, different size ${hard}</span>` : "") +
+    `<span>bright = read by the badge</span>`;
+}
+
+function morph(before) {       // on a day change, a facing fades from what it was to what it is, then settles
+  if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  const moving = [];
+  for (const [key, el] of scene.el) {
+    const was = before.get(key), now = scene.facings.get(key).status;
+    if (was && was !== now) { el.classList.replace("st-" + now, "st-" + was); moving.push([el, was, now]); }
+  }
+  void $("map").getBoundingClientRect();      // let the browser take in the old look before the new one is set
+  for (const [el, was, now] of moving) { el.classList.add("morph"); el.classList.replace("st-" + was, "st-" + now); }
+  setTimeout(() => moving.forEach(([el]) => el.classList.remove("morph")), 1100);
+}
+
+function badgePoint(t) {      // where the badge is, on screen, at clock time t
+  for (const w of scene.walks) {
+    const local = t - w.offset;
+    if (local < 0 || local > w.duration) continue;
+    const point = (leg, s) => {
+      const along = leg.direction === "forward" ? s * w.speed_m_per_s : leg.length_m - s * w.speed_m_per_s;
+      return [xOf(along), walkwayY(scene.aisles.indexOf(leg.aisle))];
+    };
+    for (let k = 0; k < w.legs.length; k++) {
+      const leg = w.legs[k], next = w.legs[k + 1];
+      if (local <= leg.end_s) return { p: point(leg, Math.max(0, local - leg.start_s)), w };
+      if (next && local < next.start_s) {             // walking around the end of the aisle
+        const a = point(leg, leg.end_s - leg.start_s), b = point(next, 0);
+        const f = (local - leg.end_s) / (next.start_s - leg.end_s);
+        return { p: [a[0] + (b[0] - a[0]) * f, a[1] + (b[1] - a[1]) * f], w };
+      }
+    }
+  }
+  return null;
+}
+
+/* ---------- the card: one facing, or one catalog change ---------- */
+function changeHTML(c) {
+  const old = D.v1.get(c.v1_code), now = D.v2.get(c.v2_code);
+  const kind = { renamed: "renamed", new_size: "new size", discontinued: "discontinued" }[c.change];
+  return `<h3>Catalog v2: ${kind}</h3><dl>` +
+    `<dt>old label</dt><dd>${esc(productLine(old))}</dd>` +
+    `<dt>new label</dt><dd>${now ? esc(productLine(now)) : "none, the product is not in catalog v2"}</dd>` +
+    `<dt>old barcode</dt><dd>${esc(c.v1_code)}</dd>` +
+    `<dt>new barcode</dt><dd>${c.v2_code ? esc(c.v2_code) + (c.v2_code === c.v1_code ? " (unchanged)" : "") : "none"}</dd></dl>` +
+    (c.change === "new_size" ? `<div class="note">GS1: new net content = new GTIN</div>` : "") +
+    (c.change === "discontinued" ? `<div class="note">Leftover stock stays on the shelf with its old label.</div>` : "") +
+    `<div class="lab">Simulated change. From day ${D.effective} the shelf shows the new label.</div>`;
+}
+function facingHTML(f) {
+  const planned = D.product.get(f.planned_code), actual = f.actual_code && D.product.get(f.actual_code);
+  const reads = scene.reads.get(facingKey(f)) || [];
+  let html = `<h3>${f.aisle} · shelf ${f.shelf} · position ${f.position} · facing ${f.facing}</h3><dl>` +
+    `<dt>planned</dt><dd>${esc(productLine(planned))}</dd>` +
+    `<dt>barcode</dt><dd>${esc(f.planned_code)}</dd>` +
+    `<dt>on the shelf</dt><dd>${!f.actual_code ? "nothing" : f.actual_code === f.planned_code ? "the planned product" : esc(productLine(actual)) + " · " + esc(f.actual_code)}</dd>` +
+    `<dt>state</dt><dd>${STATUS[f.status]}</dd></dl>`;
+  if (f.hard) html += `<div class="sep"></div><div><b>Same name, different size.</b> Also in the catalog: ` +
+    f.hard.map(o => esc(o.quantity || "no size given") + " (" + esc(o.code) + ")").join(", ") + `</div>`;
+  if (f.change) html += `<div class="sep"></div>` + changeHTML(f.change);
+  html += `<div class="sep"></div>`;
+  if (!reads.length) html += `<div class="lab">${f.actual_code ? "No read on this day." : "Nothing to read here: an empty facing gives no detection."}</div>`;
+  else html += `<div class="lab">Read ${reads.length} time${reads.length > 1 ? "s" : ""} on this day</div>` + reads.map(e => {
+    const b = D.base.get(e.d.detection_id);
+    const dup = { double: "twice in one frame", second: "second badge" }[e.kind];
+    return `<div class="read${e.t > S.t ? " later" : ""}"><span class="where">${e.d.walk_id} · ${e.d.badge_id} · ${e.d.ts.slice(11, 19)} UTC · conf ${e.d.confidence.toFixed(2)} · ` +
+      `barcode read: ${e.d.read_barcode ? "yes, " + esc(e.d.read_barcode) : "no"}</span>` +
+      (dup ? `<span class="tag dup">${dup}</span>` : "") + (e.t > S.t ? `<span class="tag">later in the walk</span>` : "") +
+      `<div class="txt">${esc(e.d.ocr_text)}</div>` +
+      `<span class="tag ${b.outcome === "no answer" ? "" : b.outcome}" style="margin-left:0">baseline: ${b.outcome}${b.method ? " by " + b.method : ""}</span></div>`;
+  }).join("");
+  return html;
+}
+function showCard(html, anchor) {
+  const card = $("card");
+  card.innerHTML = html; card.hidden = false;
+  const r = anchor.getBoundingClientRect(), w = card.offsetWidth, h = card.offsetHeight;
+  let left = r.right + 10;
+  if (left + w > window.innerWidth - 8) left = r.left - w - 10;
+  if (left < 8) left = Math.max(8, Math.min(window.innerWidth - w - 8, r.left));
+  let top = left > r.right || left + w < r.left ? r.top - 12 : r.bottom + 8;    // beside the box, or below it when there is no room beside
+  top = Math.max(8, Math.min(top, window.innerHeight - h - 8));
+  card.style.left = left + window.scrollX + "px"; card.style.top = top + window.scrollY + "px";
+}
+function hideCard(force) {
+  if (S.pinned && !force) return;
+  if (S.pinned) scene.el.get(S.pinned)?.classList.remove("pinned");
+  S.pinned = null; $("card").hidden = true;
+}
+function pin(key) {
+  const el = scene.el.get(key); if (!el) return;
+  hideCard(true);
+  S.pinned = key; el.classList.add("pinned");
+  showCard(facingHTML(scene.facings.get(key)), el);
+}
+
+/* ---------- view 1: the story - the first aisle of the first store on day 1, slowed down ---------- */
+const STORY_SECONDS = 24;      // how long the aisle takes on screen. The walk itself is faster; the caption says by how much.
+const FLOAT_MS = 1150;         // how long a read text stays above its box
+let story = null;
+const ST = { on: false, t: 0, applied: 0 };
+
+function buildStory() {
+  const sc = buildScene(D.stores[0], 1);
+  const walk = sc.walks.find(w => !w.only_aisle), leg = walk.legs[0];
+  const facings = [...sc.facings.values()].filter(f => f.aisle === leg.aisle);
+  const events = sc.events.filter(e => e.kind !== "resent" && e.d.walk_id === walk.walk_id && e.tr.aisle === leg.aisle);
+  const outcomes = [...D.base.values()].map(b => b.outcome);
+  story = { sc, walk, leg, facings, events, slots: Math.max(...facings.map(f => f.slot)) + 1,
+            rate: (leg.end_s - leg.start_s) / STORY_SECONDS,
+            total: outcomes.length, right: outcomes.filter(o => o === "right").length,
+            none: outcomes.filter(o => o === "no answer").length };
+  $("nums").innerHTML =
+    `<div><b>${story.total.toLocaleString("en-US")}</b><span>reads</span></div>` +
+    `<div><b style="color:var(--right)">${(100 * story.right / story.total).toFixed(1)}%</b><span>matched by a simple lookup</span></div>` +
+    `<div><b style="color:var(--empty)">${story.none.toLocaleString("en-US")}</b><span>with no answer</span></div>`;
+  $("scope").textContent = `Every read in the data: ${D.stores.length} stores, ${Object.keys(D.shelf).length} days, ` +
+    `${new Set(D.walks.walks.map(w => w.store_id + w.walk_id)).size} walks.`;
+  $("stagecap").textContent = `Store ${sc.store} · aisle ${leg.aisle} ${D.category.get(leg.aisle)} · day 1 · ` +
+    `${events.length} reads · shown ${(1 / story.rate).toFixed(1)} times slower than the walk`;
+  $("storyplay").onclick = storyToggle;
+  $("explore").onclick = () => $("full").scrollIntoView({ behavior: "smooth" });
+  storyClear(); storyPlace();                 // the aisle is on screen from the first moment, before anything moves
+}
+function drawStage() {
+  const stage = $("stage"), svg = $("aisle"); svg.replaceChildren();
+  const width = Math.max(240, Math.floor(stage.clientWidth));
+  const height = Math.max(210, Math.min(440, Math.floor(window.innerHeight * 0.42)));   // leaves room under it for the closing numbers
+  const pad = 6, slot = (width - 2 * pad) / story.slots, row = (height - 30) / 4;
+  const gap = slot > 14 ? 4 : slot > 7 ? 2 : 1, boxH = Math.max(10, Math.min(row * 0.4, 64));
+  svg.setAttribute("width", width); svg.setAttribute("height", height); svg.setAttribute("viewBox", `0 0 ${width} ${height}`);
+  story.geo = { width, pad, slot, row, walkY: 4 * row + 14, textRoom: row - boxH - 5 };   // textRoom: free height above a row's boxes
+  story.el = new Map(); story.at = new Map();
+  for (let shelf = 1; shelf <= 4; shelf++)
+    svg.append(svgEl("line", { x1: pad, x2: width - pad, y1: (5 - shelf) * row - 2, y2: (5 - shelf) * row - 2, class: "shelfline" }));
+  svg.append(svgEl("line", { id: "beam", y1: 0, y2: 4 * row + 14, class: "beam" }));
+  for (const f of story.facings) {
+    const fx = pad + f.slot * slot + gap / 2, fy = (5 - f.shelf) * row - boxH - 5;
+    const rect = svgEl("rect", { x: fx, y: fy, width: slot - gap, height: boxH, rx: Math.min(4, (slot - gap) / 4), class: "facing st-" + f.status });
+    svg.append(rect);
+    story.el.set(facingKey(f), rect);
+    story.at.set(facingKey(f), { cx: fx + (slot - gap) / 2, top: fy, high: f.slot % 2 === 0 });
+  }
+  svg.append(svgEl("line", { x1: pad, x2: width - pad, y1: 4 * row + 14, y2: 4 * row + 14, class: "walkway" }));
+  const badge = svgEl("g", { id: "storybadge" }); badge.append(svgEl("circle", { r: 8 })); svg.append(badge);
+}
+function storyFloat(e, still) {            // the raw read text, above its box
+  const at = story.at.get(e.key), g = story.geo, el = document.createElement("div");
+  el.className = "float" + (e.kind === "double" ? " dup" : "") + (still ? " still" : "");
+  el.textContent = e.d.ocr_text;
+  // The text sits in the free space above its own row. Where that space is tall enough, neighbours
+  // take two heights so they overlap less; otherwise one height, so no text covers the shelf above.
+  el.style.top = Math.max(0, at.top - (at.high && g.textRoom >= 46 ? 44 : 23)) + "px";
+  if (at.cx < 130) { el.style.left = "2px"; el.style.setProperty("--tx", "0"); }
+  else if (at.cx > g.width - 130) { el.style.right = "2px"; el.style.setProperty("--tx", "0"); }
+  else el.style.left = at.cx + "px";
+  $("stage").append(el);
+  if (!still) setTimeout(() => el.remove(), FLOAT_MS);
+}
+function storyPlace() {                    // the badge and its line of sight
+  const g = story.geo, w = story.walk, leg = story.leg;
+  const walked = Math.max(0, Math.min(leg.length_m, (ST.t - leg.start_s) * w.speed_m_per_s));
+  const bx = g.pad + walked / story.sc.W * g.slot;
+  $("storybadge").setAttribute("transform", `translate(${bx},${g.walkY})`);
+  $("beam").setAttribute("x1", bx); $("beam").setAttribute("x2", bx);
+}
+function storyApply(flash) {
+  while (ST.applied < story.events.length && story.events[ST.applied].t <= ST.t) {
+    const e = story.events[ST.applied++], el = story.el.get(e.key);
+    el.classList.add("read");
+    if (flash) {
+      el.classList.remove("flash", "flash2"); void el.getBoundingClientRect();
+      el.classList.add(e.kind === "base" ? "flash" : "flash2");
+      storyFloat(e, false);
+    }
+  }
+}
+function storyClear() {                    // back to the start of the aisle: nothing read, numbers not shown
+  for (const el of $("stage").querySelectorAll(".float")) el.remove();
+  $("closing").classList.add("pending");
+  drawStage();
+  ST.applied = 0; ST.t = story.leg.start_s; ST.done = false;
+}
+function storySet(on) {                    // the icon shows what a click will do: pause while walking, play otherwise
+  ST.on = on;
+  $("storyicon").setAttribute("d", on ? PAUSE : PLAY);
+}
+function storyStart() { storyClear(); storyPlace(); storySet(true); }
+function storyToggle() { ST.done ? storyStart() : storySet(!ST.on); }
+function storyEnd() {                      // the closing numbers appear under the aisle, in the space kept for them
+  storySet(false); ST.done = true;
+  $("closing").classList.remove("pending");
+}
+function storyFreeze(t) {                  // for screenshots: the story stopped at walk-clock second t
+  storyClear(); storySet(false);
+  ST.t = Math.min(t, story.leg.end_s);
+  storyApply(false); storyPlace();
+  if (t > story.leg.end_s) { storyEnd(); return; }
+  for (const e of story.events) if (e.t <= ST.t && e.t > ST.t - FLOAT_MS / 1000 * story.rate) storyFloat(e, true);
+}
+function storyTick(dt) {
+  ST.t += dt * story.rate;
+  storyApply(true); storyPlace();
+  if (ST.t >= story.leg.end_s + 1.2 * story.rate) storyEnd();
+}
+
+/* ---------- playing ---------- */
+function reset() {
+  for (const el of scene.el.values()) el.classList.remove("read", "flash", "flash2");
+  S.applied = 0;
+  S.now = { detections: 0, barcodes: 0, double: 0, second: 0, resent: 0, drift: 0, misplaced: new Set(),
+            right: 0, wrong: 0, "no answer": 0, reads: [] };
+}
+function advance(flash) {       // apply every event up to the clock
+  let changed = false;
+  while (S.applied < scene.events.length && scene.events[S.applied].t <= S.t) {
+    const e = scene.events[S.applied++], el = scene.el.get(e.key), n = S.now;
+    el.classList.add("read");
+    if (flash) {
+      el.classList.remove("flash", "flash2"); void el.getBoundingClientRect();
+      el.classList.add(e.kind === "base" ? "flash" : "flash2");
+    }
+    if (e.kind === "resent") n.resent++;
+    else {
+      n.detections++;
+      if (e.d.read_barcode) n.barcodes++;
+      if (e.kind !== "base") n[e.kind]++;
+      if (D.change.has(e.tr.true_code) && scene.day >= D.effective) n.drift++;
+      if (e.tr.shelf_status === "misplaced") n.misplaced.add(e.key);
+      n[D.base.get(e.d.detection_id).outcome]++;
+    }
+    n.reads.unshift(e); if (n.reads.length > 9) n.reads.pop();
+    changed = true;
+  }
+  return changed;
+}
+
+function render(listChanged) {
+  const n = S.now, T = scene.total;
+  const passed = scene.empties.filter(e => e.t <= S.t);
+  const c = (label, a, b, extra = "") => `<span class="c">${label} <b>${a}</b> <small>of ${b}${extra}</small></span>`;
+  $("counters").innerHTML =
+    `<span class="c">Facings <b>${T.facings}</b> <small>stocked ${T.stocked}</small></span>` +
+    c("Detections", n.detections, T.detections) +
+    c("With a barcode", n.barcodes, T.barcodes) +
+    c("Duplicates", n.double + n.second + n.resent, T.double + T.second + T.resent,
+      ` · same frame ${n.double}/${T.double} · second badge ${n.second}/${T.second} · re-sent ${n.resent}/${T.resent}`) +
+    c("Empty facings passed", passed.length, T.emptyFacings, ` · ${new Set(passed.map(e => e.position)).size}/${T.emptyPositions} positions`) +
+    c("Misplaced seen", n.misplaced.size, T.misplaced) +
+    (scene.day >= D.effective ? c("Changed labels read", n.drift, T.drift) : "");
+
+  if (listChanged) $("reads").innerHTML = n.reads.map(e => {
+    const b = D.base.get(e.d.detection_id);
+    const dup = { double: "twice in one frame", second: "second badge " + e.d.badge_id, resent: "re-sent row" }[e.kind];
+    const change = scene.day >= D.effective && D.change.get(e.tr.true_code);
+    return `<li><span class="where">${e.tr.aisle} shelf ${e.tr.shelf} pos ${e.tr.position} &middot; conf ${e.d.confidence.toFixed(2)} &middot; ` +
+      `barcode ${e.d.read_barcode || "none"}</span>` +
+      (dup ? `<span class="tag dup">${dup}</span>` : "") +
+      `<div class="txt">${esc(e.d.ocr_text)}</div>` +
+      `<div class="lab">label: ${esc(e.tr.clean_text)}` +
+      (change ? `<span class="tag v2" tabindex="0" data-code="${esc(e.tr.true_code)}">${e.tr.label_catalog} label &middot; ${change.change.replace("_", " ")}</span>` : "") +
+      `<span class="tag ${b.outcome === "no answer" ? "" : b.outcome}">baseline: ${b.outcome}${b.method ? " by " + b.method : ""}</span></div></li>`;
+  }).join("");
+
+  const pct = k => (100 * n[k] / T.detections).toFixed(2) + "%";
+  $("basebar").innerHTML = ["right", "wrong", "no answer"].map((k, i) =>
+    `<div style="width:${pct(k)};background:var(--${["right", "wrong", "none"][i]})"></div>`).join("");
+  $("basetext").innerHTML =
+    `So far: <b style="color:var(--right)">${n.right} right</b> &middot; <b style="color:var(--wrong)">${n.wrong} wrong</b> &middot; ` +
+    `<b>${n["no answer"]} no answer</b> of ${n.detections} reads. ` +
+    `<span style="color:var(--dim)">Whole day in this store: ${T.right} right, ${T.wrong} wrong, ${T["no answer"]} no answer of ${T.detections}.` +
+    `<span class="more"> The baseline matches the exact text, the text ignoring case, or the barcode against catalog v1.</span></span>`;
+
+  const at = badgePoint(S.t), badge = $("badge");
+  badge.style.display = at ? "" : "none";
+  if (at) {
+    badge.setAttribute("transform", `translate(${at.p[0]},${at.p[1]})`);
+    const label = badge.lastChild, flip = at.p[0] > M.width - 80;     // keep the label inside the map
+    label.textContent = at.w.badge_id + " " + at.w.walk_id;
+    label.setAttribute("x", flip ? -8 : 8); label.setAttribute("text-anchor", flip ? "end" : "start");
+  }
+  $("scrub").value = S.t;
+  const now = new Date(scene.dayStart + S.t * 1000).toISOString();
+  $("clock").textContent = `${now.slice(0, 10)}  ${now.slice(11, 19)} UTC   +${S.t.toFixed(1)} s`;
+  if (SNAPSHOT) $("context").textContent = `Store ${scene.store} · day ${scene.day} · ${now.slice(0, 10)} ${now.slice(11, 19)} UTC`;
+}
+
+function tick(ms) {
+  const dt = Math.max(0, (ms - S.last) / 1000); S.last = ms;     // never backwards, whatever the frame clock does
+  if (story && ST.on) storyTick(Math.min(dt, 0.25));
+  if (scene && S.playing) {
+    S.t += Math.min(dt, 0.25) * S.speed;
+    // nothing happens between two walks on the same day, so jump to one second before the next
+    const idle = scene.walks.every(w => S.t < w.offset - 1 || S.t > w.offset + w.duration + 2.5);
+    const next = scene.walks.find(w => w.offset - 1 > S.t);
+    if (idle && next) S.t = next.offset - 1;
+    if (S.t >= scene.end) { S.t = scene.end; setPlaying(false); }
+    render(advance(true));
+  }
+  requestAnimationFrame(tick);
+}
+function seek(t) { S.t = t; reset(); advance(false); render(true); }
+function setPlaying(on) {
+  S.playing = on;
+  $("playtext").textContent = on ? "Pause" : "Play"; $("playicon").setAttribute("d", on ? PAUSE : PLAY);
+}
+function choose(store, day) {
+  const before = scene && scene.store === store && scene.day !== day
+    ? new Map([...scene.facings].map(([key, f]) => [key, f.status])) : null;
+  S.store = store; S.day = day;
+  scene = buildScene(store, day);
+  for (const b of $("stores").querySelectorAll("button")) b.classList.toggle("on", b.dataset.v === store);
+  for (const b of $("days").querySelectorAll("button")) b.classList.toggle("on", +b.dataset.v === day);
+  $("scrub").max = scene.end;
+  drawMap(); setPlaying(false); seek(0);
+  if (before) morph(before);
+}
+function buildControls() {
+  const add = (parent, label, value, on) => {
+    const b = document.createElement("button"); b.textContent = label; b.dataset.v = value; b.onclick = on; $(parent).append(b); return b;
+  };
+  for (const s of D.stores) add("stores", s, s, () => choose(s, S.day));
+  for (const d of [1, 2, 3]) add("days", "day " + d, d, () => choose(S.store, d));
+  for (const v of [1, 4, 16]) add("speeds", v + "x", v, e => {
+    S.speed = v; for (const b of $("speeds").querySelectorAll("button")) b.classList.toggle("on", b === e.target);
+  }).classList.toggle("on", v === 1);
+  $("play").onclick = () => { if (!S.playing && S.t >= scene.end) seek(0); setPlaying(!S.playing); };
+  $("restart").onclick = () => { seek(0); setPlaying(true); };
+  $("scrub").oninput = e => seek(+e.target.value);
+  document.addEventListener("keydown", e => {
+    if (e.code === "Escape") hideCard(true);
+    if (e.code === "Space" && !["BUTTON", "INPUT"].includes(e.target.tagName)) { e.preventDefault(); $("play").click(); }
+  });
+
+  // cards: hover shows, click pins, a click elsewhere or Escape closes
+  const map = $("map");
+  map.addEventListener("mouseover", e => {
+    const el = e.target.closest(".facing");
+    if (el && !S.pinned) showCard(facingHTML(scene.facings.get(el.dataset.key)), el);
+  });
+  map.addEventListener("mouseout", e => { if (e.target.closest(".facing")) hideCard(false); });
+  document.addEventListener("click", e => {
+    const el = e.target.closest(".facing"), tag = e.target.closest(".tag.v2");
+    if (el) S.pinned === el.dataset.key ? hideCard(true) : pin(el.dataset.key);
+    else if (tag) { hideCard(true); showCard(changeHTML(D.change.get(tag.dataset.code)), tag); }
+    else if (!e.target.closest("#card")) hideCard(true);
+  });
+  for (const type of ["mouseover", "focusin"]) $("reads").addEventListener(type, e => {
+    const tag = e.target.closest(".tag.v2");
+    if (tag && !S.pinned) showCard(changeHTML(D.change.get(tag.dataset.code)), tag);
+  });
+  $("reads").addEventListener("mouseout", e => { if (e.target.closest(".tag.v2")) hideCard(false); });
+
+  let timer;                                        // the map is redrawn to the new width when the window changes
+  window.addEventListener("resize", () => {
+    clearTimeout(timer);
+    timer = setTimeout(() => {
+      const pinned = S.pinned; drawMap(); seek(S.t); if (pinned) pin(pinned);
+      if (story) {                                  // the story's aisle too, keeping what has been read so far
+        for (const el of $("stage").querySelectorAll(".float")) el.remove();
+        drawStage(); ST.applied = 0; storyApply(false); storyPlace();
+      }
+    }, 120);
+  });
+}
+
+boot().catch(err => {
+  $("error").hidden = false;
+  $("error").textContent = "Could not load the data files (" + err.message + "). Serve the repo root with: python -m http.server  and open /web/";
+});
+</script>
+</body>
+</html>
