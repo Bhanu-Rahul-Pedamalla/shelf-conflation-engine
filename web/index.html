@@ -10,14 +10,14 @@
   Every number on this page is counted from those files at load time. Nothing is typed in.
   Serve the repo root (python -m http.server) and open /web/.
 
-  Two views on one page: the story (one aisle, slowed down) and, below it, the full store.
+  The story in five acts (one aisle, one read at a time) and, below it, the deep sections: the full store, the baseline, the assumptions.
 
   URL flags:  ?view=full&store=S002&day=2&t=30   open the full store at a store, a day and a moment
               &facing=A01-3-7-1                  pin the card of one facing (aisle-shelf-position-facing)
               ?snapshot=1&store=..&day=..&t=..   the full store only: title, legend, map and counters, for clean screenshots
               ?snapshot=1&view=story             the story alone, at the start of the aisle, with no buttons
               ?snapshot=1&view=story&t=3         the story frozen 3 seconds in
-              ?snapshot=1&view=story&t=end       the story with its closing numbers under the aisle
+              ?snapshot=1&view=story&t=end       the story at the end of the aisle
 -->
 <style>
   :root {
@@ -41,22 +41,86 @@
   /* view 1: the story */
   #story { padding: 16px 16px 28px; border-bottom: 1px solid var(--line); }
   #story h1 { margin: 0 0 10px; font-size: clamp(20px, 3.2vw, 36px); line-height: 1.15; font-weight: 700; letter-spacing: -.01em; }
-  /* the five steps: small headings a visitor can read on their own, short text under each */
-  #why { list-style: none; counter-reset: step; margin: 0 0 12px; padding: 0; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 0 18px;
-         border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); padding: 8px 0; }
-  #why li { counter-increment: step; min-width: 0; }
-  #why h3 { margin: 0 0 2px; font-size: 13px; font-weight: 700; color: var(--accent); }
-  #why h3::before { content: counter(step) " "; color: var(--dim); font-weight: 600; }
-  #why p { margin: 0; font-size: 12px; line-height: 1.4; color: var(--text); }
-  #why q { font-family: ui-monospace, Consolas, monospace; quotes: '"' '"'; }
-  @media (max-width: 1100px) { #why { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px 16px; } }
-  @media (max-width: 700px) {         /* on a phone the five steps are cards to swipe through, so the viewfinder stays on the first screen */
-    #why { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; gap: 12px; -webkit-overflow-scrolling: touch; }
-    #why li { flex: 0 0 86%; scroll-snap-align: start; }
+  /* the acts: one line, one visual, one number each */
+  .act { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: 20px 40px; align-items: center; padding: 44px 0; border-top: 1px solid var(--line); }
+  .act:first-of-type { border-top: 0; padding-top: 10px; }
+  .act-text { min-width: 0; }
+  .act-vis { min-width: 0; }
+  .actno { display: inline-block; width: 26px; height: 26px; line-height: 26px; text-align: center; border-radius: 50%; background: var(--line); color: var(--text); font-size: 13px; font-weight: 700; margin-bottom: 10px; }
+  .beat { display: inline-block; margin: 0 0 10px 8px; color: var(--accent); font-size: 13px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; vertical-align: top; line-height: 26px; }
+  .bridge { color: var(--text); font-weight: 600; }
+  .act h2 { margin: 0 0 14px; font-size: clamp(22px, 2.6vw, 36px); line-height: 1.15; font-weight: 700; letter-spacing: -.01em; color: var(--text); text-transform: none; }
+  .act .num { margin: 0 0 10px; font-size: 15px; color: var(--text); }
+  .act .num b { display: block; font-size: clamp(28px, 3.4vw, 48px); font-weight: 800; line-height: 1.05; font-variant-numeric: tabular-nums; margin-bottom: 2px; }
+  .act .src, .scene .src { color: var(--dim); font-size: 12px; }
+  .act .src::before, .scene .src::before { content: "["; } .act .src::after, .scene .src::after { content: "]"; }
+  .act .cap { margin: 0; color: var(--dim); font-size: 14px; line-height: 1.45; }
+  #act2 { grid-template-columns: minmax(0, 1fr); }
+  #act2 .act-text { max-width: 900px; }
+  .nums2 { display: flex; gap: 12px 44px; flex-wrap: wrap; }
+  #limit { margin-top: 10px; font-size: 13px; }
+  #hint { margin-top: 8px; font-size: 13px; color: var(--accent); }
+  body.clip #limit, body.snapshot #limit, body.clip #hint, body.snapshot #hint { display: none; }
+  body.snapshot #act2 { padding: 8px 0; border: 0; }
+  #shelf1 { display: block; width: 100%; }
+  #shelf1cap { margin-top: 8px; }
+  @media (max-width: 900px) { .act { grid-template-columns: minmax(0, 1fr); gap: 18px; padding: 32px 0; } }
+  /* the scenes below the opening: a line that says where to look, the thing, a line that says what it means, a note. All shown at once. */
+  #beats { padding: 0 16px; }
+  .scene { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: 20px 40px; align-items: center; padding: 48px 0; border-top: 1px solid var(--line); }
+  .scene-text, .scene-vis { min-width: 0; }
+  .scene h2 { margin: 0 0 12px; font-size: clamp(22px, 2.6vw, 34px); line-height: 1.15; font-weight: 700; letter-spacing: -.01em; color: #fff; text-transform: none; }
+  .scene h2.l1 { color: var(--accent); }
+  .scene .small { margin: 0; color: var(--dim); font-size: 14px; line-height: 1.45; }
+  #beat8 { grid-template-columns: minmax(0, 1fr); padding-bottom: 18px; }
+  #beat8 h2 { margin: 0; }
+  /* one read over its catalog row */
+  #act3vis { display: grid; gap: 4px; background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; }
+  #act3vis .lab { color: var(--dim); font-size: 12px; margin-top: 8px; }
+  #act3vis .lab:first-child { margin-top: 0; }
+  .exread { font: 600 clamp(16px, 2vw, 24px)/1.3 ui-monospace, Consolas, monospace; color: #fff; background: #000; border: 1px solid var(--line); border-radius: 6px; padding: 8px 12px; overflow-wrap: anywhere; }
+  .exread .bad { color: var(--wrong); background: rgba(224,106,106,.18); border-radius: 2px; }
+  .exrow { font-size: 15px; display: flex; flex-wrap: wrap; gap: 6px 14px; align-items: baseline; }
+  .exrow .code { font-family: ui-monospace, Consolas, monospace; color: var(--dim); }
+  .extruth { font: 15px/1.3 ui-monospace, Consolas, monospace; color: var(--dim); overflow-wrap: anywhere; }
+  .extruth .lost { color: #1a1200; background: var(--empty); border-radius: 2px; font-weight: 700; }
+  /* the meter: reads piling up walk by walk */
+  #meter { display: flex; align-items: flex-end; gap: 4px; height: 150px; border-bottom: 1px solid var(--line); padding-bottom: 2px; }
+  #meter i { flex: 1 1 0; display: block; background: linear-gradient(180deg, rgba(224,162,60,.55), rgba(224,162,60,.12)); border: 1px solid rgba(224,162,60,.5); border-bottom: 0; border-radius: 4px 4px 0 0;
+ }
+  #metercap { margin-top: 8px; }
+  /* the ladder */
+  #ladder { list-style: none; margin: 0; padding: 0 0 6px; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; align-items: end; }
+  #ladder li { display: flex; flex-direction: column; justify-content: flex-end; gap: 3px; min-width: 0; }
+  #ladder b { font-size: 13px; line-height: 1.2; overflow-wrap: anywhere; }
+  #ladder span { font-size: 12px; color: var(--dim); margin-bottom: 6px; }
+  #ladder i { display: block; height: calc(24px + var(--h) * 26px); border-radius: 8px 8px 0 0; background: linear-gradient(180deg, rgba(79,195,176,.35), rgba(79,195,176,.08)); border: 1px solid var(--line); border-bottom: 3px solid var(--accent);
+ }
+  #ladder li:nth-child(3) i { background: linear-gradient(180deg, rgba(224,162,60,.35), rgba(224,162,60,.08)); border-bottom-color: var(--empty); }
+  #ladder li:nth-child(4) i { background: linear-gradient(180deg, rgba(224,162,60,.2), rgba(224,162,60,.05)); border-bottom-color: var(--empty); }
+  @media (max-width: 1200px) { .scene { grid-template-columns: minmax(0, 1fr); } }
+  @media (max-width: 900px) { .scene { padding: 32px 0; gap: 16px; } #ladder i { height: calc(18px + var(--h) * 20px); } #ladder b { font-size: 12px; } #meter { height: 110px; } }
+  /* the deep sections */
+  #deep { padding: 0 16px 24px; }
+  #deep details { border-top: 1px solid var(--line); }
+  #deep summary { cursor: pointer; padding: 16px 0; font-size: 18px; font-weight: 700; list-style: none; display: flex; align-items: center; gap: 10px; }
+  #deep summary::-webkit-details-marker { display: none; }
+  #deep summary::before { content: ""; width: 8px; height: 8px; border-right: 2px solid var(--accent); border-bottom: 2px solid var(--accent); transform: rotate(-45deg); transition: transform .15s; }
+  #deep details[open] > summary::before { transform: rotate(45deg); }
+
+  #deep header { padding: 0 0 10px; border-bottom: 1px solid var(--line); }
+  #deep footer { padding-top: 12px; }
+  @media (max-width: 900px) {
+    .act { grid-template-columns: minmax(0, 1fr); gap: 18px; padding: 32px 0; }
+    #ladder i { height: calc(18px + var(--h) * 20px); } #ladder b { font-size: 12px; }
   }
-  body.snapshot #why { display: none; }
+  /* ?snapshot=1&view=story shows act 2 alone; ?snapshot=1 shows the full store alone */
+  body.snapshot.story .act:not(#act2), body.snapshot.story #beats, body.snapshot.story #deep, body.snapshot.story #act2 .act-text { display: none; }
+  body.snapshot:not(.story) #story, body.snapshot:not(.story) #beats { display: none; }
+  body.snapshot #deep summary { display: none; }
   /* ?clip=1 (9:16) or ?clip=square (1:1): the story alone, sized for a phone screen recording. Nothing else is shown. */
-  body.clip #why, body.clip #storyplay, body.clip #closing, body.clip #full, body.clip #card { display: none !important; }
+  body.clip .act:not(#act2), body.clip #act2 .act-text, body.clip #storyplay, body.clip #beats, body.clip #deep, body.clip #hint, body.clip #card { display: none !important; }
+  body.clip #act2 { padding: 0; border: 0; display: block; }
   body.clip #story { min-height: 100vh; display: flex; flex-direction: column; padding: 40px 40px 30px; border: 0; }
   body.clip #story h1 { font-size: 46px; margin-bottom: 22px; }
   body.clip .storybar { margin-bottom: 22px; }
@@ -85,6 +149,20 @@
   #storyplay { min-width: 0; width: 52px; height: 52px; padding: 0; justify-content: center; border-radius: 12px; }
   #storyplay svg { width: 24px; height: 24px; }
   #stage { position: relative; width: 100%; }
+  #viewrow { display: flex; }
+  /* the live viewfinder and, when a shelf spot is held, its panel beside it: the live view keeps its size and keeps running */
+  #viewrow { gap: 14px; align-items: stretch; justify-content: center; }
+  #viewrow.pinned { justify-content: flex-start; }
+  #pinpanel { display: none; flex: 1 1 280px; min-width: 0; grid-template-rows: auto auto minmax(0, 1fr); gap: 8px; background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 10px; }
+  #viewrow.pinned #pinpanel { display: grid; }
+  #ppack { display: grid; place-items: center; height: 96px; }
+  #ppack .pack { height: 100%; width: min(100%, 320px); gap: 2px; padding: 8px 14px; box-shadow: none; }
+  #ppack .pack .brand { font-size: 17px; } #ppack .pack .name { font-size: 13px; } #ppack .pack .size { font-size: 12px; } #ppack .pack .tagline { font-size: 11px; margin-top: 3px; }
+  @media (max-width: 1299px) {              /* no room beside the viewfinder: the panel goes under it, the strip stays below both */
+    #viewrow { flex-direction: column; height: auto !important; }
+    #viewrow.pinned { justify-content: center; }
+    #pinpanel { flex: none; height: auto; max-height: 50vh; }
+  }
   #stage svg { display: block; margin-top: 14px; }
   #stagecap { color: var(--dim); font-size: 12px; margin-top: 6px; }
   .storybar { display: flex; align-items: center; gap: 22px; flex-wrap: wrap; margin-bottom: 10px; }
@@ -93,7 +171,7 @@
   #storycount .matched b { color: var(--right); } #storycount .none b { color: var(--empty); } #storycount .wrong b { color: var(--wrong); }
   #storycount .small { font-size: 12px; }
   /* the viewfinder: one facing at a time, as the badge sees it */
-  #finder { display: grid; grid-template-rows: 1fr auto auto; gap: 8px; max-width: 960px; margin: 0 auto; }
+  #finder { display: grid; grid-template-rows: 1fr auto auto; gap: 8px; width: min(100%, 960px); flex: 0 0 auto; }   /* the live view never shrinks for the panel */
   #frame { position: relative; min-height: 0; border: 1px solid var(--line); border-radius: 8px; background: #0e1115; overflow: hidden; }
   #frame::before, #frame::after { content: ""; position: absolute; width: 22px; height: 22px; border: 2px solid var(--accent); pointer-events: none; }
   #frame::before { left: 8px; top: 8px; border-right: 0; border-bottom: 0; }
@@ -132,17 +210,34 @@
   .mark { fill: transparent; }
   g.v-matched .mark { fill: var(--right); } g.v-none .mark { fill: var(--empty); } g.v-wrong .mark { fill: var(--wrong); }
   g.now .front, g.now .slot-empty { stroke: #fff; stroke-width: 2; }
+  .hit { fill: transparent; cursor: pointer; }                      /* the tap target: the whole slot column of a facing */
+  g.pinned .front, g.pinned .slot-empty { stroke: var(--accent); stroke-width: 2.5; }
+  g.pinned.now .front, g.pinned.now .slot-empty { stroke: var(--accent); }
+  #pinbar { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; font-size: 13px; }
+  #pinbar .pill { padding: 2px 10px; border-radius: 999px; background: var(--accent); color: #04170c; font-weight: 700; }
+  #pinbar button { background: var(--panel); color: var(--text); border: 1px solid var(--dim); border-radius: 6px; padding: 3px 10px; font: inherit; font-size: 12px; cursor: pointer; }
+  #pinbar button:hover { border-color: var(--accent); }
+  #pinbar .dimtext { color: var(--dim); }
+  #preads { overflow: auto; min-height: 0; border: 1px solid var(--line); border-radius: 6px; background: #000; }
+  .pread { padding: 8px 10px; border-bottom: 1px solid var(--line); font-size: 12.5px; }
+  .pread:last-child { border-bottom: 0; }
+  .pread .meta { color: var(--dim); display: flex; flex-wrap: wrap; gap: 4px 10px; align-items: center; margin-bottom: 3px; }
+  .pread .rawline { font: 600 14px/1.3 ui-monospace, Consolas, monospace; color: #fff; overflow-wrap: anywhere; }
+  .pread .rawline .bad { color: var(--wrong); background: rgba(224,106,106,.18); border-radius: 2px; }
+  .pread .truthline { font: 12px/1.3 ui-monospace, Consolas, monospace; color: var(--dim); overflow-wrap: anywhere; }
+  .pread .truthline .lost { color: #1a1200; background: var(--empty); border-radius: 2px; font-weight: 700; }
+  .pread .pill { padding: 1px 8px; border-radius: 999px; font-size: 11px; font-weight: 700; border: 1px solid var(--dim); color: var(--dim); }
+  .pread .pill.matched { color: #04170c; background: var(--right); border-color: var(--right); }
+  .pread .pill.none { color: #1a1200; background: var(--empty); border-color: var(--empty); }
+  .pread .pill.wrong { color: #fff; background: var(--wrong); border-color: var(--wrong); }
+  .pread .pill.dup { color: var(--misplaced); border-color: var(--misplaced); }
+  .pread.later { opacity: .55; }
+  #stip { position: absolute; z-index: 5; pointer-events: none; background: rgba(11, 13, 16, .96); border: 1px solid var(--dim); border-radius: 6px; padding: 4px 9px; font-size: 12px; white-space: nowrap; max-width: 94vw; overflow: hidden; text-overflow: ellipsis; }
+  #stip .v { font-weight: 700; } #stip .v.matched { color: var(--right); } #stip .v.none { color: var(--empty); } #stip .v.wrong { color: var(--wrong); }
+  body.clip #stip, body.snapshot #stip, body.clip .hit, body.snapshot .hit { display: none !important; }
   .beam { stroke: var(--accent); stroke-width: 1.2; opacity: .8; }
   #storybadge .body, #storybadge .head { fill: var(--accent); }
   #storybadge .dot { fill: #fff; }
-  /* the closing numbers sit under the aisle. Their space is kept from the start, so nothing moves when they appear. */
-  #closing { margin-top: 14px; }
-  #closing.pending { display: none; }    /* until the walk ends the aisle has the whole first screen */
-  #nums { display: flex; flex-wrap: wrap; gap: 8px 44px; }
-  #nums b { display: block; font-size: clamp(26px, 4vw, 44px); font-weight: 700; line-height: 1.05; font-variant-numeric: tabular-nums; }
-  #nums span { color: var(--dim); font-size: 13px; }
-  #closing p.job { font-size: clamp(18px, 2.4vw, 26px); font-weight: 700; margin: 10px 0 12px; }
-  #closing p.scope { color: var(--dim); font-size: 12px; margin: 8px 0 0; }
 
   header { padding: 12px 16px 10px; border-bottom: 1px solid var(--line); }
   h2.title { margin: 0 0 4px; font-size: 17px; font-weight: 600; color: var(--text); text-transform: none; letter-spacing: 0; }
@@ -238,11 +333,10 @@
   /* ?snapshot=1            : the full store only - title, legend, map and counters
      ?snapshot=1&view=story : the story only, with no buttons */
   body.snapshot .bar, body.snapshot aside, body.snapshot #strip, body.snapshot footer, body.snapshot #intro,
-  body.snapshot #facts { display: none; }
+  body.snapshot #facts, body.snapshot #storyplay { display: none; }
   body.snapshot main { grid-template-columns: minmax(0, 1fr); }
   body.snapshot #counters { position: static; }
-  body.snapshot:not(.story) #story { display: none; }
-  body.snapshot.story #full, body.snapshot.story #storyplay, body.snapshot.story #explore { display: none; }
+  #deep #counters { top: 0; }
 
   @media (max-width: 900px) {
     main, #facts .cols { grid-template-columns: minmax(0, 1fr); }      /* minmax(0, ..): the map must be free to shrink */
@@ -254,47 +348,123 @@
 </head>
 <body>
 
-<!-- VIEW 1: the story. One aisle as the badge sees it: one facing at a time in a viewfinder, the aisle as a strip under it. Starts by itself a second after the page loads. -->
+<!-- The story in five acts: pain, answer (with the front-row limit as its last line), problem inside, the obvious fix and the job, the work.
+     Each act is one line, one visual and one number; every number is from the data files or carries its source. -->
 <section id="story">
   <h1>Realogram · what the badge reads</h1>
-  <!-- why this simulation exists, in five steps a stranger can read in the order they are numbered -->
-  <ol id="why">
-    <li><h3>The problem</h3><p>Retailers do not know what is on their shelves right now: empty spots, wrong products, promotions not set up. Chemist Warehouse's CIO said his associates used to spend hours auditing.</p></li>
-    <li><h3>Augmodo's answer</h3><p>A camera badge on workers already walking the aisles; every walk becomes a scan. Augmodo says it is 100 times cheaper than a shelf robot. The Realogram: a live map of the front-facing product in every shelf spot, updated dozens of times a day. Front-facing only: a product hidden behind another stays invisible until a worker finds it.</p></li>
-    <li><h3>The problem inside it</h3><p>The badge reads text, not products: <q id="example"></q>. The retailer's catalog is a separate, messy list. Until each read is tied to one catalog row, the map is a guess. Augmodo says it processes hundreds of terabytes a day.</p></li>
-    <li><h3>The obvious fix, and why not</h3><p>Send every read to an LLM. It would name most of them. Its cost grows with every read, and the reads grow with every walk.</p></li>
-    <li><h3>The job</h3><p>Rules and regex first, cheap and exact. Fuzzy matching with blocking next. An LLM only for the few reads nothing else can name, its confidence capped. One trusted record per shelf spot, versioned as the catalog changes. This simulation is the input to that job.</p></li>
-  </ol>
-  <div class="storybar">
-    <button id="storyplay" class="go" aria-label="Pause or play the walk"><svg viewBox="0 0 16 16" aria-hidden="true"><path id="storyicon" d="M3 1.5v13l11-6.5z"/></svg></button>
-    <div id="storycount"></div>
-  </div>
-  <div id="stage">
-    <div id="finder">
-      <div id="frame"><div id="pack"></div><div id="scan"></div></div>
-      <div id="readout"></div>
-      <div id="verdict"></div>
+
+  <article class="act" id="act1">
+    <div class="act-text">
+      <span class="actno">1</span><span class="beat">The problem</span>
+      <h2>Retailers don't know what is on their shelves right now.</h2>
+      <p class="cap"><span class="bridge">"I couldn't believe none of the retailers had any idea what was on their shelves."</span> <span class="src">Ross Finman, who went on to found Augmodo, after hunting for baby formula in the 2022 shortage</span></p>
+      <p class="num"><b>$1.75 trillion</b> a year lost to out-of-stocks, overstocks and returns <span class="src">IHL Group, the figure Augmodo cites</span></p>
     </div>
-    <svg id="aisle" xmlns="http://www.w3.org/2000/svg"></svg>
-  </div>
-  <div id="stagecap"></div>
-  <div id="closing" class="pending">
-    <div id="nums"></div>
-    <p class="job" id="job"></p>
-    <button id="explore" class="go">Explore the full store</button>
-    <p class="scope" id="scope"></p>
-  </div>
+    <div class="act-vis">
+      <svg id="shelf1" xmlns="http://www.w3.org/2000/svg"></svg>
+      <p class="cap" id="shelf1cap"></p>
+    </div>
+  </article>
+
+  <article class="act" id="act2">
+    <div class="act-text">
+      <span class="actno">2</span><span class="beat">Augmodo's answer</span>
+      <h2>A camera badge on workers already walking.</h2>
+      <p class="cap"><span class="bridge">So Augmodo, a Seattle company, put a camera badge on the people who already walk the aisles.</span></p>
+      <div class="nums2">
+        <p class="num"><b>Dozens</b> of scans of every shelf a day <span class="src">Augmodo</span></p>
+        <p class="num"><b>100&times;</b> cheaper than the other way, a shelf-scanning robot <span class="src">Augmodo</span></p>
+      </div>
+      <p class="cap">Every walk becomes a scan. The result is what Augmodo calls the Realogram: a live map of the product in every shelf spot.</p>
+      <p class="cap">Below is one aisle of it, as the badge sees it: one shelf spot at a time, and the text the badge read off it. Under each read, a simple lookup tries to name the product in the retailer's list: green when it can, amber when it cannot, red when it names the wrong one. The shelf from act 1 runs along the bottom; the figure is the worker walking it.</p>
+    </div>
+    <div class="storybar">
+      <button id="storyplay" class="go" aria-label="Pause or play the walk"><svg viewBox="0 0 16 16" aria-hidden="true"><path id="storyicon" d="M3 1.5v13l11-6.5z"/></svg></button>
+      <div id="storycount"></div>
+    </div>
+    <div id="stage">
+      <div id="viewrow">
+        <div id="finder">
+          <div id="frame"><div id="pack"></div><div id="scan"></div></div>
+          <div id="readout"></div>
+          <div id="verdict"></div>
+        </div>
+        <aside id="pinpanel" aria-label="A held shelf spot">
+          <div id="ppack"></div>
+          <div id="pinbar"></div>
+          <div id="preads"></div>
+        </aside>
+      </div>
+      <svg id="aisle" xmlns="http://www.w3.org/2000/svg"></svg>
+      <div id="stip" hidden></div>
+    </div>
+    <p class="cap" id="hint">Click or tap any shelf spot to hold it and see every read of it. The walk keeps going.</p>
+    <div id="stagecap"></div>
+    <p class="cap" id="limit">Front row only; a product pushed behind another is found by a worker, not a camera.</p>
+  </article>
+
 </section>
 
-<!-- VIEW 2: the full store, every control. -->
-<section id="full">
+<!-- Below the opening: four beats that play as they come into view. Each beat: a line that says where to look, the thing,
+     a line that says what it means, then a dim note. Every number is from the data files or carries its source. -->
+<section id="beats">
+  <article class="scene" id="beat5">
+    <div class="scene-text">
+      <h2 class="l1">Look closer at one amber.</h2>
+      <h2 class="l2" id="b5l2"></h2>
+      <p class="small">this is what the badge does hundreds of terabytes a day <span class="src">Augmodo's founder, 2026</span></p>
+    </div>
+    <div class="scene-vis" id="act3vis">
+      <div class="lab">the read, as the badge reported it</div>
+      <div id="ex-read" class="exread"></div>
+      <div class="lab">the catalog row it came from</div>
+      <div id="ex-row" class="exrow"></div>
+      <div class="lab">the true label, with what the badge lost</div>
+      <div id="ex-truth" class="extruth"></div>
+    </div>
+  </article>
+
+  <article class="scene" id="beat6">
+    <div class="scene-text">
+      <h2 class="l1">So why not ask an LLM?</h2>
+      <h2 class="l2">It would name this one. And the next. And the bill rises with every walk, forever.</h2>
+    </div>
+    <div class="scene-vis">
+      <div id="meter"></div>
+      <p class="small" id="metercap"></p>
+    </div>
+  </article>
+
+  <article class="scene" id="beat7">
+    <div class="scene-text">
+      <h2 class="l1">So you name each read as cheaply as it can be named.</h2>
+      <h2 class="l2">Rules first. Fuzzy next. An LLM last, only for what nothing else can name. One trusted record per shelf spot, kept right as the catalog changes.</h2>
+      <p class="small">that is the job.</p>
+    </div>
+    <div class="scene-vis">
+      <ol id="ladder">
+        <li style="--h:1"><b>Rules and regex</b><span>exact, cheap</span><i></i></li>
+        <li style="--h:2"><b>Fuzzy match, blocked by brand</b><span>close, cheap</span><i></i></li>
+        <li style="--h:3"><b>An LLM, only the leftovers</b><span>few, costly</span><i></i></li>
+        <li style="--h:4"><b>Confidence capped</b><span>below any exact match</span><i></i></li>
+      </ol>
+    </div>
+  </article>
+
+  <article class="scene" id="beat8">
+    <h2 class="l1">Now let's see what it takes.</h2>
+  </article>
+</section>
+
+<!-- The full store follows, open; the lookup's count and the verified/assumed list stay collapsed for the careful reader. -->
+<section id="deep">
+<details id="d-full" open>
+<summary>The full store</summary>
 <header>
-  <h2 class="title">The full store</h2>
   <p id="context" hidden></p>
   <ul id="intro">
-    <li><b>The badge</b> is a small camera worn by a store associate. As they walk past a shelf it reads the label of every product facing, and sometimes its barcode.</li>
     <li id="intro-store"></li>
-    <li><b>Real:</b> the products, from open product databases. <b>Assumed:</b> the store layout, the shelf problems, the walks and the damage to what the badge reads. Each one is listed under <a href="#facts">Verified and assumed</a>.</li>
+    <li><b>Real:</b> the products, from open product databases. <b>Assumed:</b> the store layout, the shelf problems, the walks and the damage to what the badge reads. Each one is listed under <a href="#d-facts">Verified and assumed</a>.</li>
   </ul>
 </header>
 
@@ -320,24 +490,30 @@
     <ul id="reads"></ul>
   </aside>
 </main>
+</details>
 
+<details id="d-base">
+<summary>The simple lookup, on every read</summary>
 <div id="strip" hidden>
-  <h2>Naive baseline on these reads</h2>
+  <p>The lookup matches the exact text, the text ignoring case, or the barcode against the retailer's list (catalog v1), and answers only when exactly one row fits. Counted for the store and day chosen above.</p>
   <div id="basebar"></div>
   <div id="basetext"></div>
 </div>
+</details>
 
+<details id="d-facts">
+<summary>Verified and assumed</summary>
 <div id="facts" hidden>
-  <h2>Verified and assumed</h2>
   <p>What in this simulation can be checked, and what was made up to make it run.</p>
   <div class="cols">
     <div><h3 id="vsum"></h3><ul id="vlist"></ul></div>
     <div><h3 id="asum"></h3><ul id="alist"></ul></div>
   </div>
 </div>
+</details>
 
 <footer>
-  <p class="next">This page shows the simulation only: the input a matching pipeline receives. The only matching shown is the naive baseline.</p>
+  <p class="next">This page shows the simulation only: the input a matching pipeline receives. The only matching shown is the simple lookup.</p>
   <p>Contains data from Open Food Facts, Open Beauty Facts and Open Products Facts, available under the Open Database License.
   The products are real. The stores, shelf problems, walks, read damage, duplicates and catalog v2 changes are simulated.</p>
 </footer>
@@ -447,7 +623,7 @@ async function boot() {
   $("alist").innerHTML = list.assumed.map(x => `<li>${linked(x)}</li>`).join("");
   $("facts").hidden = false;
 
-  const storyShot = SNAPSHOT && Q.get("view") === "story";
+  const storyShot = SNAPSHOT && Q.get("view") === "story";   // act 2 alone
   document.body.classList.toggle("snapshot", SNAPSHOT);
   document.body.classList.toggle("clip", !!CLIP); document.body.classList.toggle("clip-square", CLIP === "square");
   document.body.classList.toggle("story", storyShot);
@@ -457,20 +633,25 @@ async function boot() {
   choose(D.stores.includes(Q.get("store")) ? Q.get("store") : S.store, [1, 2, 3].includes(+Q.get("day")) ? +Q.get("day") : S.day);
   const one = D.plan.filter(r => r.store_id === S.store);
   $("intro-store").innerHTML = `<b>The store</b> is one of ${D.stores.length} simulated stores: ${scene.aisles.length} aisles, ` +
-    `${new Set(one.map(r => r.code)).size} products, ${scene.total.facings} facings. Each box below is one facing, one unit of a product at the shelf edge.`;
+    `${new Set(one.map(r => r.code)).size} products, ${scene.total.facings} shelf spots, called facings from here on. Each box below is one facing, one unit of a product at the shelf edge.`;
   buildStory();
   if (storyShot) {                                               // ?snapshot=1&view=story&t=3 freezes the story; t=end shows its closing numbers
     if (Q.get("t")) storyFreeze(Q.get("t") === "end" ? Infinity : +Q.get("t") || 0);   // t = seconds into the story
   } else {
     if (Q.get("t")) seek(Math.min(+Q.get("t") || 0, scene.end));
     else if (SNAPSHOT) seek(scene.end);                          // a snapshot with no time given shows the finished day
-    if (Q.get("view") === "full") $("full").scrollIntoView();    // a link can open straight on the full store
+    if (Q.get("view") === "full" || Q.get("facing") || SNAPSHOT) $("d-full").open = true;   // a link can open straight on the full store
+    if (Q.get("view") === "full") $("d-full").scrollIntoView();
     if (Q.get("facing")) pin(Q.get("facing").split("-").join("|"));
   }
   // The story starts by itself one second after load, so a visitor who never clicks still sees it.
   // Not in a snapshot, not when the link opens the full store, and not for a visitor who asked for reduced motion.
   if (!SNAPSHOT && Q.get("view") !== "full" && !matchMedia("(prefers-reduced-motion: reduce)").matches)
     setTimeout(() => { if (!ST.on && !ST.done && ST.i === 0) storyStart(); }, CLIP ? 1500 : 1000);   // a clip keeps a clean first frame a little longer
+  // the deep sections: the map is drawn to its real width when its section opens; a link to a section opens it
+  $("d-full").addEventListener("toggle", () => { if ($("d-full").open) { const pinned = S.pinned; drawMap(); seek(S.t); if (pinned) pin(pinned); } });
+  const openTarget = () => { const t = location.hash && document.querySelector(location.hash); if (t && t.tagName === "DETAILS") t.open = true; };
+  window.addEventListener("hashchange", openTarget); openTarget();
   requestAnimationFrame(tick);
 }
 
@@ -565,9 +746,8 @@ function measure() {
   const slot = (width - left - 4) / scene.slots;   // a facing shrinks until the longest shelf fits
   let row = 12;
   if (!narrow) {                                   // and the rows shrink until all aisles fit in the window, within limits
-    const top = wrap.getBoundingClientRect().top - $("full").getBoundingClientRect().top;   // from the top of this view
-    const strip = SNAPSHOT ? 0 : $("strip").offsetHeight;
-    const room = window.innerHeight - top - strip - 14;
+    const top = wrap.getBoundingClientRect().top - $("d-full").getBoundingClientRect().top;   // from the top of this section
+    const room = window.innerHeight - top - 14;
     row = Math.max(7, Math.min(16, (room / scene.aisles.length - 18) / 4));
   }
   M = { width, narrow, left, labelRow, slot, row, band: 4 * row + 18 + labelRow, gap: slot > 9 ? 3 : slot > 5 ? 2 : 1 };
@@ -691,7 +871,7 @@ function facingHTML(f) {
       `barcode read: ${e.d.read_barcode ? "yes, " + esc(e.d.read_barcode) : "no"}</span>` +
       (dup ? `<span class="tag dup">${dup}</span>` : "") + (e.t > S.t ? `<span class="tag">later in the walk</span>` : "") +
       `<div class="txt">${esc(e.d.ocr_text)}</div>` +
-      `<div class="verdict"><span class="tag ${b.outcome === "no answer" ? "" : b.outcome}">baseline: ${b.outcome}${b.method ? " by " + b.method : ""}</span></div></div>`;
+      `<div class="verdict"><span class="tag ${b.outcome === "no answer" ? "" : b.outcome}">lookup: ${VERDICT[b.outcome]}${b.method ? " by " + b.method : ""}</span></div></div>`;
   }).join("");
   return html;
 }
@@ -724,7 +904,7 @@ const READ_MS = CLIP ? 1100 : 800;   // how long each read stays in the viewfind
 const TYPE_MS = CLIP ? 450 : 300;    // of which, how long the read takes to type out
 const EMPTY_MS = CLIP ? 550 : 450;   // how long an empty slot stays in the viewfinder
 let story = null;
-const ST = { on: false, i: 0, hold: 0, done: false, n: null, drawn: -1 };
+const ST = { on: false, i: 0, hold: 0, done: false, n: null, drawn: -1, pin: null };   // pin: a facing the viewfinder is held on while the walk runs
 
 function brandHue(brand) {     // one colour per brand, the same on every load. Pink is kept for the misplaced unit.
   let h = 7; for (const ch of brand.toLowerCase()) h = (h * 31 + ch.charCodeAt(0)) >>> 0;
@@ -765,45 +945,46 @@ function buildStory() {
   story = { sc, walk, leg, facings, reads, steps, slots: Math.max(...facings.map(f => f.slot)) + 1,
             total: outcomes.length, right: outcomes.filter(o => o === "right").length,
             none: outcomes.filter(o => o === "no answer").length };
-  $("nums").innerHTML =
-    `<div><b>${story.total.toLocaleString("en-US")}</b><span>reads</span></div>` +
-    `<div><b style="color:var(--right)">${(100 * story.right / story.total).toFixed(1)}%</b><span>matched by a simple lookup</span></div>` +
-    `<div><b style="color:var(--empty)">${story.none.toLocaleString("en-US")}</b><span>with no answer</span></div>`;
-  $("job").textContent = `Matching the other ${(100 * story.none / story.total).toFixed(1)}% takes more than a lookup.`;
-  $("scope").textContent = `Every read in the data: ${D.stores.length} stores, ${Object.keys(D.shelf).length} days, ` +
-    `${new Set(D.walks.walks.map(w => w.store_id + w.walk_id)).size} walks.`;
+  // beat 5: the unmatched read with the fewest letters off, over its catalog row. Letters off = characters that do not fit the label plus characters lost.
+  const off = e => { const { okA, okB } = charDiff(e.d.ocr_text, e.tr.clean_text); return okA.filter(ok => !ok).length + okB.filter(ok => !ok).length; };
+  const unmatched = reads.filter(e => D.base.get(e.d.detection_id).outcome === "no answer" && off(e) > 0);
+  const example = unmatched.sort((x, y) => off(x) - off(y) || x.t - y.t)[0] || reads[0];
+  {
+    const text = example.d.ocr_text, truth = example.tr.clean_text, { okA, okB } = charDiff(text, truth), p = D.v1.get(example.tr.true_code), n = off(example);
+    $("ex-read").innerHTML = [...text].map((ch, i) => `<span class="${okA[i] ? "ok" : "bad"}">${esc(ch)}</span>`).join("");
+    $("ex-row").innerHTML = `<b>${esc(p?.brands || "")}</b><span>${esc(p?.product_name || "")}</span><span>${esc(p?.quantity || "")}</span><span class="code">${esc(example.tr.true_code)}</span>`;
+    $("ex-truth").innerHTML = [...truth].map((ch, i) => `<span class="${okB[i] ? "" : "lost"}">${esc(ch)}</span>`).join("");
+    $("b5l2").textContent = `You can see what it is. The lookup can't. ${n} letter${n === 1 ? "" : "s"}.`;
+  }
+  // beat 6: reads piling up walk by walk, in the order the walks happened
+  const walksInOrder = [...D.walks.walks].sort((x, y) => x.start_utc.localeCompare(y.start_utc));
+  const perWalk = new Map(walksInOrder.map(w => [w.store_id + w.walk_id, 0]));
+  for (const d of D.first.values()) perWalk.set(d.store_id + d.walk_id, (perWalk.get(d.store_id + d.walk_id) || 0) + 1);
+  let running = 0; const cum = walksInOrder.map(w => running += perWalk.get(w.store_id + w.walk_id));
+  $("meter").innerHTML = cum.map((c, k) => `<i style="--k:${k};height:${(100 * c / cum[cum.length - 1]).toFixed(1)}%" title="${esc(walksInOrder[k].store_id)} ${esc(walksInOrder[k].walk_id)}: ${c.toLocaleString("en-US")} reads so far"></i>`).join("");
+  $("metercap").textContent = `reads an LLM would be asked about, walk by walk: ${cum[cum.length - 1].toLocaleString("en-US")} after ${cum.length} walks, and the next walk adds more. From the data on this page.`;
   const empty = facings.filter(f => !f.actual_code).length, misplaced = facings.filter(f => f.status === "misplaced").length;
   if (CLIP) $("stagecap").textContent = `Store ${sc.store} · aisle ${leg.aisle} ${D.category.get(leg.aisle)} · day 1 · ${reads.length} reads, each held ` +
     `${(READ_MS / 1000).toFixed(1)} s · simulated store, real products · verdicts from a naive lookup`;
-  else $("stagecap").textContent = `Store ${sc.store} · aisle ${leg.aisle} ${D.category.get(leg.aisle)} · day 1 · ${facings.length} facings, ` +
-    `${empty} empty, ${misplaced} misplaced · ${reads.length} reads in ${(leg.end_s - leg.start_s).toFixed(1)} s of walking, ` +
-    `shown one at a time for ${(READ_MS / 1000).toFixed(1)} s each. The read is as the badge reported it; the verdict is the naive ` +
-    `baseline's; the label is from the simulation's truth file. Red: characters that do not fit the label. Amber: characters the badge lost.`;
-  const example = reads.find(e => D.base.get(e.d.detection_id).outcome === "no answer") || reads[0];
-  $("example").textContent = example.d.ocr_text;   // the aisle's first read that a simple lookup could not name, as the badge reported it
+  else $("stagecap").textContent = `${reads.length} reads in ${(leg.end_s - leg.start_s).toFixed(1)} s of walking, shown one at a time for ` +
+    `${(READ_MS / 1000).toFixed(1)} s each. Red: characters that do not fit the label. Amber: characters the badge lost. ` +
+    `The read is as the badge reported it; the verdict is the lookup's; the label is from the simulation's truth file. ` +
+    `Store ${sc.store}, aisle ${leg.aisle} ${D.category.get(leg.aisle)}, day 1: ${facings.length} shelf spots, ${empty} empty, ${misplaced} misplaced.`;
   $("storyplay").onclick = storyToggle;
-  $("explore").onclick = () => $("full").scrollIntoView({ behavior: "smooth" });
+  storyInspect();
+  drawShelf1();
   storyClear();                               // the viewfinder and the strip are on screen from the first moment
 }
-function drawStage() {                      // the viewfinder's size, and the aisle strip under it
-  const stage = $("stage"), strip = $("aisle"); strip.replaceChildren();
-  const width = Math.max(240, Math.floor(stage.clientWidth));
-  // The viewfinder and the strip take the rest of the first screen, down to the caption. The closing numbers come
-  // below when the walk ends, and the page moves down to them. A snapshot keeps them shorter so everything fits one frame.
-  const stageTop = stage.getBoundingClientRect().top + window.scrollY, captionH = $("stagecap").offsetHeight;
-  const room = SNAPSHOT ? Math.floor(window.innerHeight * 0.55) : window.innerHeight - stageTop - captionH - (CLIP ? 48 : 24);
-  const stripH = CLIP ? Math.max(90, Math.min(200, Math.floor(room * 0.14))) : Math.max(72, Math.min(132, Math.floor(room * 0.24)));
-  const finderH = Math.max(200, Math.min(CLIP ? 9999 : 640, room - stripH - 14));
-  $("finder").style.height = finderH + "px";
-  // the strip: the aisle's four shelves, fronts coloured by brand, empty slots dashed, the misplaced unit pink
-  const pad = 6, walkH = 22, board = 3, row = (stripH - walkH) / 4;
+function drawStrip(svg, stripH, withBadge) {   // the aisle's four shelves: fronts coloured by brand, empty slots dashed, the misplaced unit pink
+  svg.replaceChildren();
+  const width = Math.max(240, Math.floor(svg.parentElement.clientWidth));
+  const pad = 6, walkH = withBadge ? 22 : 8, board = 3, row = (stripH - walkH) / 4;
   const slot = (width - 2 * pad) / story.slots, gap = slot > 14 ? 3 : 1, frontH = Math.round(row - board - 4);
-  strip.setAttribute("width", width); strip.setAttribute("height", stripH); strip.setAttribute("viewBox", `0 0 ${width} ${stripH}`);
-  story.geo = { width, stripH, pad, slot, row, gap, frontH, walkY: stripH - walkH / 2 + 2 };
-  story.el = new Map(); story.at = new Map();
-  strip.append(svgEl("rect", { x: 0, y: 0, width, height: stripH - walkH, class: "backpanel" }));
+  svg.setAttribute("width", width); svg.setAttribute("height", stripH); svg.setAttribute("viewBox", `0 0 ${width} ${stripH}`);
+  const el = new Map(), at = new Map();
+  svg.append(svgEl("rect", { x: 0, y: 0, width, height: stripH - walkH, class: "backpanel" }));
   for (let shelf = 1; shelf <= 4; shelf++)
-    strip.append(svgEl("rect", { x: pad - 3, y: (5 - shelf) * row - board, width: width - 2 * pad + 6, height: board, class: "board" }));
+    svg.append(svgEl("rect", { x: pad - 3, y: (5 - shelf) * row - board, width: width - 2 * pad + 6, height: board, class: "board" }));
   for (const f of story.facings) {
     const x = pad + f.slot * slot + gap / 2, w = slot - gap, top = (5 - f.shelf) * row - board - frontH;
     const g = svgEl("g", { "data-key": facingKey(f) });
@@ -813,20 +994,118 @@ function drawStage() {                      // the viewfinder's size, and the ai
       const fill = f.status === "misplaced" ? "var(--misplaced)" : `hsl(${brandHue(brand)} 42% 36%)`;
       g.append(svgEl("rect", { x, y: top, width: w, height: frontH, rx: 1.5, class: "front", style: "fill:" + fill }));
     }
-    const markH = Math.max(3, Math.round(frontH * 0.16));
-    g.append(svgEl("rect", { x, y: top + frontH - markH, width: w, height: markH, class: "mark" }));   // takes the verdict's colour once read
-    strip.append(g);
-    story.el.set(facingKey(f), g);
-    story.at.set(facingKey(f), { cx: x + w / 2, top, bottom: top + frontH });
+    if (withBadge) {
+      const markH = Math.max(3, Math.round(frontH * 0.16));
+      g.append(svgEl("rect", { x, y: top + frontH - markH, width: w, height: markH, class: "mark" }));   // takes the verdict's colour once read
+      g.append(svgEl("rect", { x: x - gap / 2, y: (5 - f.shelf) * row - board - row + 2, width: slot, height: row - 2, class: "hit" }));   // the whole slot column answers a tap
+    }
+    svg.append(g);
+    el.set(facingKey(f), g); at.set(facingKey(f), { cx: x + w / 2, top, bottom: top + frontH });
   }
-  strip.append(svgEl("line", { x1: pad, x2: width - pad, y1: story.geo.walkY, y2: story.geo.walkY, class: "walkway" }));
-  strip.append(svgEl("line", { id: "beam", class: "beam on" }));
-  const badge = svgEl("g", { id: "storybadge" });            // the associate: head, shoulders, the badge on the chest
-  badge.append(svgEl("path", { d: "M-9 9 Q-9 -2 0 -2 Q9 -2 9 9 Z", class: "body" }));
-  badge.append(svgEl("circle", { cy: -8, r: 4.5, class: "head" }));
-  badge.append(svgEl("circle", { cx: 3.5, cy: 2.5, r: 2, class: "dot" }));
-  strip.append(badge);
+  if (withBadge) {
+    const walkY = stripH - walkH / 2 + 2;
+    svg.append(svgEl("line", { x1: pad, x2: width - pad, y1: walkY, y2: walkY, class: "walkway" }));
+    svg.append(svgEl("line", { id: "beam", class: "beam on" }));
+    const badge = svgEl("g", { id: "storybadge" });            // the associate: head, shoulders, the badge on the chest
+    badge.append(svgEl("path", { d: "M-9 9 Q-9 -2 0 -2 Q9 -2 9 9 Z", class: "body" }));
+    badge.append(svgEl("circle", { cy: -8, r: 4.5, class: "head" }));
+    badge.append(svgEl("circle", { cx: 3.5, cy: 2.5, r: 2, class: "dot" }));
+    svg.append(badge);
+    return { el, at, geo: { width, stripH, walkY } };
+  }
+  return { el, at, geo: { width, stripH } };
+}
+function drawStage() {                      // the viewfinder's size, and the aisle strip under it
+  const stage = $("stage");
+  let stripH, finderH;
+  if (CLIP) {                               // a clip fills its frame: title and counters above, the caption below, the viewfinder takes the rest
+    const stageTop = stage.getBoundingClientRect().top + window.scrollY, captionH = $("stagecap").offsetHeight;
+    const room = window.innerHeight - stageTop - captionH - 48;
+    stripH = Math.max(90, Math.min(200, Math.floor(room * 0.14)));
+    finderH = Math.max(200, room - stripH - 14);
+  } else if (SNAPSHOT) { stripH = 100; finderH = Math.max(240, Math.floor(window.innerHeight * 0.45)); }
+  else { stripH = Math.max(72, Math.min(110, Math.floor(window.innerHeight * 0.14))); finderH = Math.max(280, Math.min(540, Math.floor(window.innerHeight * 0.52))); }
+  $("finder").style.height = finderH + "px"; $("viewrow").style.height = finderH + "px";
+  const strip = drawStrip($("aisle"), stripH, true);
+  story.geo = strip.geo; story.el = strip.el; story.at = strip.at;
+  if (ST.pin && story.el.has(ST.pin)) story.el.get(ST.pin).classList.add("pinned");
   ST.drawn = -1;
+}
+function drawShelf1() {                     // act 1: the same aisle on day 1, with its gaps and its misplaced unit, no badge
+  const shelf = drawStrip($("shelf1"), Math.max(96, Math.min(170, Math.floor(window.innerHeight * 0.2))), false);
+  const empty = story.facings.filter(f => !f.actual_code).length, misplaced = story.facings.filter(f => f.status === "misplaced").length;
+  $("shelf1cap").textContent = `One aisle of a simulated store: ${story.facings.length} shelf spots, ${empty} empty (dashed), ` +
+    `${misplaced} from another aisle (pink), one colour per brand. The retailer's system knows none of this. Store ${story.sc.store}, aisle ${story.leg.aisle}, day 1.`;
+}
+/* ---------- inspection: a tap on the strip pins the viewfinder to a facing while the walk keeps running ---------- */
+function storyInspect() {
+  const strip = $("aisle");
+  strip.addEventListener("click", e => {
+    const g = e.target.closest("g[data-key]"); if (!g) return;
+    storyPin(ST.pin === g.dataset.key ? null : g.dataset.key);
+  });
+  if (matchMedia("(hover: hover)").matches) {               // a light tooltip on desktop; a phone taps and pins directly
+    strip.addEventListener("mousemove", e => {
+      const g = e.target.closest("g[data-key]"); if (!g) { $("stip").hidden = true; return; }
+      const f = story.sc.facings.get(g.dataset.key), reads = story.sc.reads.get(g.dataset.key) || [];
+      const p = f.actual_code && D.product.get(f.actual_code);
+      let v = "";
+      if (!f.actual_code) v = `<span class="dimtext">empty slot</span>`;
+      else {
+        const seen = reads.filter(r => storyStepIndex(r) < ST.i);
+        v = seen.length ? (b => `<span class="v ${VCLASS[b.outcome]}">${VERDICT[b.outcome]}</span>`)(D.base.get(seen[seen.length - 1].d.detection_id)) : `<span class="dimtext">not read yet</span>`;
+      }
+      $("stip").innerHTML = (p ? `${esc(p.brands || "")} · ${esc(p.product_name || "")} · ` : "") + v;
+      $("stip").hidden = false;
+      const r = strip.getBoundingClientRect(), tip = $("stip");
+      const x = Math.max(0, Math.min(r.width - tip.offsetWidth, e.clientX - r.left - tip.offsetWidth / 2));
+      tip.style.left = x + "px"; tip.style.top = (strip.offsetTop - tip.offsetHeight - 6) + "px";
+    });
+    strip.addEventListener("mouseleave", () => { $("stip").hidden = true; });
+  }
+  document.addEventListener("keydown", e => {
+    if (!ST.pin || ["INPUT", "TEXTAREA"].includes(e.target.tagName)) return;
+    if (e.code === "ArrowLeft") { e.preventDefault(); storyPinStep(-1); }
+    if (e.code === "ArrowRight") { e.preventDefault(); storyPinStep(1); }
+    if (e.code === "Escape") storyPin(null);
+  });
+}
+function storyStepIndex(r) {                // where a read falls in the story's sequence; reads of other walks are not in it
+  return story.steps.findIndex(st => st.kind === "read" && st.e === r);
+}
+function storyPin(key) {
+  ST.pin = key;
+  $("viewrow").classList.toggle("pinned", !!key);
+  for (const el of story.el.values()) el.classList.remove("pinned");
+  if (key) story.el.get(key).classList.add("pinned");
+  ST.pinDrawn = null; storyShow();
+}
+function storyPinStep(dir) {                // the next facing along the same shelf
+  const f = story.sc.facings.get(ST.pin);
+  const next = story.facings.find(o => o.shelf === f.shelf && o.slot === f.slot + dir);
+  if (next) storyPin(facingKey(next));
+}
+function storyShowPinned() {                // everything the data has on the held facing, for this day, in its own panel
+  if (ST.pinDrawn === ST.pin + ":" + ST.i) return;
+  ST.pinDrawn = ST.pin + ":" + ST.i;
+  const f = story.sc.facings.get(ST.pin), reads = story.sc.reads.get(ST.pin) || [];
+  $("ppack").innerHTML = packHTML(f);
+  $("pinbar").innerHTML = `<span class="pill">pinned</span><span>${esc(f.aisle)} · shelf ${esc(f.shelf)} · position ${esc(f.position)} · facing ${esc(f.facing)}</span>` +
+    `<button id="pinprev" type="button">prev</button><button id="pinnext" type="button">next</button><button id="unpin" type="button">close</button>` +
+    `<span class="dimtext">${reads.length ? reads.length + " read" + (reads.length > 1 ? "s" : "") + " on this day" : ""}</span>`;
+  $("pinprev").onclick = () => storyPinStep(-1); $("pinnext").onclick = () => storyPinStep(1); $("unpin").onclick = () => storyPin(null);
+  if (!f.actual_code) { $("preads").innerHTML = `<div class="pread"><span class="dimtext">Nothing to read here: an empty facing gives no detection.</span></div>`; return; }
+  if (!reads.length) { $("preads").innerHTML = `<div class="pread"><span class="dimtext">No read on this day.</span></div>`; return; }
+  $("preads").innerHTML = reads.map(r => {
+    const b = D.base.get(r.d.detection_id), text = r.d.ocr_text, truth = r.tr.clean_text, { okA, okB } = charDiff(text, truth);
+    const idx = storyStepIndex(r), later = idx >= 0 && idx >= ST.i;
+    const dup = { double: "twice in one frame", second: "second badge" }[r.kind];
+    return `<div class="pread${later ? " later" : ""}"><div class="meta"><span class="pill ${VCLASS[b.outcome]}">${VERDICT[b.outcome]}${b.method ? " by " + esc(b.method) : ""}</span>` +
+      `<span>${esc(r.d.walk_id)} · ${esc(r.d.badge_id)} · ${esc(r.d.ts.slice(11, 19))} UTC</span><span>conf ${r.d.confidence.toFixed(2)}</span>` +
+      `<span>barcode ${r.d.read_barcode ? esc(r.d.read_barcode) : "none"}</span>` + (dup ? `<span class="pill dup">${dup}</span>` : "") + (later ? `<span class="pill">later in the walk</span>` : "") + `</div>` +
+      `<div class="rawline">${[...text].map((ch, i) => `<span class="${okA[i] ? "ok" : "bad"}">${esc(ch)}</span>`).join("")}</div>` +
+      `<div class="truthline">label: ${[...truth].map((ch, i) => `<span class="${okB[i] ? "" : "lost"}">${esc(ch)}</span>`).join("")}</div></div>`;
+  }).join("");
 }
 function storyPlace() {                    // the associate under the facing in the viewfinder, with a line of sight to it
   const g = story.geo, step = story.steps[Math.min(ST.i, story.steps.length - 1)], at = story.at.get(step.key);
@@ -845,7 +1124,8 @@ function packHTML(f) {                     // the product front, large, as the b
   return `<div class="pack" style="--c:${colour}"><div class="brand">${esc(brand || name)}</div><div class="name">${esc(shortName(name, brand))}</div>` +
     `<div class="size">${esc(size)}</div>${f.status === "misplaced" ? `<div class="tagline">in the wrong aisle</div>` : ""}</div>`;
 }
-function storyShow() {                     // what the viewfinder shows for the current step and how far it has got
+function storyShow() {                     // what the live viewfinder shows for the current step; the held panel beside it, if any
+  if (ST.pin) storyShowPinned();
   const step = story.steps[Math.min(ST.i, story.steps.length - 1)], done = ST.i >= story.steps.length;
   if (ST.drawn !== ST.i) {                                 // a new step: the front, and a fresh scan
     ST.drawn = ST.i;
@@ -895,8 +1175,8 @@ function storyApply() {                    // the strip and the counters for eve
   storyCount();
 }
 function storyClear() {                    // back to the start of the aisle
-  $("closing").classList.add("pending");
   ST.i = 0; ST.hold = 0; ST.done = false; ST.n = { reads: 0, right: 0, none: 0, wrong: 0 }; storyCount();
+  ST.pin = null; ST.pinDrawn = null; $("viewrow").classList.remove("pinned"); $("stip").hidden = true;
   drawStage(); storyApply(); storyShow(); storyPlace();
 }
 function storySet(on) {                    // the icon shows what a click will do: pause while walking, play otherwise
@@ -906,14 +1186,11 @@ function storySet(on) {                    // the icon shows what a click will d
 function storyStart() { storyClear(); storySet(true); }
 function storyToggle() {
   if (!ST.done) { storySet(!ST.on); return; }
-  storyStart();                            // once more from the start of the aisle, with the viewfinder back on screen
-  window.scrollTo({ top: 0, behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
+  storyStart();                            // once more from the start of the aisle
 }
-function storyEnd() {                      // the closing numbers appear under the strip, and the page moves down to them
+function storyEnd() {                      // the aisle is done: the counters hold its totals, the strip its verdicts
   storySet(false); ST.done = true;
   ST.i = story.steps.length; storyApply(); storyShow();
-  $("closing").classList.remove("pending");
-  if (!SNAPSHOT && !CLIP) $("closing").scrollIntoView({ block: "end", behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
 }
 function storyFreeze(seconds) {            // for screenshots: the story stopped this many seconds in, or at its end
   storyClear(); storySet(false);
@@ -988,17 +1265,17 @@ function render(listChanged) {
       `<div class="txt">${esc(e.d.ocr_text)}</div>` +
       `<div class="lab">label: ${esc(e.tr.clean_text)}` +
       (change ? `<span class="tag v2" tabindex="0" data-code="${esc(e.tr.true_code)}">${e.tr.label_catalog} label &middot; ${change.change.replace("_", " ")}</span>` : "") +
-      `</div><div class="verdict"><span class="tag ${b.outcome === "no answer" ? "" : b.outcome}">baseline: ${b.outcome}${b.method ? " by " + b.method : ""}</span></div></li>`;
+      `</div><div class="verdict"><span class="tag ${b.outcome === "no answer" ? "" : b.outcome}">lookup: ${VERDICT[b.outcome]}${b.method ? " by " + b.method : ""}</span></div></li>`;
   }).join("");
 
   const pct = k => (100 * n[k] / T.detections).toFixed(2) + "%";
   $("basebar").innerHTML = ["right", "wrong", "no answer"].map((k, i) =>
     `<div style="width:${pct(k)};background:var(--${["right", "wrong", "none"][i]})"></div>`).join("");
   $("basetext").innerHTML =
-    `So far: <b style="color:var(--right)">${n.right} right</b> &middot; <b style="color:var(--wrong)">${n.wrong} wrong</b> &middot; ` +
+    `So far: <b style="color:var(--right)">${n.right} matched</b> &middot; <b style="color:var(--wrong)">${n.wrong} wrong</b> &middot; ` +
     `<b>${n["no answer"]} no answer</b> of ${n.detections} reads. ` +
-    `<span style="color:var(--dim)">Whole day in this store: ${T.right} right, ${T.wrong} wrong, ${T["no answer"]} no answer of ${T.detections}.` +
-    `<span class="more"> The baseline matches the exact text, the text ignoring case, or the barcode against catalog v1.</span></span>`;
+    `<span style="color:var(--dim)">Whole day in this store: ${T.right} matched, ${T.wrong} wrong, ${T["no answer"]} no answer of ${T.detections}.` +
+    `<span class="more"> The lookup matches the exact text, the text ignoring case, or the barcode against catalog v1.</span></span>`;
 
   const at = badgePoint(S.t), badge = $("badge");
   badge.style.display = at ? "" : "none";
@@ -1085,7 +1362,7 @@ function buildControls() {
     clearTimeout(timer);
     timer = setTimeout(() => {
       const pinned = S.pinned; drawMap(); seek(S.t); if (pinned) pin(pinned);
-      if (story) { drawStage(); storyApply(); storyShow(); storyPlace(); }   // the story too, at the same step
+      if (story) { drawStage(); storyApply(); storyShow(); storyPlace(); drawShelf1(); }   // the story too, at the same step
     }, 120);
   });
 }

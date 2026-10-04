@@ -1,8 +1,9 @@
 # Recording a clip of the opening view
 
-The page has a clip mode that shows the story alone, sized for a phone: the title, the three counters, the viewfinder,
-the aisle strip and one caption line. Nothing else is drawn. The walk starts by itself 1.5 s after the page loads,
-so the first frame is clean: the first product in the viewfinder, no text typed yet.
+The page has a clip mode that shows the opening alone, sized for a phone: the narrator's line, the shelf, the worker,
+then the viewfinder with its counters, the strip and one caption line. Nothing else is drawn. The opening starts by
+itself half a second after the page loads, so the first frame is clean: the line "Look at this shelf." over an empty stage,
+then the shelf draws itself.
 
 | Flag | Frame | Use |
 | --- | --- | --- |
@@ -32,13 +33,14 @@ Every read, verdict and number is the same as on the page: nothing is staged for
    - Xbox Game Bar: click the page window, press `Win + Alt + R` to start and again to stop. The file is saved under
      Videos \ Captures. Game Bar records the active window at its own size, so the window must already be the frame size.
 
-3. Reload the page (`F5`) the moment the recording starts, so the clip opens on the clean first frame and the walk begins
-   at 1.5 s. Stop after 15 to 30 s. The first ten reads land inside the first 15 s.
+3. Reload the page (`F5`) the moment the recording starts, so the clip opens on the clean first frame. The shelf is drawn
+   inside the first second, the worker enters at 4 s, the viewfinder opens at 7 s and the reads start at once. A 30 s clip
+   shows the shelf, the worker and about twenty reads with their verdicts.
 
 4. Trim in the Photos app if needed (open the file, Edit, Trim). No re-encoding settings to choose.
 
 ## Checking the result
 
-- The first frame shows the title, three zero counters, the first product and the strip. No typed text.
+- The first frame shows the line "Look at this shelf." and nothing else; the shelf then draws in from the left.
 - Every verdict pill colour in the clip must match the strip mark under the badge; both come from `data/baseline_results.csv`.
 - The counters at the end of the aisle read 20 matched, 38 no answer, 0 wrong of 58 for store S001, aisle A05, day 1.
