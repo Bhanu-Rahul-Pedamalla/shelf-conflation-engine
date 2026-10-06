@@ -71,7 +71,11 @@
   .scene-text, .scene-vis { min-width: 0; }
   .scene h2 { margin: 0 0 12px; font-size: clamp(22px, 2.6vw, 34px); line-height: 1.15; font-weight: 700; letter-spacing: -.01em; color: #fff; text-transform: none; }
   .scene h2.l1 { color: var(--accent); }
+  .scene p.l2 { margin: 0 0 12px; font-size: clamp(17px, 1.6vw, 22px); line-height: 1.35; font-weight: 500; color: #e8ecf1; }
   .scene .small { margin: 0; color: var(--dim); font-size: 14px; line-height: 1.45; }
+  #beat3 { grid-template-columns: minmax(0, 1fr); gap: 0; padding-bottom: 8px; }
+  #beat3 .l2 { max-width: 900px; }
+  #beat5 { border-top: 0; padding-top: 8px; }
   #beat8 { grid-template-columns: minmax(0, 1fr); padding-bottom: 18px; }
   #beat8 h2 { margin: 0; }
   /* one read over its catalog row */
@@ -100,6 +104,10 @@
   #ladder li:nth-child(4) i { background: linear-gradient(180deg, rgba(224,162,60,.2), rgba(224,162,60,.05)); border-bottom-color: var(--empty); }
   @media (max-width: 1200px) { .scene { grid-template-columns: minmax(0, 1fr); } }
   @media (max-width: 900px) { .scene { padding: 32px 0; gap: 16px; } #ladder i { height: calc(18px + var(--h) * 20px); } #ladder b { font-size: 12px; } #meter { height: 110px; } }
+  /* on a phone the four rungs stack; each bar runs sideways, a quarter longer per rung, so the ladder still climbs */
+  @media (max-width: 600px) { #ladder { grid-template-columns: minmax(0, 1fr); gap: 12px; } #ladder b { font-size: 13px; } #ladder span { margin-bottom: 2px; }
+    #ladder i { height: 10px; width: calc(var(--h) * 25%); border-radius: 0 6px 6px 0; border-bottom-width: 1px; border-left: 3px solid var(--accent); }
+    #ladder li:nth-child(3) i, #ladder li:nth-child(4) i { border-left-color: var(--empty); } }
   /* the deep sections */
   #deep { padding: 0 16px 24px; }
   #deep details { border-top: 1px solid var(--line); }
@@ -112,7 +120,6 @@
   #deep footer { padding-top: 12px; }
   @media (max-width: 900px) {
     .act { grid-template-columns: minmax(0, 1fr); gap: 18px; padding: 32px 0; }
-    #ladder i { height: calc(18px + var(--h) * 20px); } #ladder b { font-size: 12px; }
   }
   /* ?snapshot=1&view=story shows act 2 alone; ?snapshot=1 shows the full store alone */
   body.snapshot.story .act:not(#act2), body.snapshot.story #beats, body.snapshot.story #deep, body.snapshot.story #act2 .act-text { display: none; }
@@ -288,6 +295,16 @@
   #facts p { margin: 0 0 10px; color: var(--dim); font-size: 13px; }
   #facts .cols { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 2fr); gap: 8px 28px; }
   #facts h3 { margin: 0 0 6px; font-size: 13px; font-weight: 600; }
+  #strip { padding: 14px 0 6px; border-top: 1px solid var(--line); margin-top: 14px; }
+  #strip h3 { margin: 0 0 4px; font-size: 15px; font-weight: 700; }
+  #strip p { margin: 0 0 6px; color: var(--dim); font-size: 13px; }
+  #handover { padding: 40px 0 28px; border-top: 1px solid var(--line); }
+  #handover h2 { margin: 0 0 18px; font-size: clamp(22px, 2.6vw, 34px); line-height: 1.15; font-weight: 700; letter-spacing: -.01em; color: var(--accent); text-transform: none; }
+  #handover h3 { margin: 14px 0 6px; font-size: 13px; font-weight: 700; color: var(--dim); text-transform: uppercase; letter-spacing: .04em; }
+  #handover h3:first-child { margin-top: 0; }
+  #handover ul { margin: 0; padding-left: 18px; font-size: 15px; line-height: 1.45; }
+  #handover li { margin: 0 0 6px; } #handover b { font-variant-numeric: tabular-nums; }
+  #handover .last { margin: 22px 0 0; font-size: clamp(18px, 2vw, 24px); font-weight: 700; color: #fff; }
   #facts ul { margin: 0; padding-left: 18px; font-size: 13px; }
   #facts li { margin-bottom: 4px; overflow-wrap: anywhere; }
   footer { padding: 10px 16px 18px; color: var(--dim); font-size: 12px; border-top: 1px solid var(--line); }
@@ -369,7 +386,7 @@
   <article class="act" id="act2">
     <div class="act-text">
       <span class="actno">2</span><span class="beat">Augmodo's answer</span>
-      <h2>A camera badge on workers already walking.</h2>
+      <h2>Augmodo put a camera badge on the workers already walking the aisles.</h2>
       <p class="cap"><span class="bridge">So Augmodo, a Seattle company, put a camera badge on the people who already walk the aisles.</span></p>
       <div class="nums2">
         <p class="num"><b>Dozens</b> of scans of every shelf a day <span class="src">Augmodo</span></p>
@@ -408,11 +425,19 @@
 <!-- Below the opening: four beats that play as they come into view. Each beat: a line that says where to look, the thing,
      a line that says what it means, then a dim note. Every number is from the data files or carries its source. -->
 <section id="beats">
+  <article class="scene" id="beat3">
+    <div class="scene-text">
+      <span class="actno">3</span><span class="beat">Inside the system: the matching problem</span>
+      <h2 class="l1">The badge reads text off a label. The Realogram needs the product itself. Between the two sits one step: matching each read to one product in the retailer's catalog.</h2>
+      <p class="l2" id="b3l2"></p>
+    </div>
+  </article>
+
   <article class="scene" id="beat5">
     <div class="scene-text">
-      <h2 class="l1">Look closer at one amber.</h2>
-      <h2 class="l2" id="b5l2"></h2>
-      <p class="small">this is what the badge does hundreds of terabytes a day <span class="src">Augmodo's founder, 2026</span></p>
+      <h2 class="l1" id="b5l1"></h2>
+      <p class="l2" id="b5l2"></p>
+      <p class="small">Augmodo already processes hundreds of terabytes of this a day <span class="src">Ross Finman, Augmodo's founder, 2026</span></p>
     </div>
     <div class="scene-vis" id="act3vis">
       <div class="lab">the read, as the badge reported it</div>
@@ -426,8 +451,9 @@
 
   <article class="scene" id="beat6">
     <div class="scene-text">
+      <span class="actno">4</span><span class="beat">The expensive fix</span>
       <h2 class="l1">So why not ask an LLM?</h2>
-      <h2 class="l2">It would name this one. And the next. And the bill rises with every walk, forever.</h2>
+      <p class="l2">A large language model would name this read, and every other one. But every walk sends thousands more reads, so the bill grows with every walk and never stops.</p>
     </div>
     <div class="scene-vis">
       <div id="meter"></div>
@@ -437,26 +463,28 @@
 
   <article class="scene" id="beat7">
     <div class="scene-text">
-      <h2 class="l1">So you name each read as cheaply as it can be named.</h2>
-      <h2 class="l2">Rules first. Fuzzy next. An LLM last, only for what nothing else can name. One trusted record per shelf spot, kept right as the catalog changes.</h2>
-      <p class="small">that is the job.</p>
+      <span class="actno">5</span><span class="beat">The real method</span>
+      <h2 class="l1">Name each read the cheapest way that works.</h2>
+      <p class="l2">A barcode, or the exact label text, names most reads for free [deterministic match]. Close spelling within the same brand names most of the rest, also cheap [fuzzy match]. The LLM is asked only about the few reads nothing else could name. The result is one trusted record per shelf spot, kept correct as the catalog changes.</p>
+      <p class="small">That pipeline is the work of Augmodo's Data Intelligence engineer: take in the detections, match them against the retailer's catalog, keep one trusted record per shelf spot, versioned as the catalog changes <span class="src">Augmodo job posting, September 2026</span></p>
     </div>
     <div class="scene-vis">
       <ol id="ladder">
-        <li style="--h:1"><b>Rules and regex</b><span>exact, cheap</span><i></i></li>
-        <li style="--h:2"><b>Fuzzy match, blocked by brand</b><span>close, cheap</span><i></i></li>
-        <li style="--h:3"><b>An LLM, only the leftovers</b><span>few, costly</span><i></i></li>
-        <li style="--h:4"><b>Confidence capped</b><span>below any exact match</span><i></i></li>
+        <li style="--h:1"><b>Barcode, or the exact label text [deterministic match]</b><span>free, never wrong</span><i></i></li>
+        <li style="--h:2"><b>Close spelling, same brand [fuzzy match]</b><span>cheap, scored</span><i></i></li>
+        <li style="--h:3"><b>LLM, only the leftovers</b><span>few, costly</span><i></i></li>
+        <li style="--h:4"><b>LLM answers ranked below any exact match [capped confidence]</b><span>never trusted over a rule</span><i></i></li>
       </ol>
     </div>
   </article>
 
   <article class="scene" id="beat8">
-    <h2 class="l1">Now let's see what it takes.</h2>
+    <div><span class="actno">6</span><span class="beat">The simulation</span></div>
+    <h2 class="l1" id="b8l1"></h2>
   </article>
 </section>
 
-<!-- The full store follows, open; the lookup's count and the verified/assumed list stay collapsed for the careful reader. -->
+<!-- The full store follows, open, with the simple lookup's count under the map; then what the simulation hands over. The verified/assumed list stays collapsed for the careful reader. -->
 <section id="deep">
 <details id="d-full" open>
 <summary>The full store</summary>
@@ -490,11 +518,8 @@
     <ul id="reads"></ul>
   </aside>
 </main>
-</details>
-
-<details id="d-base">
-<summary>The simple lookup, on every read</summary>
 <div id="strip" hidden>
+  <h3>The simple lookup, on every read</h3>
   <p>The lookup matches the exact text, the text ignoring case, or the barcode against the retailer's list (catalog v1), and answers only when exactly one row fits. Counted for the store and day chosen above.</p>
   <div id="basebar"></div>
   <div id="basetext"></div>
@@ -511,6 +536,17 @@
   </div>
 </div>
 </details>
+
+<section id="handover">
+  <h2>What the simulation created, and what the pipeline receives</h2>
+  <div class="cols">
+    <div><h3>Created, the way a real store would produce it</h3><ul id="ho-made"></ul></div>
+    <div><h3>The pipeline receives</h3><ul id="ho-gets"></ul>
+         <h3>The starting number</h3><ul id="ho-start"></ul>
+         <h3>The pipeline must deliver</h3><ul id="ho-must"></ul></div>
+  </div>
+  <p class="last">The pipeline starts from here.</p>
+</section>
 
 <footer>
   <p class="next">This page shows the simulation only: the input a matching pipeline receives. The only matching shown is the simple lookup.</p>
@@ -587,8 +623,10 @@ async function boot() {
     first: new Map(), change: new Map(), hard: new Map(),
   };
   D.product = new Map([...D.v2, ...D.v1]);                       // v1 wins where both list a code
-  for (const d of parseJSONL(det)) if (!D.first.has(d.detection_id)) D.first.set(d.detection_id, d);
-  for (const c of parseCSV(changes)) {                           // what catalog v2 changed, by the barcode on the shelf
+  D.rows = 0;
+  for (const d of parseJSONL(det)) { D.rows++; if (!D.first.has(d.detection_id)) D.first.set(d.detection_id, d); }
+  D.changes = parseCSV(changes);
+  for (const c of D.changes) {                           // what catalog v2 changed, by the barcode on the shelf
     if (c.change === "renamed") D.change.set(c.v1_code, c);
     if (c.change === "new_size") D.change.set(c.v2_code, c);
     if (c.change === "discontinued") D.change.set(c.v1_code, c);
@@ -899,6 +937,38 @@ function pin(key) {
 }
 
 /* ---------- view 1: the story - one aisle of one store on day 1, as the badge sees it: one facing at a time ---------- */
+// What the simulation created and what the pipeline receives: every number counted from the data files just loaded.
+function handover() {
+  const N = x => x.toLocaleString("en-US");
+  const stores = D.stores.length, positions = D.plan.length, facings = D.plan.reduce((a, r) => a + (+r.facings), 0);
+  const aisles = new Set(D.plan.map(r => r.aisle)).size;
+  const walks = D.walks.walks.length, days = new Set(D.walks.walks.map(w => w.day)).size;
+  const day1 = D.shelf[1], empty1 = day1.filter(f => !f.actual_code).length, mis1 = day1.filter(f => f.status === "misplaced").length;
+  const reads = [...D.first.values()], withCode = reads.filter(d => d.read_barcode).length;
+  const second = new Set(D.walks.walks.filter(w => w.only_aisle).map(w => w.store_id + w.walk_id));
+  const t = { right: 0, wrong: 0, "no answer": 0 }; for (const b of D.base.values()) t[b.outcome]++;
+  $("ho-made").innerHTML = [
+    `<b>${stores}</b> stores on one plan: <b>${aisles}</b> aisles each, <b>${N(positions)}</b> shelf positions, <b>${N(facings)}</b> shelf spots [facings] in all.`,
+    `<b>${walks}</b> walks over <b>${days}</b> days by workers wearing the badge, including a second badge in the same aisle.`,
+    `Shelf problems a camera should find: on day 1, <b>${empty1}</b> empty spots and <b>${mis1}</b> units in the wrong aisle, then restocking overnight.`,
+    `<b>${N(D.rows)}</b> rows of reads, <b>${N(reads.length)}</b> distinct. Each row: the text the camera read, a barcode when one was read (<b>${N(withCode)}</b> of them), a confidence, a position in the store, a time. Doubles in one frame and re-sent rows included.`,
+    `A retailer's catalog of <b>${N(D.v1.size)}</b> real products, in two versions, <b>${D.changes.length}</b> changes between them, version 2 in effect from day <b>${D.effective}</b>.`,
+  ].map(x => `<li>${x}</li>`).join("");
+  $("ho-gets").innerHTML = [
+    `The reads file, all <b>${N(D.rows)}</b> rows, in the order they arrived.`,
+    `The catalog, both versions.`,
+    `Nothing else. No truth file: the pipeline never sees which product was really there. In the real job there is none either.`,
+  ].map(x => `<li>${x}</li>`).join("");
+  $("ho-start").innerHTML = [
+    `The simple lookup, on every read: <b style="color:var(--right)">${N(t.right)}</b> matched, <b>${N(t["no answer"])}</b> no answer, <b style="color:var(--wrong)">${t.wrong}</b> wrong, of <b>${N(reads.length)}</b>.`,
+  ].map(x => `<li>${x}</li>`).join("");
+  $("ho-must").innerHTML = [
+    `One trusted record per shelf spot per store: the product, how sure, by which method, from which reads, since when.`,
+    `Kept correct when the catalog changes, without breaking what reads the table downstream.`,
+    `Every read accounted for: named, left unnamed, dropped as a duplicate, or quarantined. None lost.`,
+  ].map(x => `<li>${x}</li>`).join("");
+}
+
 const STORY_STORE = "S001", STORY_AISLE = "A05";   // an aisle with empty slots and a misplaced unit on day 1
 const READ_MS = CLIP ? 1100 : 800;   // how long each read stays in the viewfinder; a clip holds a little longer for a phone viewer
 const TYPE_MS = CLIP ? 450 : 300;    // of which, how long the read takes to type out
@@ -954,7 +1024,12 @@ function buildStory() {
     $("ex-read").innerHTML = [...text].map((ch, i) => `<span class="${okA[i] ? "ok" : "bad"}">${esc(ch)}</span>`).join("");
     $("ex-row").innerHTML = `<b>${esc(p?.brands || "")}</b><span>${esc(p?.product_name || "")}</span><span>${esc(p?.quantity || "")}</span><span class="code">${esc(example.tr.true_code)}</span>`;
     $("ex-truth").innerHTML = [...truth].map((ch, i) => `<span class="${okB[i] ? "" : "lost"}">${esc(ch)}</span>`).join("");
-    $("b5l2").textContent = `You can see what it is. The lookup can't. ${n} letter${n === 1 ? "" : "s"}.`;
+    const words = ["zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine"];
+    const aisleNone = reads.filter(e => D.base.get(e.d.detection_id).outcome === "no answer").length;
+    $("b3l2").textContent = `In the aisle above, that step failed on ${aisleNone} of ${reads.length} reads. Until every read is matched, the live map of every shelf spot cannot be trusted, and the desired system does not exist yet. This is the matching problem.`;
+    const letters = `${words[n] || n} letter${n === 1 ? "" : "s"}`;
+    $("b5l1").textContent = `One read, ${letters} off, and the lookup has no answer.`;
+    $("b5l2").textContent = `The badge's read is ${letters} off the label. A person can still tell which product it is. The exact-text lookup cannot, so it gives no answer.`;
   }
   // beat 6: reads piling up walk by walk, in the order the walks happened
   const walksInOrder = [...D.walks.walks].sort((x, y) => x.start_utc.localeCompare(y.start_utc));
@@ -963,6 +1038,8 @@ function buildStory() {
   let running = 0; const cum = walksInOrder.map(w => running += perWalk.get(w.store_id + w.walk_id));
   $("meter").innerHTML = cum.map((c, k) => `<i style="--k:${k};height:${(100 * c / cum[cum.length - 1]).toFixed(1)}%" title="${esc(walksInOrder[k].store_id)} ${esc(walksInOrder[k].walk_id)}: ${c.toLocaleString("en-US")} reads so far"></i>`).join("");
   $("metercap").textContent = `reads an LLM would be asked about, walk by walk: ${cum[cum.length - 1].toLocaleString("en-US")} after ${cum.length} walks, and the next walk adds more. From the data on this page.`;
+  handover();
+  $("b8l1").textContent = `The simulation in full: ${D.stores.length} stores, ${cum.length} walks, ${D.first.size.toLocaleString("en-US")} reads, and what the simple lookup made of them.`;
   const empty = facings.filter(f => !f.actual_code).length, misplaced = facings.filter(f => f.status === "misplaced").length;
   if (CLIP) $("stagecap").textContent = `Store ${sc.store} · aisle ${leg.aisle} ${D.category.get(leg.aisle)} · day 1 · ${reads.length} reads, each held ` +
     `${(READ_MS / 1000).toFixed(1)} s · simulated store, real products · verdicts from a naive lookup`;
