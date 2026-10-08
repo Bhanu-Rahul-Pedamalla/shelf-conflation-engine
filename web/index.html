@@ -10,7 +10,9 @@
   Every number on this page is counted from those files at load time. Nothing is typed in.
   Serve the repo root (python -m http.server) and open /web/.
 
-  The story in five acts (one aisle, one read at a time) and, below it, the deep sections: the full store, the baseline, the assumptions.
+  Two parts. A, the context: the problem in the world and Augmodo's answer, with one aisle as the badge sees it.
+  B, the job: the matching problem, the expensive fix, the real method, the job itself (with the posting folded away), the simulation as the full store, open, then what the pipeline receives.
+  Under both: the verified/assumed list.
 
   URL flags:  ?view=full&store=S002&day=2&t=30   open the full store at a store, a day and a moment
               &facing=A01-3-7-1                  pin the card of one facing (aisle-shelf-position-facing)
@@ -42,6 +44,10 @@
   #story { padding: 16px 16px 28px; border-bottom: 1px solid var(--line); }
   #story h1 { margin: 0 0 10px; font-size: clamp(20px, 3.2vw, 36px); line-height: 1.15; font-weight: 700; letter-spacing: -.01em; }
   /* the acts: one line, one visual, one number each */
+  /* the two parts: a band across the page, so the break between the context and the job is seen before it is read */
+  .part { margin: 14px -16px 0; padding: 26px 16px 20px; background: var(--panel); border-top: 3px solid var(--accent); }
+  #beats .part { margin-top: 0; padding-top: 34px; }
+  .part h2 { margin: 0; font-size: clamp(28px, 3.6vw, 46px); line-height: 1.1; font-weight: 800; letter-spacing: -.015em; color: #fff; text-transform: none; }
   .act { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: 20px 40px; align-items: center; padding: 44px 0; border-top: 1px solid var(--line); }
   .act:first-of-type { border-top: 0; padding-top: 10px; }
   .act-text { min-width: 0; }
@@ -49,7 +55,7 @@
   .actno { display: inline-block; width: 26px; height: 26px; line-height: 26px; text-align: center; border-radius: 50%; background: var(--line); color: var(--text); font-size: 13px; font-weight: 700; margin-bottom: 10px; }
   .beat { display: inline-block; margin: 0 0 10px 8px; color: var(--accent); font-size: 13px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; vertical-align: top; line-height: 26px; }
   .bridge { color: var(--text); font-weight: 600; }
-  .act h2 { margin: 0 0 14px; font-size: clamp(22px, 2.6vw, 36px); line-height: 1.15; font-weight: 700; letter-spacing: -.01em; color: var(--text); text-transform: none; }
+  .act h3 { margin: 0 0 14px; font-size: clamp(22px, 2.6vw, 36px); line-height: 1.15; font-weight: 700; letter-spacing: -.01em; color: var(--text); text-transform: none; }
   .act .num { margin: 0 0 10px; font-size: 15px; color: var(--text); }
   .act .num b { display: block; font-size: clamp(28px, 3.4vw, 48px); font-weight: 800; line-height: 1.05; font-variant-numeric: tabular-nums; margin-bottom: 2px; }
   .act .src, .scene .src { color: var(--dim); font-size: 12px; }
@@ -69,15 +75,33 @@
   #beats { padding: 0 16px; }
   .scene { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: 20px 40px; align-items: center; padding: 48px 0; border-top: 1px solid var(--line); }
   .scene-text, .scene-vis { min-width: 0; }
-  .scene h2 { margin: 0 0 12px; font-size: clamp(22px, 2.6vw, 34px); line-height: 1.15; font-weight: 700; letter-spacing: -.01em; color: #fff; text-transform: none; }
-  .scene h2.l1 { color: var(--accent); }
+  .scene h3 { margin: 0 0 12px; font-size: clamp(22px, 2.6vw, 34px); line-height: 1.15; font-weight: 700; letter-spacing: -.01em; color: #fff; text-transform: none; }
+  .scene h3.l1 { color: var(--accent); }
   .scene p.l2 { margin: 0 0 12px; font-size: clamp(17px, 1.6vw, 22px); line-height: 1.35; font-weight: 500; color: #e8ecf1; }
   .scene .small { margin: 0; color: var(--dim); font-size: 14px; line-height: 1.45; }
-  #beat3 { grid-template-columns: minmax(0, 1fr); gap: 0; padding-bottom: 8px; }
+  #beat3 { grid-template-columns: minmax(0, 1fr); gap: 0; padding-top: 36px; padding-bottom: 8px; border-top: 0; }
   #beat3 .l2 { max-width: 900px; }
   #beat5 { border-top: 0; padding-top: 8px; }
+  #beat9 { grid-template-columns: minmax(0, 1fr); gap: 0; }
+  #beat9 .l2 { max-width: 900px; }
+  /* the role, folded: context for a careful reader, not part of the walk */
+  .fold { margin: 6px 0 0; }
+  .fold > summary { cursor: pointer; display: inline-flex; align-items: center; gap: 8px; padding: 4px 0; font-size: 14px; font-weight: 600; color: var(--dim); list-style: none; }
+  .fold > summary::-webkit-details-marker { display: none; }
+  .fold > summary::before { content: ""; width: 7px; height: 7px; border-right: 2px solid var(--dim); border-bottom: 2px solid var(--dim); transform: rotate(-45deg); transition: transform .15s; }
+  .fold[open] > summary::before { transform: rotate(45deg); }
+  .fold[open] > summary { color: var(--text); }
+  .tablewrap { margin: 10px 0 0; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+  .fold table { width: 100%; border-collapse: collapse; font-size: 13px; line-height: 1.4; }
+  .fold th, .fold td { text-align: left; vertical-align: top; padding: 8px 10px; border-top: 1px solid var(--line); }
+  .fold th { border-top: 0; background: var(--panel); color: var(--dim); font-weight: 600; font-size: 12px; text-transform: uppercase; letter-spacing: .04em; }
+  .fold td:first-child { width: 42%; } .fold td:last-child { width: 18%; color: var(--dim); }
+  .fold td b { color: var(--text); }
+  .fold .small { margin-top: 10px; }
+  @media (max-width: 760px) { .fold thead { display: none; } .fold tr, .fold td { display: block; width: auto !important; } .fold td { border-top: 0; padding: 4px 10px; }
+    .fold tr { border-top: 1px solid var(--line); padding: 6px 0; } .fold td:nth-child(2)::before { content: "Here: "; color: var(--dim); } .fold td:last-child::before { content: "Stage: "; } }
   #beat8 { grid-template-columns: minmax(0, 1fr); padding-bottom: 18px; }
-  #beat8 h2 { margin: 0; }
+  #beat8 h3 { margin: 0; }
   /* one read over its catalog row */
   #act3vis { display: grid; gap: 4px; background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; }
   #act3vis .lab { color: var(--dim); font-size: 12px; margin-top: 8px; }
@@ -117,16 +141,15 @@
   #deep details[open] > summary::before { transform: rotate(45deg); }
 
   #deep header { padding: 0 0 10px; border-bottom: 1px solid var(--line); }
-  #deep footer { padding-top: 12px; }
   @media (max-width: 900px) {
     .act { grid-template-columns: minmax(0, 1fr); gap: 18px; padding: 32px 0; }
   }
   /* ?snapshot=1&view=story shows act 2 alone; ?snapshot=1 shows the full store alone */
-  body.snapshot.story .act:not(#act2), body.snapshot.story #beats, body.snapshot.story #deep, body.snapshot.story #act2 .act-text { display: none; }
+  body.snapshot.story .act:not(#act2), body.snapshot.story .part, body.snapshot.story #beats, body.snapshot.story #deep, body.snapshot.story #act2 .act-text { display: none; }
   body.snapshot:not(.story) #story, body.snapshot:not(.story) #beats { display: none; }
   body.snapshot #deep summary { display: none; }
   /* ?clip=1 (9:16) or ?clip=square (1:1): the story alone, sized for a phone screen recording. Nothing else is shown. */
-  body.clip .act:not(#act2), body.clip #act2 .act-text, body.clip #storyplay, body.clip #beats, body.clip #deep, body.clip #hint, body.clip #card { display: none !important; }
+  body.clip .act:not(#act2), body.clip .part, body.clip #act2 .act-text, body.clip #storyplay, body.clip #beats, body.clip #deep, body.clip #hint, body.clip #card { display: none !important; }
   body.clip #act2 { padding: 0; border: 0; display: block; }
   body.clip #story { min-height: 100vh; display: flex; flex-direction: column; padding: 40px 40px 30px; border: 0; }
   body.clip #story h1 { font-size: 46px; margin-bottom: 22px; }
@@ -274,7 +297,7 @@
   #mapwrap { margin: 0 16px 12px; }
   svg#map { display: block; }
   aside { border-left: 1px solid var(--line); padding: 10px 14px; }
-  h2 { margin: 0 0 6px; font-size: 12px; font-weight: 600; color: var(--dim); text-transform: uppercase; letter-spacing: .04em; }
+  #deep aside h4 { margin: 0 0 6px; font-size: 12px; font-weight: 600; color: var(--dim); text-transform: uppercase; letter-spacing: .04em; }
   #reads { list-style: none; margin: 0; padding: 0; }
   #reads li { padding: 6px 0; border-bottom: 1px solid var(--line); font-size: 12.5px; }
   .where { color: var(--dim); }
@@ -294,22 +317,19 @@
   #facts { padding: 14px 16px 16px; border-top: 1px solid var(--line); }
   #facts p { margin: 0 0 10px; color: var(--dim); font-size: 13px; }
   #facts .cols { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 2fr); gap: 8px 28px; }
-  #facts h3 { margin: 0 0 6px; font-size: 13px; font-weight: 600; }
+  #facts h4 { margin: 0 0 6px; font-size: 13px; font-weight: 600; }
   #strip { padding: 14px 0 6px; border-top: 1px solid var(--line); margin-top: 14px; }
-  #strip h3 { margin: 0 0 4px; font-size: 15px; font-weight: 700; }
+  #strip h4 { margin: 0 0 4px; font-size: 15px; font-weight: 700; }
   #strip p { margin: 0 0 6px; color: var(--dim); font-size: 13px; }
   #handover { padding: 40px 0 28px; border-top: 1px solid var(--line); }
-  #handover h2 { margin: 0 0 18px; font-size: clamp(22px, 2.6vw, 34px); line-height: 1.15; font-weight: 700; letter-spacing: -.01em; color: var(--accent); text-transform: none; }
-  #handover h3 { margin: 14px 0 6px; font-size: 13px; font-weight: 700; color: var(--dim); text-transform: uppercase; letter-spacing: .04em; }
-  #handover h3:first-child { margin-top: 0; }
+  #handover h5 { margin: 14px 0 6px; font-size: 13px; font-weight: 700; color: var(--dim); text-transform: uppercase; letter-spacing: .04em; }
+  #handover h5:first-child { margin-top: 0; }
   #handover ul { margin: 0; padding-left: 18px; font-size: 15px; line-height: 1.45; }
   #handover li { margin: 0 0 6px; } #handover b { font-variant-numeric: tabular-nums; }
+  #handover .intro { margin: 0 0 8px; font-size: 15px; line-height: 1.45; }
   #handover .last { margin: 22px 0 0; font-size: clamp(18px, 2vw, 24px); font-weight: 700; color: #fff; }
   #facts ul { margin: 0; padding-left: 18px; font-size: 13px; }
   #facts li { margin-bottom: 4px; overflow-wrap: anywhere; }
-  footer { padding: 10px 16px 18px; color: var(--dim); font-size: 12px; border-top: 1px solid var(--line); }
-  footer p { margin: 0 0 4px; }
-  footer p.next { color: var(--text); font-size: 13px; }
   #error { padding: 16px; color: var(--empty); }
 
   /* the card that opens on a facing or on a v2 tag */
@@ -349,8 +369,8 @@
 
   /* ?snapshot=1            : the full store only - title, legend, map and counters
      ?snapshot=1&view=story : the story only, with no buttons */
-  body.snapshot .bar, body.snapshot aside, body.snapshot #strip, body.snapshot footer, body.snapshot #intro,
-  body.snapshot #facts, body.snapshot #storyplay { display: none; }
+  body.snapshot .bar, body.snapshot aside, body.snapshot #strip, body.snapshot #intro,
+  body.snapshot #facts, body.snapshot #storyplay, body.snapshot #beat8, body.snapshot #handover { display: none; }
   body.snapshot main { grid-template-columns: minmax(0, 1fr); }
   body.snapshot #counters { position: static; }
   #deep #counters { top: 0; }
@@ -365,15 +385,17 @@
 </head>
 <body>
 
-<!-- The story in five acts: pain, answer (with the front-row limit as its last line), problem inside, the obvious fix and the job, the work.
+<!-- Part A, the context: the problem in the world, then Augmodo's answer with the front-row limit as its last line.
      Each act is one line, one visual and one number; every number is from the data files or carries its source. -->
 <section id="story">
   <h1>Realogram · what the badge reads</h1>
 
+  <header class="part" id="part-a"><h2>Augmodo</h2></header>
+
   <article class="act" id="act1">
     <div class="act-text">
       <span class="actno">1</span><span class="beat">The problem</span>
-      <h2>Retailers don't know what is on their shelves right now.</h2>
+      <h3>Retailers don't know what is on their shelves right now.</h3>
       <p class="cap"><span class="bridge">"I couldn't believe none of the retailers had any idea what was on their shelves."</span> <span class="src">Ross Finman, who went on to found Augmodo, after hunting for baby formula in the 2022 shortage</span></p>
       <p class="num"><b>$1.75 trillion</b> a year lost to out-of-stocks, overstocks and returns <span class="src">IHL Group, the figure Augmodo cites</span></p>
     </div>
@@ -386,14 +408,14 @@
   <article class="act" id="act2">
     <div class="act-text">
       <span class="actno">2</span><span class="beat">Augmodo's answer</span>
-      <h2>Augmodo put a camera badge on the workers already walking the aisles.</h2>
+      <h3>Augmodo put a camera badge on the workers already walking the aisles.</h3>
       <p class="cap"><span class="bridge">So Augmodo, a Seattle company, put a camera badge on the people who already walk the aisles.</span></p>
       <div class="nums2">
         <p class="num"><b>Dozens</b> of scans of every shelf a day <span class="src">Augmodo</span></p>
         <p class="num"><b>100&times;</b> cheaper than the other way, a shelf-scanning robot <span class="src">Augmodo</span></p>
       </div>
       <p class="cap">Every walk becomes a scan. The result is what Augmodo calls the Realogram: a live map of the product in every shelf spot.</p>
-      <p class="cap">Below is one aisle of it, as the badge sees it: one shelf spot at a time, and the text the badge read off it. Under each read, a simple lookup tries to name the product in the retailer's list: green when it can, amber when it cannot, red when it names the wrong one. The shelf from act 1 runs along the bottom; the figure is the worker walking it.</p>
+      <p class="cap">Below is one aisle of it, as the badge sees it: one shelf spot at a time, and the text the badge read off it. Under each read, a simple lookup tries to match it to one product in the retailer's list: green when it finds one, amber when it finds none, red when it finds the wrong one. The shelf from act 1 runs along the bottom; the figure is the worker walking it.</p>
     </div>
     <div class="storybar">
       <button id="storyplay" class="go" aria-label="Pause or play the walk"><svg viewBox="0 0 16 16" aria-hidden="true"><path id="storyicon" d="M3 1.5v13l11-6.5z"/></svg></button>
@@ -422,20 +444,22 @@
 
 </section>
 
-<!-- Below the opening: four beats that play as they come into view. Each beat: a line that says where to look, the thing,
-     a line that says what it means, then a dim note. Every number is from the data files or carries its source. -->
+<!-- Part B, the job: the matching problem with one failed read, the expensive fix, the real method, the job itself. Each beat: a line that says where to look, the thing, a line that
+     says what it means, then a dim note. Every number is from the data files or carries its source. -->
 <section id="beats">
+  <header class="part" id="part-b"><h2>The job: matching</h2></header>
+
   <article class="scene" id="beat3">
     <div class="scene-text">
       <span class="actno">3</span><span class="beat">Inside the system: the matching problem</span>
-      <h2 class="l1">The badge reads text off a label. The Realogram needs the product itself. Between the two sits one step: matching each read to one product in the retailer's catalog.</h2>
+      <h3 class="l1">The badge reads text off a label. The Realogram needs the product itself. Between the two sits one step: matching each read to one product in the retailer's catalog.</h3>
       <p class="l2" id="b3l2"></p>
     </div>
   </article>
 
   <article class="scene" id="beat5">
     <div class="scene-text">
-      <h2 class="l1" id="b5l1"></h2>
+      <h3 class="l1" id="b5l1"></h3>
       <p class="l2" id="b5l2"></p>
       <p class="small">Augmodo already processes hundreds of terabytes of this a day <span class="src">Ross Finman, Augmodo's founder, 2026</span></p>
     </div>
@@ -452,8 +476,8 @@
   <article class="scene" id="beat6">
     <div class="scene-text">
       <span class="actno">4</span><span class="beat">The expensive fix</span>
-      <h2 class="l1">So why not ask an LLM?</h2>
-      <p class="l2">A large language model would name this read, and every other one. But every walk sends thousands more reads, so the bill grows with every walk and never stops.</p>
+      <h3 class="l1">So why not ask an LLM?</h3>
+      <p class="l2" id="b6l2"></p>
     </div>
     <div class="scene-vis">
       <div id="meter"></div>
@@ -464,13 +488,13 @@
   <article class="scene" id="beat7">
     <div class="scene-text">
       <span class="actno">5</span><span class="beat">The real method</span>
-      <h2 class="l1">Name each read the cheapest way that works.</h2>
-      <p class="l2">A barcode, or the exact label text, names most reads for free [deterministic match]. Close spelling within the same brand names most of the rest, also cheap [fuzzy match]. The LLM is asked only about the few reads nothing else could name. The result is one trusted record per shelf spot, kept correct as the catalog changes.</p>
+      <h3 class="l1">Find which product each read is. Try the cheap checks first; use the expensive one only when nothing else can.</h3>
+      <p class="l2">A barcode, or the exact label text, matches most reads to their product for free [deterministic match]. Close spelling within the same brand matches most of the rest, also cheap [fuzzy match]. The LLM is asked only about the few reads nothing else could match. The result is one trusted record per shelf spot, kept correct as the catalog changes.</p>
       <p class="small">That pipeline is the work of Augmodo's Data Intelligence engineer: take in the detections, match them against the retailer's catalog, keep one trusted record per shelf spot, versioned as the catalog changes <span class="src">Augmodo job posting, September 2026</span></p>
     </div>
     <div class="scene-vis">
       <ol id="ladder">
-        <li style="--h:1"><b>Barcode, or the exact label text [deterministic match]</b><span>free, never wrong</span><i></i></li>
+        <li style="--h:1"><b>Barcode, or the exact label text [deterministic match]</b><span id="rung1"></span><i></i></li>
         <li style="--h:2"><b>Close spelling, same brand [fuzzy match]</b><span>cheap, scored</span><i></i></li>
         <li style="--h:3"><b>LLM, only the leftovers</b><span>few, costly</span><i></i></li>
         <li style="--h:4"><b>LLM answers ranked below any exact match [capped confidence]</b><span>never trusted over a rule</span><i></i></li>
@@ -478,16 +502,44 @@
     </div>
   </article>
 
-  <article class="scene" id="beat8">
-    <div><span class="actno">6</span><span class="beat">The simulation</span></div>
-    <h2 class="l1" id="b8l1"></h2>
+  <article class="scene" id="beat9">
+    <div><span class="actno">6</span><span class="beat">The job</span></div>
+    <h3 class="l1">To make the Realogram trustworthy, someone has to build this pipeline and keep it running at Augmodo's scale.</h3>
+    <p class="l2">Take reads in, clean them, match each to a product the cheapest way that works, write one trusted record per shelf spot, keep it right as the catalog changes, measure every step's cost and accuracy.</p>
+    <details class="fold" id="d-role">
+      <summary>The role, in the posting's words, and what each line means here</summary>
+      <div class="tablewrap">
+        <table>
+          <thead><tr><th>Their words</th><th>What it means in this pipeline</th><th>Stage of the pipeline</th></tr></thead>
+          <tbody>
+          <tr><td><b>Build Staged Pipelines:</b> Design and maintain versioned data pipelines that handle the ingestion and conflation of complex retail data (e.g., matching computer vision detections to master product catalogs).</td><td>Reads pass through separate steps, each one counted and checked before the next. Matching reads to the catalog is this exact task.</td><td>Every stage</td></tr>
+          <tr><td><b>High-Fidelity Output:</b> Ensure that data outputs surfaced to consumer-facing dashboards meet a high quality bar for accuracy and reliability.</td><td>The output table is what a retailer's dashboard would read. It is scored against the simulation's truth file, which the pipeline itself never sees.</td><td>Serve and measure</td></tr>
+          <tr><td><b>Hybrid AI Strategy:</b> Implement a “right tool for the job” approach—building robust rules-based normalization and RegEx logic for bounded tasks, while strategically integrating LLMs to solve high-complexity data matching and entity resolution.</td><td>Rules clean the text and match barcodes and exact labels. Close spelling takes most of the rest. The LLM sees only what is left.</td><td>Clean · barcode and exact text · close spelling · LLM leftovers</td></tr>
+          <tr><td><b>Scale & Cost Management:</b> Architect solutions that are mindful of the massive scale of retail environments, ensuring AI integrations are cost-effective and performant.</td><td>Every stage reports its count and its cost. The LLM is paid per read, so the pipeline is built to send it as few reads as possible.</td><td>LLM leftovers · the report</td></tr>
+          <tr><td><b>Versioned Data Evolution:</b> Manage the lifecycle of data schema and pipeline logic to allow for rapid iteration without breaking downstream consumer insights.</td><td>The catalog changes between version 1 and version 2 here. Each record carries a version, and the output table keeps its shape when the schema moves.</td><td>Catalog versions</td></tr>
+          <tr><td><b>The “Data Plumber” Mindset:</b> Extensive experience building reliable, staged pipelines for complex ingestion tasks.</td><td>Take-in comes first: re-sent rows dropped by id, rows put in time order, malformed rows set aside with a reason, every count written down.</td><td>Take in</td></tr>
+          <tr><td><b>Entity Resolution & Conflation:</b> You have experience merging disparate, messy data sources into a unified “Golden Record.”</td><td>Many reads of one shelf spot, from several walks and badges, become one record: the product, how sure, by which method, from which reads, since when.</td><td>One record per spot</td></tr>
+          <tr><td><b>Pragmatic AI Experience:</b> You are comfortable with LLMs and prompt engineering but remain skeptical enough to know when a simple regex or bounded heuristic is the better engineering choice.</td><td>An LLM answer ranks below any exact match and never overrides one. The LLM is asked only when the cheap checks found nothing.</td><td>LLM leftovers</td></tr>
+          <tr><td><b>Engineering Rigor:</b> You believe in versioning everything—from your code to your data schemas.</td><td>Code, data files, catalog and record schema all carry a version. The same inputs give the same output on every run.</td><td>Every stage</td></tr>
+          <tr><td><b>Physical Product Domain:</b> Experience in retail, logistics, or supply chain (handling SKUs, UPCs, and physical inventory data).</td><td>The catalog is 300 real products with their barcodes. A new size gets a new barcode, as the GS1 rule requires.</td><td>Barcode and exact text · catalog versions</td></tr>
+          <tr><td><b>Spatial Data:</b> Experience working with data that has a physical or geographic component (GIS, LIDAR, or Computer Vision metadata).</td><td>Each read carries a position in the store in metres and a box in the camera frame. The shelf spot is worked out from that; it is not given.</td><td>Take in · one record per spot</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="small">The first column is the Augmodo job posting of September 2026, word for word. The stages, in the order the pipeline runs them: take in, clean, barcode and exact text, close spelling, LLM leftovers, one record per spot, catalog versions, serve and measure. This page ends with the pipeline's input; the stages are the next piece of work.</p>
+    </details>
   </article>
 </section>
 
-<!-- The full store follows, open, with the simple lookup's count under the map; then what the simulation hands over. The verified/assumed list stays collapsed for the careful reader. -->
+<!-- The simulation: the full store, open, with the simple lookup's count under the map. Then what the pipeline receives: the handoff from the simulation to the job.
+     The verified/assumed list stays collapsed for the careful reader. -->
 <section id="deep">
-<details id="d-full" open>
-<summary>The full store</summary>
+  <article class="scene" id="beat8">
+    <div><span class="actno">7</span><span class="beat">The simulation</span></div>
+    <h3 class="l1" id="b8l1"></h3>
+  </article>
+
+<section id="d-full">
 <header>
   <p id="context" hidden></p>
   <ul id="intro">
@@ -514,45 +566,41 @@
     <div id="mapwrap"><svg id="map" xmlns="http://www.w3.org/2000/svg"></svg></div>
   </div>
   <aside>
-    <h2>Latest reads</h2>
+    <h4>Latest reads</h4>
     <ul id="reads"></ul>
   </aside>
 </main>
 <div id="strip" hidden>
-  <h3>The simple lookup, on every read</h3>
+  <h4>The simple lookup, on every read</h4>
   <p>The lookup matches the exact text, the text ignoring case, or the barcode against the retailer's list (catalog v1), and answers only when exactly one row fits. Counted for the store and day chosen above.</p>
   <div id="basebar"></div>
   <div id="basetext"></div>
 </div>
-</details>
+</section>
+
+<section id="handover">
+  <div><span class="actno">8</span><span class="beat">What the pipeline receives</span></div>
+  <div>
+    <h5>The pipeline receives</h5>
+    <p class="intro">These are the files. They are what a matching pipeline at Augmodo would get: reads and a catalog, nothing more.</p>
+    <ul id="ho-gets"></ul>
+    <h5>The starting number</h5><ul id="ho-start"></ul>
+    <h5>The pipeline must deliver</h5><ul id="ho-must"></ul>
+  </div>
+  <p class="last">The pipeline starts from here.</p>
+</section>
 
 <details id="d-facts">
 <summary>Verified and assumed</summary>
 <div id="facts" hidden>
   <p>What in this simulation can be checked, and what was made up to make it run.</p>
   <div class="cols">
-    <div><h3 id="vsum"></h3><ul id="vlist"></ul></div>
-    <div><h3 id="asum"></h3><ul id="alist"></ul></div>
+    <div><h4 id="vsum"></h4><ul id="vlist"></ul></div>
+    <div><h4 id="asum"></h4><ul id="alist"></ul></div>
   </div>
 </div>
 </details>
 
-<section id="handover">
-  <h2>What the simulation created, and what the pipeline receives</h2>
-  <div class="cols">
-    <div><h3>Created, the way a real store would produce it</h3><ul id="ho-made"></ul></div>
-    <div><h3>The pipeline receives</h3><ul id="ho-gets"></ul>
-         <h3>The starting number</h3><ul id="ho-start"></ul>
-         <h3>The pipeline must deliver</h3><ul id="ho-must"></ul></div>
-  </div>
-  <p class="last">The pipeline starts from here.</p>
-</section>
-
-<footer>
-  <p class="next">This page shows the simulation only: the input a matching pipeline receives. The only matching shown is the simple lookup.</p>
-  <p>Contains data from Open Food Facts, Open Beauty Facts and Open Products Facts, available under the Open Database License.
-  The products are real. The stores, shelf problems, walks, read damage, duplicates and catalog v2 changes are simulated.</p>
-</footer>
 </section>
 
 <div id="card" hidden></div>
@@ -678,7 +726,6 @@ async function boot() {
   } else {
     if (Q.get("t")) seek(Math.min(+Q.get("t") || 0, scene.end));
     else if (SNAPSHOT) seek(scene.end);                          // a snapshot with no time given shows the finished day
-    if (Q.get("view") === "full" || Q.get("facing") || SNAPSHOT) $("d-full").open = true;   // a link can open straight on the full store
     if (Q.get("view") === "full") $("d-full").scrollIntoView();
     if (Q.get("facing")) pin(Q.get("facing").split("-").join("|"));
   }
@@ -687,7 +734,6 @@ async function boot() {
   if (!SNAPSHOT && Q.get("view") !== "full" && !matchMedia("(prefers-reduced-motion: reduce)").matches)
     setTimeout(() => { if (!ST.on && !ST.done && ST.i === 0) storyStart(); }, CLIP ? 1500 : 1000);   // a clip keeps a clean first frame a little longer
   // the deep sections: the map is drawn to its real width when its section opens; a link to a section opens it
-  $("d-full").addEventListener("toggle", () => { if ($("d-full").open) { const pinned = S.pinned; drawMap(); seek(S.t); if (pinned) pin(pinned); } });
   const openTarget = () => { const t = location.hash && document.querySelector(location.hash); if (t && t.tagName === "DETAILS") t.open = true; };
   window.addEventListener("hashchange", openTarget); openTarget();
   requestAnimationFrame(tick);
@@ -937,23 +983,11 @@ function pin(key) {
 }
 
 /* ---------- view 1: the story - one aisle of one store on day 1, as the badge sees it: one facing at a time ---------- */
-// What the simulation created and what the pipeline receives: every number counted from the data files just loaded.
+// What the pipeline receives: every number counted from the data files just loaded.
 function handover() {
   const N = x => x.toLocaleString("en-US");
-  const stores = D.stores.length, positions = D.plan.length, facings = D.plan.reduce((a, r) => a + (+r.facings), 0);
-  const aisles = new Set(D.plan.map(r => r.aisle)).size;
-  const walks = D.walks.walks.length, days = new Set(D.walks.walks.map(w => w.day)).size;
-  const day1 = D.shelf[1], empty1 = day1.filter(f => !f.actual_code).length, mis1 = day1.filter(f => f.status === "misplaced").length;
-  const reads = [...D.first.values()], withCode = reads.filter(d => d.read_barcode).length;
-  const second = new Set(D.walks.walks.filter(w => w.only_aisle).map(w => w.store_id + w.walk_id));
+  const reads = [...D.first.values()];
   const t = { right: 0, wrong: 0, "no answer": 0 }; for (const b of D.base.values()) t[b.outcome]++;
-  $("ho-made").innerHTML = [
-    `<b>${stores}</b> stores on one plan: <b>${aisles}</b> aisles each, <b>${N(positions)}</b> shelf positions, <b>${N(facings)}</b> shelf spots [facings] in all.`,
-    `<b>${walks}</b> walks over <b>${days}</b> days by workers wearing the badge, including a second badge in the same aisle.`,
-    `Shelf problems a camera should find: on day 1, <b>${empty1}</b> empty spots and <b>${mis1}</b> units in the wrong aisle, then restocking overnight.`,
-    `<b>${N(D.rows)}</b> rows of reads, <b>${N(reads.length)}</b> distinct. Each row: the text the camera read, a barcode when one was read (<b>${N(withCode)}</b> of them), a confidence, a position in the store, a time. Doubles in one frame and re-sent rows included.`,
-    `A retailer's catalog of <b>${N(D.v1.size)}</b> real products, in two versions, <b>${D.changes.length}</b> changes between them, version 2 in effect from day <b>${D.effective}</b>.`,
-  ].map(x => `<li>${x}</li>`).join("");
   $("ho-gets").innerHTML = [
     `The reads file, all <b>${N(D.rows)}</b> rows, in the order they arrived.`,
     `The catalog, both versions.`,
@@ -965,7 +999,7 @@ function handover() {
   $("ho-must").innerHTML = [
     `One trusted record per shelf spot per store: the product, how sure, by which method, from which reads, since when.`,
     `Kept correct when the catalog changes, without breaking what reads the table downstream.`,
-    `Every read accounted for: named, left unnamed, dropped as a duplicate, or quarantined. None lost.`,
+    `Every read accounted for: matched to a product, left unmatched, dropped as a duplicate, or quarantined. None lost.`,
   ].map(x => `<li>${x}</li>`).join("");
 }
 
@@ -1026,9 +1060,11 @@ function buildStory() {
     $("ex-truth").innerHTML = [...truth].map((ch, i) => `<span class="${okB[i] ? "" : "lost"}">${esc(ch)}</span>`).join("");
     const words = ["zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine"];
     const aisleNone = reads.filter(e => D.base.get(e.d.detection_id).outcome === "no answer").length;
+    const tot = { right: 0, wrong: 0, "no answer": 0 }; for (const b of D.base.values()) tot[b.outcome]++;
+    $("rung1").textContent = `free; ${tot.wrong} wrong in ${(tot.right + tot.wrong).toLocaleString("en-US")} answers`;
     $("b3l2").textContent = `In the aisle above, that step failed on ${aisleNone} of ${reads.length} reads. Until every read is matched, the live map of every shelf spot cannot be trusted, and the desired system does not exist yet. This is the matching problem.`;
     const letters = `${words[n] || n} letter${n === 1 ? "" : "s"}`;
-    $("b5l1").textContent = `One read, ${letters} off, and the lookup has no answer.`;
+    $("b5l1").textContent = `If ${letters} in a read ${n === 1 ? "is" : "are"} off, the lookup finds nothing.`;
     $("b5l2").textContent = `The badge's read is ${letters} off the label. A person can still tell which product it is. The exact-text lookup cannot, so it gives no answer.`;
   }
   // beat 6: reads piling up walk by walk, in the order the walks happened
@@ -1037,6 +1073,7 @@ function buildStory() {
   for (const d of D.first.values()) perWalk.set(d.store_id + d.walk_id, (perWalk.get(d.store_id + d.walk_id) || 0) + 1);
   let running = 0; const cum = walksInOrder.map(w => running += perWalk.get(w.store_id + w.walk_id));
   $("meter").innerHTML = cum.map((c, k) => `<i style="--k:${k};height:${(100 * c / cum[cum.length - 1]).toFixed(1)}%" title="${esc(walksInOrder[k].store_id)} ${esc(walksInOrder[k].walk_id)}: ${c.toLocaleString("en-US")} reads so far"></i>`).join("");
+  $("b6l2").textContent = `A large language model would match this read to a product, and every other one. But every walk sends about ${Math.round(D.first.size / cum.length)} more reads, so the bill grows with every walk and never stops.`;
   $("metercap").textContent = `reads an LLM would be asked about, walk by walk: ${cum[cum.length - 1].toLocaleString("en-US")} after ${cum.length} walks, and the next walk adds more. From the data on this page.`;
   handover();
   $("b8l1").textContent = `The simulation in full: ${D.stores.length} stores, ${cum.length} walks, ${D.first.size.toLocaleString("en-US")} reads, and what the simple lookup made of them.`;
