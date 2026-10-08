@@ -1,0 +1,6555 @@
+{
+ "model": "claude-sonnet-5-5",
+ "spots_asked": 696,
+ "reads_in_them": 720,
+ "answers_by_confidence": {
+  "none": 349,
+  "sure": 230,
+  "likely": 105,
+  "unsure": 11
+ },
+ "spots_without_reply": [
+  "S003-2026-10-02-A02-S2-021"
+ ],
+ "bill": {
+  "calls": 28,
+  "api_calls": 0,
+  "input_tokens": 360315,
+  "output_tokens": 44174,
+  "usd": 1.1624,
+  "seconds": 264.4
+ },
+ "calls": [
+  {
+   "model": "claude-sonnet-5-5",
+   "items": 25,
+   "input_tokens": 13047,
+   "output_tokens": 1675,
+   "usd": 0.042844,
+   "seconds": 9.57,
+   "cached": true
+  },
+  {
+   "model": "claude-sonnet-5-5",
+   "items": 25,
+   "input_tokens": 12871,
+   "output_tokens": 1643,
+   "usd": 0.042172,
+   "seconds": 9.99,
+   "cached": true
+  },
+  {
+   "model": "claude-sonnet-5-5",
+   "items": 25,
+   "input_tokens": 13390,
+   "output_tokens": 1633,
+   "usd": 0.04311,
+   "seconds": 10.0,
+   "cached": true
+  },
+  {
+   "model": "claude-sonnet-5-5",
+   "items": 25,
+   "input_tokens": 12681,
+   "output_tokens": 1558,
+   "usd": 0.040942,
+   "seconds": 10.09,
+   "cached": true
+  },
+  {
+   "model": "claude-sonnet-5-5",
+   "items": 25,
+   "input_tokens": 13350,
+   "output_tokens": 1559,
+   "usd": 0.04229,
+   "seconds": 9.41,
+   "cached": true
+  },
+  {
+   "model": "claude-sonnet-5-5",
+   "items": 25,
+   "input_tokens": 12370,
+   "output_tokens": 1610,
+   "usd": 0.04084,
+   "seconds": 9.8,
+   "cached": true
+  },
+  {
+   "model": "claude-sonnet-5-5",
+   "items": 25,
+   "input_tokens": 12568,
+   "output_tokens": 1598,
+   "usd": 0.041116,
+   "seconds": 9.25,
+   "cached": true
+  },
+  {
+   "model": "claude-sonnet-5-5",
+   "items": 25,
+   "input_tokens": 12843,
+   "output_tokens": 1619,
+   "usd": 0.041876,
+   "seconds": 9.06,
+   "cached": true
+  },
+  {
+   "model": "claude-sonnet-5-5",
+   "items": 25,
+   "input_tokens": 12676,
+   "output_tokens": 1648,
+   "usd": 0.041832,
+   "seconds": 9.11,
+   "cached": true
+  },
+  {
+   "model": "claude-sonnet-5-5",
+   "items": 25,
+   "input_tokens": 12823,
+   "output_tokens": 1620,
+   "usd": 0.041846,
+   "seconds": 9.99,
+   "cached": true
+  },
+  {
+   "model": "claude-sonnet-5-5",
+   "items": 25,
+   "input_tokens": 13076,
+   "output_tokens": 1525,
+   "usd": 0.041402,
+   "seconds": 8.84,
+   "cached": true
+  },
+  {
+   "model": "claude-sonnet-5-5",
+   "items": 25,
+   "input_tokens": 13653,
+   "output_tokens": 1564,
+   "usd": 0.042946,
+   "seconds": 9.74,
+   "cached": true
+  },
+  {
+   "model": "claude-sonnet-5-5",
+   "items": 25,
+   "input_tokens": 12948,
+   "output_tokens": 1541,
+   "usd": 0.041306,
+   "seconds": 8.79,
+   "cached": true
+  },
+  {
+   "model": "claude-sonnet-5-5",
+   "items": 25,
+   "input_tokens": 13468,
+   "output_tokens": 1603,
+   "usd": 0.042966,
+   "seconds": 13.37,
+   "cached": true
+  },
+  {
+   "model": "claude-sonnet-5-5",
+   "items": 25,
+   "input_tokens": 12407,
+   "output_tokens": 1577,
+   "usd": 0.040584,
+   "seconds": 8.75,
+   "cached": true
+  },
+  {
+   "model": "claude-sonnet-5-5",
+   "items": 25,
+   "input_tokens": 12506,
+   "output_tokens": 1536,
+   "usd": 0.040372,
+   "seconds": 9.93,
+   "cached": true
+  },
+  {
+   "model": "claude-sonnet-5-5",
+   "items": 25,
+   "input_tokens": 12848,
+   "output_tokens": 1592,
+   "usd": 0.041616,
+   "seconds": 8.62,
+   "cached": true
+  },
+  {
+   "model": "claude-sonnet-5-5",
+   "items": 25,
+   "input_tokens": 12788,
+   "output_tokens": 1566,
+   "usd": 0.041236,
+   "seconds": 9.39,
+   "cached": true
+  },
+  {
+   "model": "claude-sonnet-5-5",
+   "items": 25,
+   "input_tokens": 12689,
+   "output_tokens": 1535,
+   "usd": 0.040728,
+   "seconds": 8.69,
+   "cached": true
+  },
+  {
+   "model": "claude-sonnet-5-5",
+   "items": 25,
+   "input_tokens": 13059,
+   "output_tokens": 1536,
+   "usd": 0.041478,
+   "seconds": 9.55,
+   "cached": true
+  },
+  {
+   "model": "claude-sonnet-5-5",
+   "items": 25,
+   "input_tokens": 13324,
+   "output_tokens": 1556,
+   "usd": 0.042208,
+   "seconds": 9.43,
+   "cached": true
+  },
+  {
+   "model": "claude-sonnet-5-5",
+   "items": 25,
+   "input_tokens": 13628,
+   "output_tokens": 1536,
+   "usd": 0.042616,
+   "seconds": 8.77,
+   "cached": true
+  },
+  {
+   "model": "claude-sonnet-5-5",
+   "items": 25,
+   "input_tokens": 13171,
+   "output_tokens": 1592,
+   "usd": 0.042262,
+   "seconds": 8.72,
+   "cached": true
+  },
+  {
+   "model": "claude-sonnet-5-5",
+   "items": 25,
+   "input_tokens": 13434,
+   "output_tokens": 1562,
+   "usd": 0.042488,
+   "seconds": 8.98,
+   "cached": true
+  },
+  {
+   "model": "claude-sonnet-5-5",
+   "items": 25,
+   "input_tokens": 12561,
+   "output_tokens": 1670,
+   "usd": 0.041822,
+   "seconds": 10.34,
+   "cached": true
+  },
+  {
+   "model": "claude-sonnet-5-5",
+   "items": 25,
+   "input_tokens": 12407,
+   "output_tokens": 1561,
+   "usd": 0.040424,
+   "seconds": 8.8,
+   "cached": true
+  },
+  {
+   "model": "claude-sonnet-5-5",
+   "items": 25,
+   "input_tokens": 13123,
+   "output_tokens": 1607,
+   "usd": 0.042316,
+   "seconds": 9.52,
+   "cached": true
+  },
+  {
+   "model": "claude-sonnet-5-5",
+   "items": 21,
+   "input_tokens": 10606,
+   "output_tokens": 1352,
+   "usd": 0.034732,
+   "seconds": 7.89,
+   "cached": true
+  }
+ ],
+ "answers": {
+  "S001-2026-10-02-A01-S3-001": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Three Mountain Dew variants fit; no size or diet shown",
+   "invented": false,
+   "reads": [
+    "D-S001-W001-00002"
+   ]
+  },
+  "S003-2026-10-02-A01-S3-001": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Three Mountain Dew variants fit; read lacks size",
+   "invented": false,
+   "reads": [
+    "D-S003-W001-00002"
+   ]
+  },
+  "S001-2026-10-02-A01-S3-002": {
+   "code": "01213104",
+   "confidence": "sure",
+   "why": "Mountain Dew with 20o matches the 20oz row",
+   "invented": false,
+   "reads": [
+    "D-S001-W001-00007"
+   ]
+  },
+  "S003-2026-10-02-A01-S3-002": {
+   "code": "01213104",
+   "confidence": "likely",
+   "why": "Muntain Dew with 0unces suggests 20oz; the 12 FL OZ row fits less",
+   "invented": false,
+   "reads": [
+    "D-S003-W001-00007"
+   ]
+  },
+  "S001-2026-10-02-A01-S2-007": {
+   "code": "0049000024692",
+   "confidence": "sure",
+   "why": "Exact diet coke 6pk 16.9 fl oz match",
+   "invented": false,
+   "reads": [
+    "D-S001-W001-00026"
+   ]
+  },
+  "S003-2026-10-02-A01-S2-007": {
+   "code": "0049000024692",
+   "confidence": "likely",
+   "why": "6PK, 6.9 FL OZ fragment fits 16.9 better than 15.2",
+   "invented": false,
+   "reads": [
+    "D-S003-W001-00026"
+   ]
+  },
+  "S001-2026-10-02-A01-S3-008": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Two Olipop Strawberry Vanilla rows are indistinguishable",
+   "invented": false,
+   "reads": [
+    "D-S001-W001-00031"
+   ]
+  },
+  "S001-2026-10-02-A01-S3-009": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Two Olipop Strawberry Vanilla rows are indistinguishable",
+   "invented": false,
+   "reads": [
+    "D-S001-W001-00032"
+   ]
+  },
+  "S003-2026-10-02-A01-S4-009": {
+   "code": "0611269101713",
+   "confidence": "likely",
+   "why": "Red Bull Sugarfree with 8.oz matches 8.4oz",
+   "invented": false,
+   "reads": [
+    "D-S003-W001-00030"
+   ]
+  },
+  "S003-2026-10-02-A01-S3-009": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Two Olipop Strawberry Vanilla rows are indistinguishable",
+   "invented": false,
+   "reads": [
+    "D-S003-W001-00032"
+   ]
+  },
+  "S001-2026-10-02-A01-S4-011": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Sugarfree comes in 8.4oz and 12oz; no size read",
+   "invented": false,
+   "reads": [
+    "D-S001-W001-00038"
+   ]
+  },
+  "S001-2026-10-02-A01-S1-011": {
+   "code": "42105220",
+   "confidence": "likely",
+   "why": "Coca Cola with 50 ml matches 450 ml",
+   "invented": false,
+   "reads": [
+    "D-S001-W001-00044"
+   ]
+  },
+  "S002-2026-10-02-A01-S3-010": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Two Olipop Strawberry Vanilla rows are indistinguishable",
+   "invented": false,
+   "reads": [
+    "D-S002-W001-00039"
+   ]
+  },
+  "S002-2026-10-02-A01-S2-010": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Diet Dr Pepper in 20 fl oz and 355 ml both fit",
+   "invented": false,
+   "reads": [
+    "D-S002-W001-00041"
+   ]
+  },
+  "S002-2026-10-02-A01-S1-011": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Many Coca-Cola products fit; no distinguishing detail",
+   "invented": false,
+   "reads": [
+    "D-S002-W001-00044"
+   ]
+  },
+  "S003-2026-10-02-A01-S4-010": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Three Red Bull rows fit the truncated read",
+   "invented": false,
+   "reads": [
+    "D-S003-W001-00037"
+   ]
+  },
+  "S001-2026-10-02-A01-S4-012": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Two Sugarfree sizes fit; no size read",
+   "invented": false,
+   "reads": [
+    "D-S001-W001-00045"
+   ]
+  },
+  "S002-2026-10-02-A01-S4-012": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "55 fragment ambiguous; both Sugarfree sizes fit",
+   "invented": false,
+   "reads": [
+    "D-S002-W001-00045"
+   ]
+  },
+  "S002-2026-10-02-A01-S3-012": {
+   "code": "0012000171741",
+   "confidence": "likely",
+   "why": "Diet Pepsi with 0 oz suggests 20 fl oz",
+   "invented": false,
+   "reads": [
+    "D-S002-W001-00047"
+   ]
+  },
+  "S001-2026-10-02-A01-S1-014": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Many Coca-Cola products fit the truncated read",
+   "invented": false,
+   "reads": [
+    "D-S001-W001-00054"
+   ]
+  },
+  "S001-2026-10-02-A01-S4-015": {
+   "code": "04913207",
+   "confidence": "sure",
+   "why": "Sprite lemon-lime 12 fl oz 355 ml matches",
+   "invented": false,
+   "reads": [
+    "D-S001-W001-00055"
+   ]
+  },
+  "S001-2026-10-02-A01-S1-015": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Zero Sugar appears in 20oz, 355ml, and other sizes",
+   "invented": false,
+   "reads": [
+    "D-S001-W001-00058"
+   ]
+  },
+  "S002-2026-10-02-A01-S3-017": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Several Pepsi rows fit; '2 F' ambiguous",
+   "invented": false,
+   "reads": [
+    "D-S002-W001-00062"
+   ]
+  },
+  "S002-2026-10-02-A01-S1-015": {
+   "code": "0049000040869",
+   "confidence": "likely",
+   "why": "Zero Sugar with 2 suggests 20 fl oz",
+   "invented": false,
+   "reads": [
+    "D-S002-W001-00066"
+   ]
+  },
+  "S001-2026-10-02-A01-S4-019": {
+   "code": "04976400",
+   "confidence": "sure",
+   "why": "Sprite Lemon-Lime 20oz, no Zero Sugar in read",
+   "invented": false,
+   "reads": [
+    "D-S001-W001-00068"
+   ]
+  },
+  "S001-2026-10-02-A01-S3-016": {
+   "code": "01201303",
+   "confidence": "sure",
+   "why": "Pepsi, 12 fl oz (355 ml) with damaged letters",
+   "invented": false,
+   "reads": [
+    "D-S001-W001-00069"
+   ]
+  },
+  "S001-2026-10-02-A01-S3-017": {
+   "code": "01212901",
+   "confidence": "likely",
+   "why": "Pepsi 20oz; '2OUNCES' likely 20 with missing zero",
+   "invented": false,
+   "reads": [
+    "D-S001-W001-00070"
+   ]
+  },
+  "S001-2026-10-02-A01-S1-018": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Zero Sugar 20 fl oz and 355 ml both fit; no size",
+   "invented": false,
+   "reads": [
+    "D-S001-W001-00073"
+   ]
+  },
+  "S002-2026-10-02-A01-S4-020": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Sprite Zero Sugar: 20oz and sizeless rows both fit",
+   "invented": false,
+   "reads": [
+    "D-S002-W001-00074"
+   ]
+  },
+  "S002-2026-10-02-A01-S2-019": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Many Kirkland Signature organic items; only organic is distinguishing",
+   "invented": false,
+   "reads": [
+    "D-S002-W001-00076"
+   ]
+  },
+  "S001-2026-10-02-A01-S4-020": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Two Sprite Zero Sugar rows fit; no size",
+   "invented": false,
+   "reads": [
+    "D-S001-W001-00078"
+   ]
+  },
+  "S002-2026-10-02-A01-S4-021": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Two Sprite Zero Sugar Lemon-Lime rows fit equally",
+   "invented": false,
+   "reads": [
+    "D-S002-W001-00078"
+   ]
+  },
+  "S002-2026-10-02-A01-S3-021": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Plain Pepsi matches several variants and sizes",
+   "invented": false,
+   "reads": [
+    "D-S002-W001-00079"
+   ]
+  },
+  "S003-2026-10-02-A01-S4-021": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Two Sprite Zero Sugar rows fit; no size",
+   "invented": false,
+   "reads": [
+    "D-S003-W001-00078"
+   ]
+  },
+  "S003-2026-10-02-A01-S3-018": {
+   "code": "01212901",
+   "confidence": "unsure",
+   "why": "'pepsi 2' suggests 20oz regular Pepsi; 2 Liter also possible",
+   "invented": false,
+   "reads": [
+    "D-S003-W001-00079"
+   ]
+  },
+  "S003-2026-10-02-A01-S1-021": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Only 'coca-cola co'; many Coca-Cola rows fit",
+   "invented": false,
+   "reads": [
+    "D-S003-W001-00081"
+   ]
+  },
+  "S001-2026-10-02-A01-S1-022": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Diet Coke: sizeless and 355 ml rows both fit",
+   "invented": false,
+   "reads": [
+    "D-S001-W001-00088"
+   ]
+  },
+  "S002-2026-10-02-A01-S4-022": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Read too damaged; SunnyD Tangy Original is plausible but weak",
+   "invented": false,
+   "reads": [
+    "D-S002-W001-00082"
+   ]
+  },
+  "S002-2026-10-02-A01-S1-020": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Diet Coke: two rows fit equally",
+   "invented": false,
+   "reads": [
+    "D-S002-W001-00088"
+   ]
+  },
+  "S003-2026-10-02-A01-S1-022": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Too little text to identify product",
+   "invented": false,
+   "reads": [
+    "D-S003-W001-00088"
+   ]
+  },
+  "S003-2026-10-02-A01-S1-023": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Diet Coke: two rows fit equally",
+   "invented": false,
+   "reads": [
+    "D-S003-W001-00089"
+   ]
+  },
+  "S001-2026-10-02-A01-S1-025": {
+   "code": "04965802",
+   "confidence": "likely",
+   "why": "Diet Coke with 35 ML matches 355 ml row",
+   "invented": false,
+   "reads": [
+    "D-S001-W001-00097"
+   ]
+  },
+  "S002-2026-10-02-A01-S1-023": {
+   "code": "04965802",
+   "confidence": "sure",
+   "why": "Diet Coke 355 m matches 355 ml row",
+   "invented": false,
+   "reads": [
+    "D-S002-W001-00097"
+   ]
+  },
+  "S003-2026-10-02-A01-S3-021": {
+   "code": "0012000002304",
+   "confidence": "unsure",
+   "why": "'Pepsi C' suggests Pepsi Cola, but other Pepsi rows possible",
+   "invented": false,
+   "reads": [
+    "D-S003-W001-00092"
+   ]
+  },
+  "S003-2026-10-02-A01-S1-024": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Diet Coke: two rows fit; no size",
+   "invented": false,
+   "reads": [
+    "D-S003-W001-00096"
+   ]
+  },
+  "S003-2026-10-02-A01-S1-025": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Diet Coke: two rows fit equally",
+   "invented": false,
+   "reads": [
+    "D-S003-W001-00097"
+   ]
+  },
+  "S001-2026-10-02-A01-S4-026": {
+   "code": "0819215021409",
+   "confidence": "sure",
+   "why": "Waterloo Blackberry Lemonade 12 FL OZ matches",
+   "invented": false,
+   "reads": [
+    "D-S001-W001-00102"
+   ]
+  },
+  "S003-2026-10-02-A01-S2-027": {
+   "code": "01208500",
+   "confidence": "sure",
+   "why": "Mountain Dew with 12 matches 12 FL OZ row",
+   "invented": false,
+   "reads": [
+    "D-S003-W001-00104"
+   ]
+  },
+  "S002-2026-10-02-A01-S2-027": {
+   "code": "01208500",
+   "confidence": "sure",
+   "why": "Mountain Dew 12 fl oz (355 ml) matches",
+   "invented": false,
+   "reads": [
+    "D-S002-W001-00108"
+   ]
+  },
+  "S002-2026-10-02-A02-S3-003": {
+   "code": "0855140002175",
+   "confidence": "likely",
+   "why": "Original Ancient Grain Granola; 12 oz row, 10 dl odd",
+   "invented": false,
+   "reads": [
+    "D-S002-W001-00120"
+   ]
+  },
+  "S002-2026-10-02-A02-S3-004": {
+   "code": "0855140002175",
+   "confidence": "sure",
+   "why": "Original ancient grain granola with 12 oz (340 g) matches",
+   "invented": false,
+   "reads": [
+    "D-S002-W001-00121"
+   ]
+  },
+  "S002-2026-10-02-A02-S1-001": {
+   "code": "0016000275263",
+   "confidence": "sure",
+   "why": "Cheerios 8.9 o matches the 8.9 oz size",
+   "invented": false,
+   "reads": [
+    "D-S002-W001-00124"
+   ]
+  },
+  "S003-2026-10-02-A02-S1-002": {
+   "code": "0016000275263",
+   "confidence": "likely",
+   "why": "Read '8.' fits 8.9 oz, not 18 or 12",
+   "invented": false,
+   "reads": [
+    "D-S003-W001-00126"
+   ]
+  },
+  "S001-2026-10-02-A02-S1-003": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "No size in read; several Cheerios sizes fit",
+   "invented": false,
+   "reads": [
+    "D-S001-W001-00133"
+   ]
+  },
+  "S003-2026-10-02-A02-S1-003": {
+   "code": "0016000170032",
+   "confidence": "sure",
+   "why": "Read shows 18O, matching Cheerios 18oz",
+   "invented": false,
+   "reads": [
+    "D-S003-W001-00132",
+    "D-S003-W004-00088"
+   ]
+  },
+  "S003-2026-10-02-A02-S1-004": {
+   "code": "0016000275263",
+   "confidence": "sure",
+   "why": "8.9 OZ Cheerios read",
+   "invented": false,
+   "reads": [
+    "D-S003-W001-00133",
+    "D-S003-W004-00089"
+   ]
+  },
+  "S001-2026-10-02-A02-S1-005": {
+   "code": "0016000170032",
+   "confidence": "likely",
+   "why": "Cheerios 18 matches 18oz",
+   "invented": false,
+   "reads": [
+    "D-S001-W001-00138"
+   ]
+  },
+  "S001-2026-10-02-A02-S1-006": {
+   "code": "0016000170032",
+   "confidence": "sure",
+   "why": "Cheerios 18oz (510G) matches",
+   "invented": false,
+   "reads": [
+    "D-S001-W001-00142"
+   ]
+  },
+  "S003-2026-10-02-A02-S1-006": {
+   "code": "0016000170032",
+   "confidence": "sure",
+   "why": "Cheerios 18OZ (510G) matches",
+   "invented": false,
+   "reads": [
+    "D-S003-W001-00139",
+    "D-S003-W004-00079"
+   ]
+  },
+  "S002-2026-10-02-A02-S2-006": {
+   "code": "0096619194261",
+   "confidence": "likely",
+   "why": "Kirkland Signature Ancient matches the granola",
+   "invented": false,
+   "reads": [
+    "D-S002-W001-00146"
+   ]
+  },
+  "S001-2026-10-02-A02-S4-008": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Quick 1-Minute read, no size; two sizes fit",
+   "invented": false,
+   "reads": [
+    "D-S001-W001-00159"
+   ]
+  },
+  "S002-2026-10-02-A02-S4-006": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Quick 1-Minute Oats, no size; two sizes",
+   "invented": false,
+   "reads": [
+    "D-S002-W001-00157"
+   ]
+  },
+  "S001-2026-10-02-A02-S4-009": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Quick 1-Minute, no size shown; two sizes",
+   "invented": false,
+   "reads": [
+    "D-S001-W001-00163"
+   ]
+  },
+  "S002-2026-10-02-A02-S1-012": {
+   "code": "0860479001522",
+   "confidence": "sure",
+   "why": "Cinnamon Toast protein cereal with 225 g",
+   "invented": false,
+   "reads": [
+    "D-S002-W001-00164"
+   ]
+  },
+  "S001-2026-10-02-A02-S4-011": {
+   "code": "0030000012000",
+   "confidence": "sure",
+   "why": "Quick 1-Minute with 42 Oz / 1.19 kg",
+   "invented": false,
+   "reads": [
+    "D-S001-W001-00167",
+    "D-S001-W001-00580"
+   ]
+  },
+  "S001-2026-10-02-A02-S3-018": {
+   "code": "0058449770565",
+   "confidence": "sure",
+   "why": "Pumpkin Seed Flax with 35.3 oz 1 kg",
+   "invented": false,
+   "reads": [
+    "D-S001-W001-00168"
+   ]
+  },
+  "S001-2026-10-02-A02-S3-019": {
+   "code": "0058449890072",
+   "confidence": "sure",
+   "why": "Pumpkin Seed Flax with 115 ounces",
+   "invented": false,
+   "reads": [
+    "D-S001-W001-00169"
+   ]
+  },
+  "S001-2026-10-02-A02-S2-012": {
+   "code": "0041192102110",
+   "confidence": "likely",
+   "why": "Kellogg's Ra fits Raisin Bran only",
+   "invented": false,
+   "reads": [
+    "D-S001-W001-00170"
+   ]
+  },
+  "S002-2026-10-02-A02-S4-008": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Quick 1-Min, no size; two sizes fit",
+   "invented": false,
+   "reads": [
+    "D-S002-W001-00165"
+   ]
+  },
+  "S002-2026-10-02-A02-S4-009": {
+   "code": "0030000012000",
+   "confidence": "sure",
+   "why": "Quick 1-Minute with 1.19 K size",
+   "invented": false,
+   "reads": [
+    "D-S002-W001-00166",
+    "D-S002-W001-00580"
+   ]
+  },
+  "S002-2026-10-02-A02-S3-018": {
+   "code": "0058449770565",
+   "confidence": "sure",
+   "why": "Pumpkin Seed Flax with 35.3 oz 1 kg",
+   "invented": false,
+   "reads": [
+    "D-S002-W001-00167"
+   ]
+  },
+  "S002-2026-10-02-A02-S1-013": {
+   "code": "0850017468993",
+   "confidence": "sure",
+   "why": "Catalina Crunch Cinnamon Toast 24 ounces",
+   "invented": false,
+   "reads": [
+    "D-S002-W001-00171"
+   ]
+  },
+  "S001-2026-10-02-A02-S4-012": {
+   "code": "0030000010204",
+   "confidence": "unsure",
+   "why": "Old Fashioned read lacks size; 100% Whole Grain guessed",
+   "invented": false,
+   "reads": [
+    "D-S001-W001-00173"
+   ]
+  },
+  "S002-2026-10-02-A02-S4-011": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Old Fashioned, no size; two Quaker rows fit",
+   "invented": false,
+   "reads": [
+    "D-S002-W001-00174"
+   ]
+  },
+  "S002-2026-10-02-A02-S3-020": {
+   "code": "0058449770565",
+   "confidence": "sure",
+   "why": "Pumpkin Seed Flax with 35.3 oz 1 kg",
+   "invented": false,
+   "reads": [
+    "D-S002-W001-00175"
+   ]
+  },
+  "S002-2026-10-02-A02-S3-021": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Two sizes of Pumpkin Seed Flax granola; read has no size",
+   "invented": false,
+   "reads": [
+    "D-S002-W001-00176"
+   ]
+  },
+  "S002-2026-10-02-A02-S1-016": {
+   "code": "0850017468993",
+   "confidence": "sure",
+   "why": "Cinnamon Toast Protein Cereal 24 oz matches Catalina Crunch 24 oz",
+   "invented": false,
+   "reads": [
+    "D-S002-W001-00180"
+   ]
+  },
+  "S001-2026-10-02-A02-S4-015": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Quaker Old Fashioned in 18 oz and 42 oz; no size read",
+   "invented": false,
+   "reads": [
+    "D-S001-W001-00182"
+   ]
+  },
+  "S001-2026-10-02-A02-S3-022": {
+   "code": "0058449770206",
+   "confidence": "sure",
+   "why": "Nature's Path Heritage is only Heritage candidate",
+   "invented": false,
+   "reads": [
+    "D-S001-W001-00183"
+   ]
+  },
+  "S002-2026-10-02-A02-S2-016": {
+   "code": "0016000169685",
+   "confidence": "sure",
+   "why": "Honey Nut Cheerios 18.8 oz matches",
+   "invented": false,
+   "reads": [
+    "D-S002-W001-00184"
+   ]
+  },
+  "S001-2026-10-02-A02-S2-017": {
+   "code": "0016000125063",
+   "confidence": "sure",
+   "why": "Honey Nut Cheerios 436 g matches",
+   "invented": false,
+   "reads": [
+    "D-S001-W001-00192"
+   ]
+  },
+  "S002-2026-10-02-A02-S3-025": {
+   "code": "0058449770206",
+   "confidence": "sure",
+   "why": "Heritage Flakes is the only Heritage candidate",
+   "invented": false,
+   "reads": [
+    "D-S002-W001-00189"
+   ]
+  },
+  "S002-2026-10-02-A02-S1-020": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Two Bob's Old Fashioned Rolled Oats; read cut before difference",
+   "invented": false,
+   "reads": [
+    "D-S002-W001-00193"
+   ]
+  },
+  "S003-2026-10-02-A02-S2-016": {
+   "code": "0016000125063",
+   "confidence": "likely",
+   "why": "46 g likely truncated 436 g; Honey Nut Cheerios",
+   "invented": false,
+   "reads": [
+    "D-S003-W001-00192"
+   ]
+  },
+  "S001-2026-10-02-A02-S2-018": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Honey Nut Cheerios in three sizes; no size read",
+   "invented": false,
+   "reads": [
+    "D-S001-W001-00199"
+   ]
+  },
+  "S001-2026-10-02-A02-S2-019": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Honey Nut Cheerios in three sizes; no size read",
+   "invented": false,
+   "reads": [
+    "D-S001-W001-00200"
+   ]
+  },
+  "S002-2026-10-02-A02-S2-021": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Multiple General Mills Honey products; no size",
+   "invented": false,
+   "reads": [
+    "D-S002-W001-00199"
+   ]
+  },
+  "S002-2026-10-02-A02-S1-021": {
+   "code": "0039978501035",
+   "confidence": "sure",
+   "why": "Old Country matches Old Country Style Muesli",
+   "invented": false,
+   "reads": [
+    "D-S002-W001-00200"
+   ]
+  },
+  "S003-2026-10-02-A02-S2-018": {
+   "code": "0016000124790",
+   "confidence": "sure",
+   "why": "Honey Nut Cheerios with 10.8 oz read",
+   "invented": false,
+   "reads": [
+    "D-S003-W001-00200",
+    "D-S003-W004-00017"
+   ]
+  },
+  "S001-2026-10-02-A02-S2-021": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Honey Nut Cheerios in three sizes; no size read",
+   "invented": false,
+   "reads": [
+    "D-S001-W001-00208"
+   ]
+  },
+  "S002-2026-10-02-A02-S2-023": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Honey Nut Cheerios in three sizes; no size read",
+   "invented": false,
+   "reads": [
+    "D-S002-W001-00207"
+   ]
+  },
+  "S003-2026-10-02-A02-S2-020": {
+   "code": "0016000487727",
+   "confidence": "sure",
+   "why": "Cheerios 12 oz 340 g matches",
+   "invented": false,
+   "reads": [
+    "D-S003-W001-00208"
+   ]
+  },
+  "S001-2026-10-02-A02-S2-022": {
+   "code": "0016000487727",
+   "confidence": "sure",
+   "why": "Cheerios 12 ounces matches 12 oz",
+   "invented": false,
+   "reads": [
+    "D-S001-W001-00213"
+   ]
+  },
+  "S002-2026-10-02-A02-S2-024": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Only brand fragment; many General Mills products",
+   "invented": false,
+   "reads": [
+    "D-S002-W001-00212"
+   ]
+  },
+  "S002-2026-10-02-A03-S4-001": {
+   "code": "0850251004018",
+   "confidence": "sure",
+   "why": "Original popcorn with 18 g read",
+   "invented": false,
+   "reads": [
+    "D-S002-W001-00214"
+   ]
+  },
+  "S003-2026-10-02-A03-S4-001": {
+   "code": "0850251004940",
+   "confidence": "likely",
+   "why": "'org' indicates Skinny Pop Organic",
+   "invented": false,
+   "reads": [
+    "D-S003-W001-00216"
+   ]
+  },
+  "S001-2026-10-02-A03-S3-003": {
+   "code": "0047495112900",
+   "confidence": "sure",
+   "why": "Fig Bar Blueberry 2 oz matches",
+   "invented": false,
+   "reads": [
+    "D-S001-W001-00222"
+   ]
+  },
+  "S002-2026-10-02-A03-S4-002": {
+   "code": "0073420516208",
+   "confidence": "sure",
+   "why": "Pure & Natural 16oz 454g matches",
+   "invented": false,
+   "reads": [
+    "D-S002-W001-00217"
+   ]
+  },
+  "S003-2026-10-02-A03-S3-003": {
+   "code": "0047495112900",
+   "confidence": "sure",
+   "why": "Fig Bar Blueberry is the only blueberry fig bar",
+   "invented": false,
+   "reads": [
+    "D-S003-W001-00222"
+   ]
+  },
+  "S001-2026-10-02-A03-S3-004": {
+   "code": null,
+   "confidence": "sure",
+   "why": "Brand only; three Nature's Bakery fig bars fit equally",
+   "invented": false,
+   "reads": [
+    "D-S001-W001-00229"
+   ]
+  },
+  "S003-2026-10-02-A03-S3-005": {
+   "code": null,
+   "confidence": "sure",
+   "why": "Brand plus 'FI'; three fig bar variants fit equally",
+   "invented": false,
+   "reads": [
+    "D-S003-W001-00230"
+   ]
+  },
+  "S003-2026-10-02-A03-S1-004": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "'B' may mean Blueberry, but plain Crunchy also fits",
+   "invented": false,
+   "reads": [
+    "D-S003-W001-00233"
+   ]
+  },
+  "S001-2026-10-02-A03-S1-009": {
+   "code": null,
+   "confidence": "sure",
+   "why": "Two Calbee sizes fit; no size read",
+   "invented": false,
+   "reads": [
+    "D-S001-W001-00248"
+   ]
+  },
+  "S002-2026-10-02-A03-S4-009": {
+   "code": "0028400147392",
+   "confidence": "sure",
+   "why": "Sun Chips Harvest Cheddar 7 oz exact",
+   "invented": false,
+   "reads": [
+    "D-S002-W001-00238"
+   ]
+  },
+  "S003-2026-10-02-A03-S2-008": {
+   "code": "0096619656493",
+   "confidence": "likely",
+   "why": "Only Kirkland Organic item starting with T is tortilla chips",
+   "invented": false,
+   "reads": [
+    "D-S003-W001-00247"
+   ]
+  },
+  "S001-2026-10-02-A03-S4-010": {
+   "code": "0028400147392",
+   "confidence": "sure",
+   "why": "Sun Chips Harvest Che matches Cheddar only",
+   "invented": false,
+   "reads": [
+    "D-S001-W001-00249"
+   ]
+  },
+  "S001-2026-10-02-A03-S4-011": {
+   "code": "0028400147392",
+   "confidence": "sure",
+   "why": "Sun Chips Harvest Ch matches Cheddar only",
+   "invented": false,
+   "reads": [
+    "D-S001-W001-00250"
+   ]
+  },
+  "S001-2026-10-02-A03-S1-010": {
+   "code": null,
+   "confidence": "sure",
+   "why": "Two Calbee sizes fit; no size read",
+   "invented": false,
+   "reads": [
+    "D-S001-W001-00255"
+   ]
+  },
+  "S002-2026-10-02-A03-S2-005": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "'Pean' fits Peanut Butter Pretzels and Peanuts",
+   "invented": false,
+   "reads": [
+    "D-S002-W001-00249"
+   ]
+  },
+  "S002-2026-10-02-A03-S1-010": {
+   "code": null,
+   "confidence": "sure",
+   "why": "Two Calbee sizes fit; no size read",
+   "invented": false,
+   "reads": [
+    "D-S002-W001-00250"
+   ]
+  },
+  "S003-2026-10-02-A03-S4-009": {
+   "code": "0028400147392",
+   "confidence": "likely",
+   "why": "'s chips harvest ch' matches Sun Chips Harvest Cheddar",
+   "invented": false,
+   "reads": [
+    "D-S003-W001-00251"
+   ]
+  },
+  "S003-2026-10-02-A03-S2-010": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "'Pea' fits Peanut Butter Pretzels and Peanuts",
+   "invented": false,
+   "reads": [
+    "D-S003-W001-00255"
+   ]
+  },
+  "S003-2026-10-02-A03-S4-012": {
+   "code": "0850000547568",
+   "confidence": "sure",
+   "why": "That's it Mini Fruit Bars matches",
+   "invented": false,
+   "reads": [
+    "D-S003-W001-00259"
+   ]
+  },
+  "S001-2026-10-02-A03-S4-017": {
+   "code": "0044000050986",
+   "confidence": "likely",
+   "why": "'.5oz' matches 8.5oz, not 12.5 OZ",
+   "invented": false,
+   "reads": [
+    "D-S001-W001-00274"
+   ]
+  },
+  "S001-2026-10-02-A03-S2-017": {
+   "code": "0855469006557",
+   "confidence": "sure",
+   "why": "Himalayan Gold matches",
+   "invented": false,
+   "reads": [
+    "D-S001-W001-00278"
+   ]
+  },
+  "S002-2026-10-02-A03-S2-011": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "HIMAL fits both Gold and Pink Salt",
+   "invented": false,
+   "reads": [
+    "D-S002-W001-00273"
+   ]
+  },
+  "S001-2026-10-02-A03-S4-018": {
+   "code": "0044000050986",
+   "confidence": "sure",
+   "why": "Triscuit 8.5oz matches",
+   "invented": false,
+   "reads": [
+    "D-S001-W001-00281"
+   ]
+  },
+  "S001-2026-10-02-A03-S2-018": {
+   "code": "0855469006557",
+   "confidence": "sure",
+   "why": "'OLD' matches Himalayan Gold",
+   "invented": false,
+   "reads": [
+    "D-S001-W001-00285"
+   ]
+  },
+  "S001-2026-10-02-A03-S2-019": {
+   "code": "0180999001001",
+   "confidence": "sure",
+   "why": "Pink salt 5 oz matches",
+   "invented": false,
+   "reads": [
+    "D-S001-W001-00286"
+   ]
+  },
+  "S002-2026-10-02-A03-S4-019": {
+   "code": null,
+   "confidence": "sure",
+   "why": "No size read; both Triscuit sizes fit",
+   "invented": false,
+   "reads": [
+    "D-S002-W001-00277"
+   ]
+  },
+  "S002-2026-10-02-A03-S2-012": {
+   "code": "0855469006557",
+   "confidence": "sure",
+   "why": "Himalayan Gold matches",
+   "invented": false,
+   "reads": [
+    "D-S002-W001-00280"
+   ]
+  },
+  "S003-2026-10-02-A03-S4-017": {
+   "code": "0044000050986",
+   "confidence": "sure",
+   "why": "Triscuit 8.5oz matches",
+   "invented": false,
+   "reads": [
+    "D-S003-W001-00282"
+   ]
+  },
+  "S003-2026-10-02-A03-S2-019": {
+   "code": "0180999001001",
+   "confidence": "sure",
+   "why": "Pink Salt matches",
+   "invented": false,
+   "reads": [
+    "D-S003-W001-00287"
+   ]
+  },
+  "S001-2026-10-02-A03-S2-020": {
+   "code": "0180999001001",
+   "confidence": "sure",
+   "why": "Pink Salt 5 oz matches",
+   "invented": false,
+   "reads": [
+    "D-S001-W001-00290"
+   ]
+  },
+  "S003-2026-10-02-A03-S4-019": {
+   "code": "0044000051693",
+   "confidence": "sure",
+   "why": "12.5 OZ (354 g) matches the larger Triscuit",
+   "invented": false,
+   "reads": [
+    "D-S003-W001-00290"
+   ]
+  },
+  "S002-2026-10-02-A03-S4-021": {
+   "code": "0044000051693",
+   "confidence": "likely",
+   "why": "Read ends at '12.', which fits only 12.5 OZ",
+   "invented": false,
+   "reads": [
+    "D-S002-W001-00288"
+   ]
+  },
+  "S003-2026-10-02-A03-S4-020": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "No size in read; Triscuit 8.5oz and 12.5oz both fit",
+   "invented": false,
+   "reads": [
+    "D-S003-W001-00294"
+   ]
+  },
+  "S003-2026-10-02-A03-S3-021": {
+   "code": "0810091780947",
+   "confidence": "sure",
+   "why": "Siete tortilla chips with 15 oz",
+   "invented": false,
+   "reads": [
+    "D-S003-W001-00295"
+   ]
+  },
+  "S001-2026-10-02-A03-S3-024": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Skinny Pop Original: several variants fit equally",
+   "invented": false,
+   "reads": [
+    "D-S001-W001-00309"
+   ]
+  },
+  "S001-2026-10-02-A03-S3-025": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Original Popcorn matches two near-identical rows",
+   "invented": false,
+   "reads": [
+    "D-S001-W001-00310"
+   ]
+  },
+  "S003-2026-10-02-A03-S3-024": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Two Skinny Pop Original Popcorn rows fit equally",
+   "invented": false,
+   "reads": [
+    "D-S003-W001-00310"
+   ]
+  },
+  "S001-2026-10-02-A03-S3-026": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Several Skinny Pop Original variants fit",
+   "invented": false,
+   "reads": [
+    "D-S001-W001-00311"
+   ]
+  },
+  "S002-2026-10-02-A04-S1-001": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Multiple Daisy sour cream rows fit; no size",
+   "invented": false,
+   "reads": [
+    "D-S002-W001-00306"
+   ]
+  },
+  "S001-2026-10-02-A04-S1-002": {
+   "code": "07342646",
+   "confidence": "likely",
+   "why": "6 OZ is about 170g; closest, though 227g is 8 oz",
+   "invented": false,
+   "reads": [
+    "D-S001-W001-00313"
+   ]
+  },
+  "S003-2026-10-02-A04-S1-004": {
+   "code": "0073420516208",
+   "confidence": "likely",
+   "why": "Pure read matches Pure & Natural cottage cheese",
+   "invented": false,
+   "reads": [
+    "D-S003-W001-00317"
+   ]
+  },
+  "S001-2026-10-02-A04-S1-003": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Size read '2' ambiguous; several Daisy cottage cheeses fit",
+   "invented": false,
+   "reads": [
+    "D-S001-W001-00320"
+   ]
+  },
+  "S002-2026-10-02-A04-S1-006": {
+   "code": "0073420524203",
+   "confidence": "unsure",
+   "why": "24 oz and '24' rows both fit; picked the oz one",
+   "invented": false,
+   "reads": [
+    "D-S002-W001-00317"
+   ]
+  },
+  "S003-2026-10-02-A04-S2-003": {
+   "code": "0856312002757",
+   "confidence": "sure",
+   "why": "Nonfat ultra-filtered 52 FL OZ matches exactly",
+   "invented": false,
+   "reads": [
+    "D-S003-W001-00321"
+   ]
+  },
+  "S001-2026-10-02-A04-S2-004": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Core Power flavors and sizes not distinguishable",
+   "invented": false,
+   "reads": [
+    "D-S001-W001-00323"
+   ]
+  },
+  "S002-2026-10-02-A04-S2-004": {
+   "code": "0811620021951",
+   "confidence": "likely",
+   "why": "Chocolate 14oz matches this row",
+   "invented": false,
+   "reads": [
+    "D-S002-W001-00320"
+   ]
+  },
+  "S003-2026-10-02-A04-S2-006": {
+   "code": "0811620021951",
+   "confidence": "likely",
+   "why": "Chocolate 14OZ matches this row",
+   "invented": false,
+   "reads": [
+    "D-S003-W001-00332"
+   ]
+  },
+  "S003-2026-10-02-A04-S1-010": {
+   "code": "0073420516406",
+   "confidence": "likely",
+   "why": "Daisy Cottage Cheese 16 oz, no Pure & Natural",
+   "invented": false,
+   "reads": [
+    "D-S003-W001-00337"
+   ]
+  },
+  "S002-2026-10-02-A04-S1-011": {
+   "code": "0073420516406",
+   "confidence": "likely",
+   "why": "Daisy Cottage Cheese 16 oz, no Pure & Natural",
+   "invented": false,
+   "reads": [
+    "D-S002-W001-00336"
+   ]
+  },
+  "S002-2026-10-02-A04-S2-012": {
+   "code": "0689544083009",
+   "confidence": "sure",
+   "why": "FAGE Total 5% 32oz matches",
+   "invented": false,
+   "reads": [
+    "D-S002-W001-00351"
+   ]
+  },
+  "S003-2026-10-02-A04-S2-012": {
+   "code": "0689544083009",
+   "confidence": "sure",
+   "why": "FAGE Total 5% 32oz matches",
+   "invented": false,
+   "reads": [
+    "D-S003-W001-00354",
+    "D-S003-W001-00594"
+   ]
+  },
+  "S001-2026-10-02-A04-S2-013": {
+   "code": "0689544083009",
+   "confidence": "sure",
+   "why": "FAGE Total 5% 32 ounces matches",
+   "invented": false,
+   "reads": [
+    "D-S001-W001-00359"
+   ]
+  },
+  "S003-2026-10-02-A04-S3-010": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Many Kirkland organic products fit",
+   "invented": false,
+   "reads": [
+    "D-S003-W001-00357"
+   ]
+  },
+  "S001-2026-10-02-A04-S2-014": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "5% Greek in 28.8oz and 32oz; no size read",
+   "invented": false,
+   "reads": [
+    "D-S001-W001-00363"
+   ]
+  },
+  "S002-2026-10-02-A04-S4-014": {
+   "code": "0898248001077",
+   "confidence": "likely",
+   "why": "Siggi's Vanilla matches the only vanilla siggi's row",
+   "invented": false,
+   "reads": [
+    "D-S002-W001-00357"
+   ]
+  },
+  "S002-2026-10-02-A04-S2-014": {
+   "code": null,
+   "confidence": "sure",
+   "why": "5% Greek read has no size; 28.8oz and 32oz both fit",
+   "invented": false,
+   "reads": [
+    "D-S002-W001-00359"
+   ]
+  },
+  "S001-2026-10-02-A04-S4-015": {
+   "code": null,
+   "confidence": "sure",
+   "why": "Two siggi's 24oz rows differ only by spacing; indistinguishable",
+   "invented": false,
+   "reads": [
+    "D-S001-W001-00365"
+   ]
+  },
+  "S001-2026-10-02-A04-S2-015": {
+   "code": "0689544083023",
+   "confidence": "sure",
+   "why": "Total 2% 32 oz matches uniquely",
+   "invented": false,
+   "reads": [
+    "D-S001-W001-00367"
+   ]
+  },
+  "S002-2026-10-02-A04-S2-015": {
+   "code": null,
+   "confidence": "sure",
+   "why": "Percent missing; 0% and 2% 32oz both fit",
+   "invented": false,
+   "reads": [
+    "D-S002-W001-00363"
+   ]
+  },
+  "S003-2026-10-02-A04-S2-015": {
+   "code": "0689544083023",
+   "confidence": "sure",
+   "why": "Total 2% 32 oz matches uniquely",
+   "invented": false,
+   "reads": [
+    "D-S003-W001-00366"
+   ]
+  },
+  "S001-2026-10-02-A04-S3-013": {
+   "code": "0767707001067",
+   "confidence": "sure",
+   "why": "Read includes SALTED and 227g, matching only this row",
+   "invented": false,
+   "reads": [
+    "D-S001-W001-00369"
+   ]
+  },
+  "S002-2026-10-02-A04-S4-016": {
+   "code": null,
+   "confidence": "sure",
+   "why": "Two identical siggi's 24oz rows; cannot distinguish",
+   "invented": false,
+   "reads": [
+    "D-S002-W001-00365"
+   ]
+  },
+  "S003-2026-10-02-A04-S3-013": {
+   "code": "0767707001067",
+   "confidence": "likely",
+   "why": "ALTED suggests salted; other row lacks salted",
+   "invented": false,
+   "reads": [
+    "D-S003-W001-00369"
+   ]
+  },
+  "S001-2026-10-02-A04-S2-017": {
+   "code": null,
+   "confidence": "sure",
+   "why": "2% read without size; 5.3oz and 32oz both fit",
+   "invented": false,
+   "reads": [
+    "D-S001-W001-00372"
+   ]
+  },
+  "S002-2026-10-02-A04-S4-017": {
+   "code": null,
+   "confidence": "sure",
+   "why": "Two siggi's 24 oz rows identical apart from spacing",
+   "invented": false,
+   "reads": [
+    "D-S002-W001-00368"
+   ]
+  },
+  "S002-2026-10-02-A04-S1-020": {
+   "code": "0894700010434",
+   "confidence": "sure",
+   "why": "Chobani Greek Whole milk matches only whole milk plain",
+   "invented": false,
+   "reads": [
+    "D-S002-W001-00370"
+   ]
+  },
+  "S003-2026-10-02-A04-S4-013": {
+   "code": null,
+   "confidence": "sure",
+   "why": "Two siggi's 24oz rows identical apart from spacing",
+   "invented": false,
+   "reads": [
+    "D-S003-W001-00372"
+   ]
+  },
+  "S003-2026-10-02-A04-S3-014": {
+   "code": "0767707001067",
+   "confidence": "sure",
+   "why": "Salted and 227 grams match only this row",
+   "invented": false,
+   "reads": [
+    "D-S003-W001-00373"
+   ]
+  },
+  "S003-2026-10-02-A04-S2-017": {
+   "code": null,
+   "confidence": "sure",
+   "why": "2% read without size; 5.3oz and 32oz both fit",
+   "invented": false,
+   "reads": [
+    "D-S003-W001-00374"
+   ]
+  },
+  "S001-2026-10-02-A04-S3-015": {
+   "code": "0767707001678",
+   "confidence": "likely",
+   "why": "No salted in read; plain Pure Irish Butter 8 oz",
+   "invented": false,
+   "reads": [
+    "D-S001-W001-00374"
+   ]
+  },
+  "S001-2026-10-02-A04-S2-018": {
+   "code": "0689544080206",
+   "confidence": "sure",
+   "why": "Total 2% 5.3 oz matches uniquely",
+   "invented": false,
+   "reads": [
+    "D-S001-W001-00375"
+   ]
+  },
+  "S003-2026-10-02-A04-S2-018": {
+   "code": "0689544080206",
+   "confidence": "likely",
+   "why": "Reads show 2% and .3 oz, indicating 5.3 oz",
+   "invented": false,
+   "reads": [
+    "D-S003-W001-00378",
+    "D-S003-W001-00596"
+   ]
+  },
+  "S002-2026-10-02-A04-S2-019": {
+   "code": null,
+   "confidence": "sure",
+   "why": "0% read without size; 5.3oz and 32oz both fit",
+   "invented": false,
+   "reads": [
+    "D-S002-W001-00377"
+   ]
+  },
+  "S003-2026-10-02-A04-S3-016": {
+   "code": null,
+   "confidence": "sure",
+   "why": "Salted not shown; both Kerrygold butter rows fit",
+   "invented": false,
+   "reads": [
+    "D-S003-W001-00381"
+   ]
+  },
+  "S001-2026-10-02-A04-S3-017": {
+   "code": null,
+   "confidence": "sure",
+   "why": "Truncated Kerrygold; two butter rows fit",
+   "invented": false,
+   "reads": [
+    "D-S001-W001-00381"
+   ]
+  },
+  "S001-2026-10-02-A04-S1-017": {
+   "code": "0894700010144",
+   "confidence": "sure",
+   "why": "Chobani Greek Vanilla 32 oz matches uniquely",
+   "invented": false,
+   "reads": [
+    "D-S001-W001-00383"
+   ]
+  },
+  "S002-2026-10-02-A04-S3-014": {
+   "code": "0767707001678",
+   "confidence": "likely",
+   "why": "No salted in read; plain Pure Irish Butter 8 oz",
+   "invented": false,
+   "reads": [
+    "D-S002-W001-00380"
+   ]
+  },
+  "S002-2026-10-02-A04-S2-020": {
+   "code": null,
+   "confidence": "sure",
+   "why": "0% read without size; 5.3oz and 32oz both fit",
+   "invented": false,
+   "reads": [
+    "D-S002-W001-00381",
+    "D-S002-W001-00592"
+   ]
+  },
+  "S003-2026-10-02-A04-S3-017": {
+   "code": null,
+   "confidence": "sure",
+   "why": "Truncated Kerrygold; two butter rows fit",
+   "invented": false,
+   "reads": [
+    "D-S003-W001-00385"
+   ]
+  },
+  "S003-2026-10-02-A04-S2-020": {
+   "code": null,
+   "confidence": "sure",
+   "why": "0 read without size; 5.3oz and 32oz both fit",
+   "invented": false,
+   "reads": [
+    "D-S003-W001-00386"
+   ]
+  },
+  "S003-2026-10-02-A04-S1-023": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Chobani Greek Yogurt, no flavor or size visible; many fit",
+   "invented": false,
+   "reads": [
+    "D-S003-W001-00387"
+   ]
+  },
+  "S003-2026-10-02-A04-S1-024": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Chobani Greek, no flavor or size; multiple candidates fit",
+   "invented": false,
+   "reads": [
+    "D-S003-W001-00391"
+   ]
+  },
+  "S003-2026-10-02-A04-S2-022": {
+   "code": "0689544080008",
+   "confidence": "sure",
+   "why": "FAGE Total 0% 5.3OZ matches exactly",
+   "invented": false,
+   "reads": [
+    "D-S003-W001-00394"
+   ]
+  },
+  "S002-2026-10-02-A04-S4-023": {
+   "code": "0036632024268",
+   "confidence": "likely",
+   "why": "Oikos Protein only Oikos protein candidate",
+   "invented": false,
+   "reads": [
+    "D-S002-W001-00391"
+   ]
+  },
+  "S002-2026-10-02-A04-S2-024": {
+   "code": "0689544080008",
+   "confidence": "sure",
+   "why": "FAGE Total 0% 5.3 oz matches",
+   "invented": false,
+   "reads": [
+    "D-S002-W001-00396"
+   ]
+  },
+  "S003-2026-10-02-A04-S1-027": {
+   "code": "0894700010069",
+   "confidence": "sure",
+   "why": "Chobani Greek Yogurt Peach, read PECH",
+   "invented": false,
+   "reads": [
+    "D-S003-W001-00403"
+   ]
+  },
+  "S001-2026-10-02-A04-S3-022": {
+   "code": "4099100150889",
+   "confidence": "sure",
+   "why": "Friendly Farms NONF matches nonfat Greek yogurt",
+   "invented": false,
+   "reads": [
+    "D-S001-W001-00402"
+   ]
+  },
+  "S001-2026-10-02-A04-S2-029": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Daisy Sour Cream in several sizes; no size read",
+   "invented": false,
+   "reads": [
+    "D-S001-W001-00420"
+   ]
+  },
+  "S002-2026-10-02-A04-S4-030": {
+   "code": "0036632019448",
+   "confidence": "sure",
+   "why": "Oikos Triple Zero Blended matches vanilla 32 oz",
+   "invented": false,
+   "reads": [
+    "D-S002-W001-00416"
+   ]
+  },
+  "S003-2026-10-02-A04-S4-025": {
+   "code": "0036632019448",
+   "confidence": "sure",
+   "why": "Oikos Triple Zero Blended Vanilla 32 oz exact",
+   "invented": false,
+   "reads": [
+    "D-S003-W001-00420"
+   ]
+  },
+  "S003-2026-10-02-A04-S1-032": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Blue Diamond Amo fits almonds and almondmilk",
+   "invented": false,
+   "reads": [
+    "D-S003-W001-00426"
+   ]
+  },
+  "S003-2026-10-02-A04-S1-033": {
+   "code": "0041570056707",
+   "confidence": "sure",
+   "why": "Blue Diamond Almondm matches Almondmilk",
+   "invented": false,
+   "reads": [
+    "D-S003-W001-00427"
+   ]
+  },
+  "S001-2026-10-02-A05-S3-001": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Orgain Organic Protein in two sizes; no size read",
+   "invented": false,
+   "reads": [
+    "D-S001-W001-00425",
+    "D-S001-W004-00002"
+   ]
+  },
+  "S002-2026-10-02-A05-S3-002": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "1.2 kg vs 1.22kg listing; nearly identical, ambiguous",
+   "invented": false,
+   "reads": [
+    "D-S002-W001-00429"
+   ]
+  },
+  "S002-2026-10-02-A05-S3-003": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Orgain Organic Protein two sizes; no size",
+   "invented": false,
+   "reads": [
+    "D-S002-W001-00430"
+   ]
+  },
+  "S003-2026-10-02-A05-S3-002": {
+   "code": "0851770008631",
+   "confidence": "likely",
+   "why": "Read says 1.2 KG, matches 1.2 kg listing",
+   "invented": false,
+   "reads": [
+    "D-S003-W001-00433"
+   ]
+  },
+  "S003-2026-10-02-A05-S3-003": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Orgain Organic Protein two sizes; no size",
+   "invented": false,
+   "reads": [
+    "D-S003-W001-00434"
+   ]
+  },
+  "S002-2026-10-02-A05-S1-005": {
+   "code": "0811620021968",
+   "confidence": "sure",
+   "why": "Core Power Vanilla 14oz matches",
+   "invented": false,
+   "reads": [
+    "D-S002-W001-00442"
+   ]
+  },
+  "S001-2026-10-02-A05-S1-005": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Core Power Milkshake, flavor not read; several fit",
+   "invented": false,
+   "reads": [
+    "D-S001-W001-00449"
+   ]
+  },
+  "S002-2026-10-02-A05-S4-006": {
+   "code": "0193908007292",
+   "confidence": "unsure",
+   "why": "RBA P likely RXBAR Protein Bars",
+   "invented": false,
+   "reads": [
+    "D-S002-W001-00443"
+   ]
+  },
+  "S003-2026-10-02-A05-S1-007": {
+   "code": "0811620021968",
+   "confidence": "sure",
+   "why": "Core Power Milkshake Vanilla 14oz matches",
+   "invented": false,
+   "reads": [
+    "D-S003-W001-00452"
+   ]
+  },
+  "S001-2026-10-02-A05-S4-007": {
+   "code": "0850019568240",
+   "confidence": "sure",
+   "why": "Vital Proteins Collagen, tablespoon read",
+   "invented": false,
+   "reads": [
+    "D-S001-W001-00450",
+    "D-S001-W004-00027"
+   ]
+  },
+  "S002-2026-10-02-A05-S4-008": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Vital Proteins Collagen two sizes; no size read",
+   "invented": false,
+   "reads": [
+    "D-S002-W001-00451"
+   ]
+  },
+  "S003-2026-10-02-A05-S4-008": {
+   "code": "0850019568240",
+   "confidence": "sure",
+   "why": "Read includes tablespoon unit",
+   "invented": false,
+   "reads": [
+    "D-S003-W001-00453"
+   ]
+  },
+  "S003-2026-10-02-A05-S4-009": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Vital Proteins Collagen two sizes; no size read",
+   "invented": false,
+   "reads": [
+    "D-S003-W001-00454"
+   ]
+  },
+  "S002-2026-10-02-A05-S4-010": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Two Vital Proteins Collagen Peptides sizes; read has no size",
+   "invented": false,
+   "reads": [
+    "D-S002-W001-00457"
+   ]
+  },
+  "S003-2026-10-02-A05-S4-011": {
+   "code": "0857273008666",
+   "confidence": "sure",
+   "why": "Vital Proteins Collagen Peptides 24 oz matches exactly",
+   "invented": false,
+   "reads": [
+    "D-S003-W001-00462"
+   ]
+  },
+  "S002-2026-10-02-A05-S2-012": {
+   "code": "0851770007566",
+   "confidence": "sure",
+   "why": "43.2 oz and 1.22kg match the Organic Protein row",
+   "invented": false,
+   "reads": [
+    "D-S002-W001-00468"
+   ]
+  },
+  "S001-2026-10-02-A05-S2-014": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Two Orgain Organic Protein sizes; reads lack clear size",
+   "invented": false,
+   "reads": [
+    "D-S001-W001-00472",
+    "D-S001-W004-00049"
+   ]
+  },
+  "S002-2026-10-02-A05-S2-013": {
+   "code": "0851770007566",
+   "confidence": "sure",
+   "why": "2.7 lbs and 1.22kg match",
+   "invented": false,
+   "reads": [
+    "D-S002-W001-00472"
+   ]
+  },
+  "S003-2026-10-02-A05-S2-013": {
+   "code": "0851770007566",
+   "confidence": "likely",
+   "why": "43.2 ounces matches the 43.2 oz row",
+   "invented": false,
+   "reads": [
+    "D-S003-W001-00478"
+   ]
+  },
+  "S002-2026-10-02-A05-S2-014": {
+   "code": "0851770007566",
+   "confidence": "sure",
+   "why": "43.2 oz, 2.7 lbs, 1.22kg match",
+   "invented": false,
+   "reads": [
+    "D-S002-W001-00475"
+   ]
+  },
+  "S003-2026-10-02-A06-S2-011": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Two Colgate candidates; read too damaged to distinguish",
+   "invented": false,
+   "reads": [
+    "D-S003-W001-00526"
+   ]
+  },
+  "S001-2026-10-02-A07-S1-003": {
+   "code": "0030772023792",
+   "confidence": "sure",
+   "why": "9 Elements Laundry Detergent matches damaged read",
+   "invented": false,
+   "reads": [
+    "D-S001-W001-00533"
+   ]
+  },
+  "S002-2026-10-02-A07-S3-012": {
+   "code": "0030772072554",
+   "confidence": "likely",
+   "why": "Swiffer Power resembles 'swffe pow'",
+   "invented": false,
+   "reads": [
+    "D-S002-W001-00563"
+   ]
+  },
+  "S003-2026-10-02-A02-S2-023": {
+   "code": "0016000487727",
+   "confidence": "sure",
+   "why": "Cheerios 12 OZ (340 G) matches",
+   "invented": false,
+   "reads": [
+    "D-S003-W004-00009"
+   ]
+  },
+  "S001-2026-10-02-A05-S1-016": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Several Core Power variants; read has no flavor or size",
+   "invented": false,
+   "reads": [
+    "D-S001-W004-00026"
+   ]
+  },
+  "S003-2026-10-02-A02-S4-027": {
+   "code": "0030000011805",
+   "confidence": "sure",
+   "why": "Quick 1-Minute Oats 1 lb 2 oz matches",
+   "invented": false,
+   "reads": [
+    "D-S003-W004-00045"
+   ]
+  },
+  "S003-2026-10-02-A02-S2-026": {
+   "code": "0041192102110",
+   "confidence": "likely",
+   "why": "Kellogg's Ra fits Raisin Bran",
+   "invented": false,
+   "reads": [
+    "D-S003-W004-00049"
+   ]
+  },
+  "S003-2026-10-02-A02-S4-028": {
+   "code": "0819562022791",
+   "confidence": "sure",
+   "why": "nútrail blueberry cinnamon granola 624G matches",
+   "invented": false,
+   "reads": [
+    "D-S003-W004-00077"
+   ]
+  },
+  "S003-2026-10-02-A02-S1-027": {
+   "code": "0016000170032",
+   "confidence": "sure",
+   "why": "Cheerios 18oz (510g) matches",
+   "invented": false,
+   "reads": [
+    "D-S003-W004-00082"
+   ]
+  },
+  "S003-2026-10-03-A01-S3-001": {
+   "code": "01213104",
+   "confidence": "sure",
+   "why": "Mountain Dew 20oz matches",
+   "invented": false,
+   "reads": [
+    "D-S003-W002-00002"
+   ]
+  },
+  "S003-2026-10-03-A01-S3-002": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Read 'ounai' too damaged to identify",
+   "invented": false,
+   "reads": [
+    "D-S003-W002-00006"
+   ]
+  },
+  "S003-2026-10-03-A01-S2-002": {
+   "code": "04904403",
+   "confidence": "likely",
+   "why": "Coke 20 fl oz (591 ml) matches, not Diet",
+   "invented": false,
+   "reads": [
+    "D-S003-W002-00007"
+   ]
+  },
+  "S003-2026-10-03-A01-S2-007": {
+   "code": "0049000701135",
+   "confidence": "sure",
+   "why": "Diet Coke 6pk 15.2 fl oz matches",
+   "invented": false,
+   "reads": [
+    "D-S003-W002-00027"
+   ]
+  },
+  "S001-2026-10-03-A01-S3-008": {
+   "code": "0850027702919",
+   "confidence": "likely",
+   "why": "Olipop Strawberry Vanilla 355 ML; duplicate row lacks size",
+   "invented": false,
+   "reads": [
+    "D-S001-W002-00030"
+   ]
+  },
+  "S003-2026-10-03-A01-S3-008": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Two Olipop Strawberry Vanilla rows fit; no size read",
+   "invented": false,
+   "reads": [
+    "D-S003-W002-00030"
+   ]
+  },
+  "S001-2026-10-03-A01-S3-009": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Two Olipop Strawberry Vanilla rows fit; no size read",
+   "invented": false,
+   "reads": [
+    "D-S001-W002-00034"
+   ]
+  },
+  "S001-2026-10-03-A01-S2-009": {
+   "code": "0078000083408",
+   "confidence": "sure",
+   "why": "Diet Dr Pepper 20 fl oz (591 ml) matches",
+   "invented": false,
+   "reads": [
+    "D-S001-W002-00035"
+   ]
+  },
+  "S002-2026-10-03-A01-S2-009": {
+   "code": "0078000083408",
+   "confidence": "sure",
+   "why": "Diet Dr Pepper 20 fl oz 591 ml matches",
+   "invented": false,
+   "reads": [
+    "D-S002-W002-00034"
+   ]
+  },
+  "S003-2026-10-03-A01-S4-009": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Red Bull S fits Sugarfree in two sizes; no size read",
+   "invented": false,
+   "reads": [
+    "D-S003-W002-00033"
+   ]
+  },
+  "S003-2026-10-03-A01-S3-009": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Two Olipop Strawberry Vanilla rows; read has no distinguishing detail",
+   "invented": false,
+   "reads": [
+    "D-S003-W002-00034"
+   ]
+  },
+  "S001-2026-10-03-A01-S4-010": {
+   "code": "0611269101713",
+   "confidence": "sure",
+   "why": "Sugarfree with 8.4oz read matches the 8.4oz row",
+   "invented": false,
+   "reads": [
+    "D-S001-W002-00037"
+   ]
+  },
+  "S001-2026-10-03-A01-S3-010": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Two identical Olipop Strawberry Vanilla rows; no size read",
+   "invented": false,
+   "reads": [
+    "D-S001-W002-00038"
+   ]
+  },
+  "S002-2026-10-03-A01-S3-010": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Two identical Olipop Strawberry Vanilla rows; no size read",
+   "invented": false,
+   "reads": [
+    "D-S002-W002-00036"
+   ]
+  },
+  "S003-2026-10-03-A01-S4-010": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Sugarfree in two sizes; no size read",
+   "invented": false,
+   "reads": [
+    "D-S003-W002-00037"
+   ]
+  },
+  "S003-2026-10-03-A01-S1-010": {
+   "code": "42105220",
+   "confidence": "likely",
+   "why": "Coca Cola with ?50 ml matches 450 ml",
+   "invented": false,
+   "reads": [
+    "D-S003-W002-00039"
+   ]
+  },
+  "S001-2026-10-03-A01-S1-011": {
+   "code": "42105220",
+   "confidence": "sure",
+   "why": "Coca Cola 450 ml matches exactly",
+   "invented": false,
+   "reads": [
+    "D-S001-W002-00044",
+    "D-S001-W002-00586"
+   ]
+  },
+  "S003-2026-10-03-A01-S1-011": {
+   "code": "42105220",
+   "confidence": "likely",
+   "why": "Coca Cola with ?50 ml matches 450 ml",
+   "invented": false,
+   "reads": [
+    "D-S003-W002-00043"
+   ]
+  },
+  "S002-2026-10-03-A01-S3-012": {
+   "code": "0012000171741",
+   "confidence": "sure",
+   "why": "Diet Pepsi 20 oz matches",
+   "invented": false,
+   "reads": [
+    "D-S002-W002-00044"
+   ]
+  },
+  "S002-2026-10-03-A01-S1-012": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Coca-Cola with no size or variant; several fit",
+   "invented": false,
+   "reads": [
+    "D-S002-W002-00046"
+   ]
+  },
+  "S003-2026-10-03-A01-S3-011": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Diet Pepsi 2 could be 20oz; 12oz also possible",
+   "invented": false,
+   "reads": [
+    "D-S003-W002-00045"
+   ]
+  },
+  "S003-2026-10-03-A01-S1-012": {
+   "code": "42105220",
+   "confidence": "likely",
+   "why": "Coca Cola with ?0 ml; only ml original is 450",
+   "invented": false,
+   "reads": [
+    "D-S003-W002-00047"
+   ]
+  },
+  "S002-2026-10-03-A01-S3-013": {
+   "code": "0012000171741",
+   "confidence": "sure",
+   "why": "Diet, 20 fl oz, Pepsi ending eps match",
+   "invented": false,
+   "reads": [
+    "D-S002-W002-00048"
+   ]
+  },
+  "S002-2026-10-03-A01-S3-014": {
+   "code": "0012000171741",
+   "confidence": "likely",
+   "why": "Diet Pepsi with 20oz fragment",
+   "invented": false,
+   "reads": [
+    "D-S002-W002-00051"
+   ]
+  },
+  "S002-2026-10-03-A01-S1-013": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "CaCola Z: Zero Sugar has two sizes",
+   "invented": false,
+   "reads": [
+    "D-S002-W002-00056"
+   ]
+  },
+  "S002-2026-10-03-A01-S1-014": {
+   "code": "0049000040869",
+   "confidence": "likely",
+   "why": "Zero Sugar with 2 FOZ suggests 20 fl oz",
+   "invented": false,
+   "reads": [
+    "D-S002-W002-00060"
+   ]
+  },
+  "S001-2026-10-03-A01-S1-019": {
+   "code": "0049000042566",
+   "confidence": "sure",
+   "why": "Zero Sugar 355 mL matches",
+   "invented": false,
+   "reads": [
+    "D-S001-W002-00074"
+   ]
+  },
+  "S001-2026-10-03-A01-S1-020": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Zero Sugar read without size; multiple sizes fit",
+   "invented": false,
+   "reads": [
+    "D-S001-W002-00078"
+   ]
+  },
+  "S003-2026-10-03-A01-S1-020": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Zero Sugar read without size; multiple sizes fit",
+   "invented": false,
+   "reads": [
+    "D-S003-W002-00077"
+   ]
+  },
+  "S002-2026-10-03-A01-S4-019": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Two Sprite Zero Sugar rows; one has no size",
+   "invented": false,
+   "reads": [
+    "D-S002-W002-00076"
+   ]
+  },
+  "S002-2026-10-03-A01-S3-021": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Pesi 0O ambiguous among several Pepsi products",
+   "invented": false,
+   "reads": [
+    "D-S002-W002-00077"
+   ]
+  },
+  "S002-2026-10-03-A01-S2-020": {
+   "code": "0012000019265",
+   "confidence": "likely",
+   "why": "Liton resembles Lipton, only Lipton candidate",
+   "invented": false,
+   "reads": [
+    "D-S002-W002-00078"
+   ]
+  },
+  "S003-2026-10-03-A01-S3-019": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Pepsi C ambiguous; Cola 2 Liter plausible but weak",
+   "invented": false,
+   "reads": [
+    "D-S003-W002-00083"
+   ]
+  },
+  "S003-2026-10-03-A01-S1-022": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Diet Coke has two rows; one unsized, one 355 ml",
+   "invented": false,
+   "reads": [
+    "D-S003-W002-00085"
+   ]
+  },
+  "S001-2026-10-03-A01-S3-021": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Read 'PEPSI C' fits several Pepsi rows; no size",
+   "invented": false,
+   "reads": [
+    "D-S001-W002-00087"
+   ]
+  },
+  "S001-2026-10-03-A01-S1-023": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Diet Coke with and without size both fit",
+   "invented": false,
+   "reads": [
+    "D-S001-W002-00089"
+   ]
+  },
+  "S002-2026-10-03-A01-S1-021": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Two Diet Coke rows fit, no size read",
+   "invented": false,
+   "reads": [
+    "D-S002-W002-00087"
+   ]
+  },
+  "S003-2026-10-03-A01-S1-023": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Two Diet Coke rows fit, no size read",
+   "invented": false,
+   "reads": [
+    "D-S003-W002-00089"
+   ]
+  },
+  "S002-2026-10-03-A01-S1-022": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Two Diet Coke rows fit, no size read",
+   "invented": false,
+   "reads": [
+    "D-S002-W002-00091"
+   ]
+  },
+  "S003-2026-10-03-A01-S1-024": {
+   "code": "04965802",
+   "confidence": "likely",
+   "why": "Diet Coke with 355 ml fragment '55 l'",
+   "invented": false,
+   "reads": [
+    "D-S003-W002-00093"
+   ]
+  },
+  "S002-2026-10-03-A01-S1-023": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Two Diet Coke rows fit, no size read",
+   "invented": false,
+   "reads": [
+    "D-S002-W002-00095"
+   ]
+  },
+  "S001-2026-10-03-A01-S1-026": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Two Diet Coke rows fit, no size read",
+   "invented": false,
+   "reads": [
+    "D-S001-W002-00101"
+   ]
+  },
+  "S003-2026-10-03-A01-S1-026": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Two Diet Coke rows fit, no size read",
+   "invented": false,
+   "reads": [
+    "D-S003-W002-00101"
+   ]
+  },
+  "S001-2026-10-03-A01-S4-027": {
+   "code": "0819215021409",
+   "confidence": "sure",
+   "why": "Waterloo blackberry lemonade 12 oz matches",
+   "invented": false,
+   "reads": [
+    "D-S001-W002-00102"
+   ]
+  },
+  "S002-2026-10-03-A01-S2-026": {
+   "code": "01208500",
+   "confidence": "sure",
+   "why": "Mountain Dew 12 fl oz 355 ml",
+   "invented": false,
+   "reads": [
+    "D-S002-W002-00102"
+   ]
+  },
+  "S002-2026-10-03-A02-S3-001": {
+   "code": "0855140002663",
+   "confidence": "sure",
+   "why": "Original ancient grain granola with 10 dl",
+   "invented": false,
+   "reads": [
+    "D-S002-W002-00116"
+   ]
+  },
+  "S003-2026-10-03-A02-S3-001": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Original granola in two sizes; no size read",
+   "invented": false,
+   "reads": [
+    "D-S003-W002-00117"
+   ]
+  },
+  "S002-2026-10-03-A02-S3-002": {
+   "code": "0855140002175",
+   "confidence": "sure",
+   "why": "Original ancient grain granola 12 oz 340 g",
+   "invented": false,
+   "reads": [
+    "D-S002-W002-00117"
+   ]
+  },
+  "S001-2026-10-03-A02-S3-003": {
+   "code": "0855140002175",
+   "confidence": "sure",
+   "why": "Original ancient grain granola 12 oz 340 g",
+   "invented": false,
+   "reads": [
+    "D-S001-W002-00120"
+   ]
+  },
+  "S002-2026-10-03-A02-S1-002": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Read too fragmentary to identify",
+   "invented": false,
+   "reads": [
+    "D-S002-W002-00125"
+   ]
+  },
+  "S003-2026-10-03-A02-S1-002": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Cheerios in several sizes; no size read",
+   "invented": false,
+   "reads": [
+    "D-S003-W002-00126"
+   ]
+  },
+  "S001-2026-10-03-A02-S1-003": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Only brand fragment; many General Mills rows",
+   "invented": false,
+   "reads": [
+    "D-S001-W002-00130"
+   ]
+  },
+  "S002-2026-10-03-A02-S1-004": {
+   "code": "0016000170032",
+   "confidence": "likely",
+   "why": "Cheerios 18 matches 18oz, not 18.8 Honey Nut",
+   "invented": false,
+   "reads": [
+    "D-S002-W002-00132"
+   ]
+  },
+  "S001-2026-10-03-A02-S1-005": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Only brand read; many General Mills rows",
+   "invented": false,
+   "reads": [
+    "D-S001-W002-00138"
+   ]
+  },
+  "S001-2026-10-03-A02-S1-006": {
+   "code": "0016000170032",
+   "confidence": "sure",
+   "why": "General Mills Cheerios 18 ounce",
+   "invented": false,
+   "reads": [
+    "D-S001-W002-00142"
+   ]
+  },
+  "S003-2026-10-03-A02-S1-006": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Only brand fragment; many General Mills rows",
+   "invented": false,
+   "reads": [
+    "D-S003-W002-00139"
+   ]
+  },
+  "S002-2026-10-03-A02-S4-008": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Quick 1-Minute Oats in two sizes; no size",
+   "invented": false,
+   "reads": [
+    "D-S002-W002-00157"
+   ]
+  },
+  "S002-2026-10-03-A02-S3-017": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Pumpkin Seed granola in two sizes; no size",
+   "invented": false,
+   "reads": [
+    "D-S002-W002-00162"
+   ]
+  },
+  "S003-2026-10-03-A02-S4-009": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Quick 1-Minute Oats in two sizes; no size",
+   "invented": false,
+   "reads": [
+    "D-S003-W002-00160"
+   ]
+  },
+  "S003-2026-10-03-A02-S3-017": {
+   "code": "0058449890072",
+   "confidence": "likely",
+   "why": "Read says 115 oz, matching the large size",
+   "invented": false,
+   "reads": [
+    "D-S003-W002-00161"
+   ]
+  },
+  "S003-2026-10-03-A02-S1-012": {
+   "code": "0860479001522",
+   "confidence": "sure",
+   "why": "225 g matches the Catalina Crunch 225 g row",
+   "invented": false,
+   "reads": [
+    "D-S003-W002-00163"
+   ]
+  },
+  "S001-2026-10-03-A02-S3-018": {
+   "code": "0058449890072",
+   "confidence": "likely",
+   "why": "115 ounces matches the 115 oz row",
+   "invented": false,
+   "reads": [
+    "D-S001-W002-00165"
+   ]
+  },
+  "S003-2026-10-03-A02-S4-010": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Quick Oats in two sizes, no size read",
+   "invented": false,
+   "reads": [
+    "D-S003-W002-00164"
+   ]
+  },
+  "S001-2026-10-03-A02-S4-008": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Quick Oats in two sizes, no size read",
+   "invented": false,
+   "reads": [
+    "D-S001-W002-00168"
+   ]
+  },
+  "S001-2026-10-03-A02-S1-014": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Two sizes of Catalina Crunch, no size read",
+   "invented": false,
+   "reads": [
+    "D-S001-W002-00171"
+   ]
+  },
+  "S002-2026-10-03-A02-S4-011": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Quick Oats in two sizes, no size read",
+   "invented": false,
+   "reads": [
+    "D-S002-W002-00169"
+   ]
+  },
+  "S003-2026-10-03-A02-S3-019": {
+   "code": "0058449770565",
+   "confidence": "sure",
+   "why": "35.3 oz matches the 1 kg size",
+   "invented": false,
+   "reads": [
+    "D-S003-W002-00169"
+   ]
+  },
+  "S001-2026-10-03-A02-S4-009": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Old Fashioned Oats in two sizes, no size read",
+   "invented": false,
+   "reads": [
+    "D-S001-W002-00172"
+   ]
+  },
+  "S001-2026-10-03-A02-S3-020": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Pumpkin Seed granola in two sizes, no size read",
+   "invented": false,
+   "reads": [
+    "D-S001-W002-00173"
+   ]
+  },
+  "S002-2026-10-03-A02-S3-020": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Pumpkin granola in two sizes, no size read",
+   "invented": false,
+   "reads": [
+    "D-S002-W002-00174"
+   ]
+  },
+  "S002-2026-10-03-A02-S1-015": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Two sizes of Catalina Crunch, no size read",
+   "invented": false,
+   "reads": [
+    "D-S002-W002-00176"
+   ]
+  },
+  "S003-2026-10-03-A02-S3-020": {
+   "code": "0058449770565",
+   "confidence": "sure",
+   "why": "35.3 oz and 1 kg match the smaller size",
+   "invented": false,
+   "reads": [
+    "D-S003-W002-00173"
+   ]
+  },
+  "S003-2026-10-03-A02-S1-015": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Two sizes of Catalina Crunch, no size read",
+   "invented": false,
+   "reads": [
+    "D-S003-W002-00175"
+   ]
+  },
+  "S001-2026-10-03-A02-S3-021": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Pumpkin granola in two sizes, no size read",
+   "invented": false,
+   "reads": [
+    "D-S001-W002-00177"
+   ]
+  },
+  "S001-2026-10-03-A02-S4-011": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Old Fashioned Quaker in two sizes, no size read",
+   "invented": false,
+   "reads": [
+    "D-S001-W002-00180"
+   ]
+  },
+  "S001-2026-10-03-A02-S3-022": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Several Nature's Path rows fit, read too short",
+   "invented": false,
+   "reads": [
+    "D-S001-W002-00181"
+   ]
+  },
+  "S002-2026-10-03-A02-S2-017": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Honey Nut Cheerios in three sizes, no size read",
+   "invented": false,
+   "reads": [
+    "D-S002-W002-00187"
+   ]
+  },
+  "S002-2026-10-03-A02-S4-016": {
+   "code": "0030000010204",
+   "confidence": "likely",
+   "why": "Whole Grain wording matches the 18 oz Quaker row",
+   "invented": false,
+   "reads": [
+    "D-S002-W002-00189"
+   ]
+  },
+  "S002-2026-10-03-A02-S2-018": {
+   "code": "0016000169685",
+   "confidence": "likely",
+   "why": "18. oz matches 18.8 oz Honey Nut Cheerios",
+   "invented": false,
+   "reads": [
+    "D-S002-W002-00191"
+   ]
+  },
+  "S003-2026-10-03-A02-S2-016": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Read too short; several General Mills rows fit",
+   "invented": false,
+   "reads": [
+    "D-S003-W002-00190"
+   ]
+  },
+  "S001-2026-10-03-A02-S2-017": {
+   "code": "0016000125063",
+   "confidence": "likely",
+   "why": "36 g likely truncated 436 g Honey Nut Cheerios",
+   "invented": false,
+   "reads": [
+    "D-S001-W002-00192"
+   ]
+  },
+  "S001-2026-10-03-A02-S2-018": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Honey Nut Cheerios in three sizes, no size read",
+   "invented": false,
+   "reads": [
+    "D-S001-W002-00196"
+   ]
+  },
+  "S002-2026-10-03-A02-S2-020": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Honey Nut Cheerios in three sizes, no size read",
+   "invented": false,
+   "reads": [
+    "D-S002-W002-00199"
+   ]
+  },
+  "S003-2026-10-03-A02-S2-018": {
+   "code": "0016000169685",
+   "confidence": "likely",
+   "why": "1.8 oz likely 18.8 oz, Honey Nut Cheerios",
+   "invented": false,
+   "reads": [
+    "D-S003-W002-00198"
+   ]
+  },
+  "S003-2026-10-03-A02-S1-021": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Two Bob's Red Mill old fashioned oats, both 32 oz; indistinguishable",
+   "invented": false,
+   "reads": [
+    "D-S003-W002-00199"
+   ]
+  },
+  "S001-2026-10-03-A02-S2-019": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Honey Nut Cheerios in three sizes; no size read",
+   "invented": false,
+   "reads": [
+    "D-S001-W002-00200"
+   ]
+  },
+  "S002-2026-10-03-A02-S4-019": {
+   "code": "0030000436073",
+   "confidence": "likely",
+   "why": "Read includes RAI(SINS); the other Quaker lacks raisins",
+   "invented": false,
+   "reads": [
+    "D-S002-W002-00201"
+   ]
+  },
+  "S003-2026-10-03-A02-S2-019": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Honey Nut Cheerios, three sizes, no size shown",
+   "invented": false,
+   "reads": [
+    "D-S003-W002-00202"
+   ]
+  },
+  "S001-2026-10-03-A02-S2-020": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Honey Nut Cheerios, three sizes, no size shown",
+   "invented": false,
+   "reads": [
+    "D-S001-W002-00204"
+   ]
+  },
+  "S002-2026-10-03-A02-S4-020": {
+   "code": "0030000436073",
+   "confidence": "sure",
+   "why": "Raisins in read matches only the raisins variant",
+   "invented": false,
+   "reads": [
+    "D-S002-W002-00205"
+   ]
+  },
+  "S003-2026-10-03-A02-S4-020": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Read cut at HONE; both granola variants fit",
+   "invented": false,
+   "reads": [
+    "D-S003-W002-00204"
+   ]
+  },
+  "S003-2026-10-03-A02-S2-021": {
+   "code": "0016000487727",
+   "confidence": "sure",
+   "why": "Cheerios with 340 g matches 12 oz",
+   "invented": false,
+   "reads": [
+    "D-S003-W002-00210"
+   ]
+  },
+  "S001-2026-10-03-A02-S2-022": {
+   "code": "0016000487727",
+   "confidence": "sure",
+   "why": "Cheerios 12 oz (340 g)",
+   "invented": false,
+   "reads": [
+    "D-S001-W002-00212"
+   ]
+  },
+  "S002-2026-10-03-A02-S2-024": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Plain Cheerios in three sizes; no size read",
+   "invented": false,
+   "reads": [
+    "D-S002-W002-00215"
+   ]
+  },
+  "S001-2026-10-03-A03-S3-001": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Only 'nature's'; many candidates fit",
+   "invented": false,
+   "reads": [
+    "D-S001-W002-00215"
+   ]
+  },
+  "S003-2026-10-03-A03-S4-001": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Original Skinny Pop has two entries; no size read",
+   "invented": false,
+   "reads": [
+    "D-S003-W002-00216"
+   ]
+  },
+  "S001-2026-10-03-A03-S4-002": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Two Original Skinny Pop entries fit; no size",
+   "invented": false,
+   "reads": [
+    "D-S001-W002-00218"
+   ]
+  },
+  "S001-2026-10-03-A03-S1-002": {
+   "code": "0044000028282",
+   "confidence": "sure",
+   "why": "Blueberry crunchy belVita",
+   "invented": false,
+   "reads": [
+    "D-S001-W002-00221"
+   ]
+  },
+  "S002-2026-10-03-A03-S4-002": {
+   "code": "0073420516208",
+   "confidence": "sure",
+   "why": "Pure & Natural cottage cheese 16oz",
+   "invented": false,
+   "reads": [
+    "D-S002-W002-00221"
+   ]
+  },
+  "S002-2026-10-03-A03-S3-002": {
+   "code": "0047495112900",
+   "confidence": "sure",
+   "why": "Fig bar blueberry 2 oz",
+   "invented": false,
+   "reads": [
+    "D-S002-W002-00222"
+   ]
+  },
+  "S003-2026-10-03-A03-S4-002": {
+   "code": "0850251004018",
+   "confidence": "sure",
+   "why": "Original popcorn with 18 g",
+   "invented": false,
+   "reads": [
+    "D-S003-W002-00220"
+   ]
+  },
+  "S002-2026-10-03-A03-S4-003": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Skinny Pop; original vs organic unclear, damaged read",
+   "invented": false,
+   "reads": [
+    "D-S002-W002-00225"
+   ]
+  },
+  "S002-2026-10-03-A03-S3-003": {
+   "code": "0047495112900",
+   "confidence": "sure",
+   "why": "Fig bar blueberry 2 oz",
+   "invented": false,
+   "reads": [
+    "D-S002-W002-00226"
+   ]
+  },
+  "S001-2026-10-03-A03-S3-004": {
+   "code": "0047495112900",
+   "confidence": "sure",
+   "why": "Fig bar blueberry",
+   "invented": false,
+   "reads": [
+    "D-S001-W002-00227"
+   ]
+  },
+  "S002-2026-10-03-A03-S3-004": {
+   "code": "0047495112900",
+   "confidence": "sure",
+   "why": "Fig bar blueberry 2 oz",
+   "invented": false,
+   "reads": [
+    "D-S002-W002-00230"
+   ]
+  },
+  "S003-2026-10-03-A03-S3-004": {
+   "code": "0047495112900",
+   "confidence": "sure",
+   "why": "Fig bar blueberry 2 oz",
+   "invented": false,
+   "reads": [
+    "D-S003-W002-00228"
+   ]
+  },
+  "S002-2026-10-03-A03-S3-005": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Fig bar flavor not read; three fits",
+   "invented": false,
+   "reads": [
+    "D-S002-W002-00234"
+   ]
+  },
+  "S002-2026-10-03-A03-S1-005": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "BR may be Breakfast or other; two belVita fit",
+   "invented": false,
+   "reads": [
+    "D-S002-W002-00236"
+   ]
+  },
+  "S001-2026-10-03-A03-S4-006": {
+   "code": "0028400147408",
+   "confidence": "likely",
+   "why": "GADE SALA resembles Garden Salsa",
+   "invented": false,
+   "reads": [
+    "D-S001-W002-00233"
+   ]
+  },
+  "S001-2026-10-03-A03-S2-006": {
+   "code": "0096619483556",
+   "confidence": "unsure",
+   "why": "Several organic Kirkland items; read is only 'Org'. Yogurt, chips, lemonade fit",
+   "invented": false,
+   "reads": [
+    "D-S001-W002-00235"
+   ]
+  },
+  "S002-2026-10-03-A03-S1-006": {
+   "code": "0044000031930",
+   "confidence": "unsure",
+   "why": "Belvita Crunchy; blueberry 'B' may fit the blueberry variant",
+   "invented": false,
+   "reads": [
+    "D-S002-W002-00239"
+   ]
+  },
+  "S002-2026-10-03-A03-S1-009": {
+   "code": "0071146002456",
+   "confidence": "sure",
+   "why": "3.3oz (94g) matches small size",
+   "invented": false,
+   "reads": [
+    "D-S002-W002-00249"
+   ]
+  },
+  "S003-2026-10-03-A03-S1-009": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "No size in read; 3.3oz and 20oz both fit",
+   "invented": false,
+   "reads": [
+    "D-S003-W002-00250"
+   ]
+  },
+  "S003-2026-10-03-A03-S4-009": {
+   "code": "0028400147392",
+   "confidence": "sure",
+   "why": "Sun Chips Harvest Cheddar, only match",
+   "invented": false,
+   "reads": [
+    "D-S003-W002-00251"
+   ]
+  },
+  "S001-2026-10-03-A03-S4-011": {
+   "code": "0028400147392",
+   "confidence": "sure",
+   "why": "Sun Chips Harvest Ch = Cheddar",
+   "invented": false,
+   "reads": [
+    "D-S001-W002-00253"
+   ]
+  },
+  "S002-2026-10-03-A03-S4-011": {
+   "code": "0028400147392",
+   "confidence": "sure",
+   "why": "Sun Chips Harvest Cheddar",
+   "invented": false,
+   "reads": [
+    "D-S002-W002-00254"
+   ]
+  },
+  "S002-2026-10-03-A03-S2-009": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "'Sup' only; Super peanuts fits but truncated read ambiguous",
+   "invented": false,
+   "reads": [
+    "D-S002-W002-00260"
+   ]
+  },
+  "S003-2026-10-03-A03-S2-012": {
+   "code": "0096619222490",
+   "confidence": "likely",
+   "why": "Super Extra Large Peanuts is the only 'Super' item",
+   "invented": false,
+   "reads": [
+    "D-S003-W002-00260"
+   ]
+  },
+  "S001-2026-10-03-A03-S4-017": {
+   "code": "0044000050986",
+   "confidence": "sure",
+   "why": "8.5oz Triscuit original sea salt",
+   "invented": false,
+   "reads": [
+    "D-S001-W002-00277"
+   ]
+  },
+  "S001-2026-10-03-A03-S2-017": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Two Lesser Evil popcorns; no flavor read",
+   "invented": false,
+   "reads": [
+    "D-S001-W002-00279"
+   ]
+  },
+  "S002-2026-10-03-A03-S4-017": {
+   "code": "0044000050986",
+   "confidence": "sure",
+   "why": "8.5oz Triscuit original sea salt",
+   "invented": false,
+   "reads": [
+    "D-S002-W002-00278"
+   ]
+  },
+  "S003-2026-10-03-A03-S4-016": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "No size in read; both Triscuit sizes fit",
+   "invented": false,
+   "reads": [
+    "D-S003-W002-00278"
+   ]
+  },
+  "S003-2026-10-03-A03-S2-017": {
+   "code": "0855469006557",
+   "confidence": "sure",
+   "why": "Himalayan Gold read",
+   "invented": false,
+   "reads": [
+    "D-S003-W002-00280"
+   ]
+  },
+  "S001-2026-10-03-A03-S2-018": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "HIM fits both Pink Salt and Himalayan Gold",
+   "invented": false,
+   "reads": [
+    "D-S001-W002-00283"
+   ]
+  },
+  "S002-2026-10-03-A03-S2-015": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Too short; two Lesser Evil candidates",
+   "invented": false,
+   "reads": [
+    "D-S002-W002-00284"
+   ]
+  },
+  "S003-2026-10-03-A03-S4-017": {
+   "code": "0044000050986",
+   "confidence": "sure",
+   "why": "8.5oz Triscuit original sea salt",
+   "invented": false,
+   "reads": [
+    "D-S003-W002-00282"
+   ]
+  },
+  "S001-2026-10-03-A03-S4-019": {
+   "code": "0044000050986",
+   "confidence": "sure",
+   "why": "8.5oz Triscuit original sea salt",
+   "invented": false,
+   "reads": [
+    "D-S001-W002-00285"
+   ]
+  },
+  "S003-2026-10-03-A03-S4-018": {
+   "code": "0044000050986",
+   "confidence": "sure",
+   "why": "8.5OZ Triscuit original sea salt",
+   "invented": false,
+   "reads": [
+    "D-S003-W002-00286"
+   ]
+  },
+  "S001-2026-10-03-A03-S2-020": {
+   "code": "0180999001001",
+   "confidence": "sure",
+   "why": "Pink Salt 5 oz popcorn",
+   "invented": false,
+   "reads": [
+    "D-S001-W002-00291"
+   ]
+  },
+  "S003-2026-10-03-A03-S4-019": {
+   "code": "0044000051693",
+   "confidence": "sure",
+   "why": "12.5 oz (354 g) Triscuit",
+   "invented": false,
+   "reads": [
+    "D-S003-W002-00290"
+   ]
+  },
+  "S001-2026-10-03-A03-S4-021": {
+   "code": "0044000051693",
+   "confidence": "sure",
+   "why": "354 g matches 12.5 oz; '2.5' truncated",
+   "invented": false,
+   "reads": [
+    "D-S001-W002-00293"
+   ]
+  },
+  "S002-2026-10-03-A03-S4-021": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "No size in read; both Triscuit sizes fit",
+   "invented": false,
+   "reads": [
+    "D-S002-W002-00294"
+   ]
+  },
+  "S002-2026-10-03-A03-S3-021": {
+   "code": "0096619656493",
+   "confidence": "unsure",
+   "why": "Organic Tortilla Chips ('ee' maybe 'Organic'); Siete also possible",
+   "invented": false,
+   "reads": [
+    "D-S002-W002-00295"
+   ]
+  },
+  "S003-2026-10-03-A03-S4-020": {
+   "code": "0044000051693",
+   "confidence": "sure",
+   "why": "12.5 ounces (354 G) Triscuit",
+   "invented": false,
+   "reads": [
+    "D-S003-W002-00294"
+   ]
+  },
+  "S003-2026-10-03-A03-S2-021": {
+   "code": "0180999001001",
+   "confidence": "sure",
+   "why": "Pink salt popcorn 5 oz matches exactly",
+   "invented": false,
+   "reads": [
+    "D-S003-W002-00296"
+   ]
+  },
+  "S001-2026-10-03-A03-S2-024": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Two Nature Valley protein peanut bars fit; read cut off",
+   "invented": false,
+   "reads": [
+    "D-S001-W002-00307"
+   ]
+  },
+  "S003-2026-10-03-A03-S3-025": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Three Skinny Pop originals fit; no size shown",
+   "invented": false,
+   "reads": [
+    "D-S003-W002-00311"
+   ]
+  },
+  "S001-2026-10-03-A04-S1-001": {
+   "code": "0073420000110",
+   "confidence": "sure",
+   "why": "Daisy sour cream 16 oz matches",
+   "invented": false,
+   "reads": [
+    "D-S001-W002-00314"
+   ]
+  },
+  "S001-2026-10-03-A04-S1-002": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Several Daisy sour creams fit; no size",
+   "invented": false,
+   "reads": [
+    "D-S001-W002-00315",
+    "D-S001-W002-00599"
+   ]
+  },
+  "S002-2026-10-03-A04-S1-002": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Several Daisy sour creams fit; no size",
+   "invented": false,
+   "reads": [
+    "D-S002-W002-00313"
+   ]
+  },
+  "S001-2026-10-03-A04-S1-003": {
+   "code": "0073420516208",
+   "confidence": "sure",
+   "why": "Pure & Natural, 454g matches",
+   "invented": false,
+   "reads": [
+    "D-S001-W002-00316"
+   ]
+  },
+  "S002-2026-10-03-A04-S1-003": {
+   "code": "0073420516208",
+   "confidence": "likely",
+   "why": "Cottage cheese with Pure; only one Pure & Natural",
+   "invented": false,
+   "reads": [
+    "D-S002-W002-00314"
+   ]
+  },
+  "S003-2026-10-03-A04-S1-003": {
+   "code": "0073420516208",
+   "confidence": "likely",
+   "why": "Cottage cheese Pure & matches only that row",
+   "invented": false,
+   "reads": [
+    "D-S003-W002-00314"
+   ]
+  },
+  "S002-2026-10-03-A04-S1-004": {
+   "code": "0073420516208",
+   "confidence": "sure",
+   "why": "Pure & Natural 16oz 454g matches",
+   "invented": false,
+   "reads": [
+    "D-S002-W002-00317"
+   ]
+  },
+  "S003-2026-10-03-A04-S2-001": {
+   "code": "0856312002757",
+   "confidence": "sure",
+   "why": "Nonfat ultra-filtered 52 fl oz matches",
+   "invented": false,
+   "reads": [
+    "D-S003-W002-00316"
+   ]
+  },
+  "S003-2026-10-03-A04-S1-004": {
+   "code": "0073420516208",
+   "confidence": "sure",
+   "why": "Pure & Natural 16oz 454g matches",
+   "invented": false,
+   "reads": [
+    "D-S003-W002-00317"
+   ]
+  },
+  "S001-2026-10-03-A04-S1-005": {
+   "code": "0073420516208",
+   "confidence": "likely",
+   "why": "Pure & Natur matches only the Pure & Natural row",
+   "invented": false,
+   "reads": [
+    "D-S001-W002-00322"
+   ]
+  },
+  "S003-2026-10-03-A04-S1-005": {
+   "code": "0073420516208",
+   "confidence": "sure",
+   "why": "Pure & Natural 16OZ read in second read",
+   "invented": false,
+   "reads": [
+    "D-S003-W002-00320",
+    "D-S003-W002-00601"
+   ]
+  },
+  "S001-2026-10-03-A04-S1-006": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Multiple Daisy cottage cheeses fit; no size",
+   "invented": false,
+   "reads": [
+    "D-S001-W002-00325"
+   ]
+  },
+  "S002-2026-10-03-A04-S1-006": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Multiple Daisy cottage cheeses fit; no size",
+   "invented": false,
+   "reads": [
+    "D-S002-W002-00323",
+    "D-S002-W002-00612"
+   ]
+  },
+  "S003-2026-10-03-A04-S1-006": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Multiple Daisy cottage cheeses fit; no size",
+   "invented": false,
+   "reads": [
+    "D-S003-W002-00323"
+   ]
+  },
+  "S001-2026-10-03-A04-S2-004": {
+   "code": "0811620021951",
+   "confidence": "sure",
+   "why": "Core Power chocolate 14oz matches",
+   "invented": false,
+   "reads": [
+    "D-S001-W002-00328"
+   ]
+  },
+  "S001-2026-10-03-A04-S1-007": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Size '2 oz' truncated; could be 24 oz or 24",
+   "invented": false,
+   "reads": [
+    "D-S001-W002-00329"
+   ]
+  },
+  "S002-2026-10-03-A04-S1-007": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Multiple Daisy cottage cheeses fit; no size",
+   "invented": false,
+   "reads": [
+    "D-S002-W002-00327"
+   ]
+  },
+  "S002-2026-10-03-A04-S2-006": {
+   "code": "0811620021951",
+   "confidence": "sure",
+   "why": "Core Power chocolate 14oz matches",
+   "invented": false,
+   "reads": [
+    "D-S002-W002-00333"
+   ]
+  },
+  "S001-2026-10-03-A04-S1-010": {
+   "code": "0073420516406",
+   "confidence": "likely",
+   "why": "Daisy cottage cheese 16 oz, no Pure & Natural",
+   "invented": false,
+   "reads": [
+    "D-S001-W002-00341"
+   ]
+  },
+  "S002-2026-10-03-A04-S1-010": {
+   "code": "0073420516406",
+   "confidence": "unsure",
+   "why": "Size '1 oz' likely truncated 16 oz",
+   "invented": false,
+   "reads": [
+    "D-S002-W002-00338"
+   ]
+  },
+  "S001-2026-10-03-A04-S1-011": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Multiple Daisy cottage cheeses fit; no size",
+   "invented": false,
+   "reads": [
+    "D-S001-W002-00345"
+   ]
+  },
+  "S003-2026-10-03-A04-S1-011": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Multiple Daisy cottage cheeses fit; no size",
+   "invented": false,
+   "reads": [
+    "D-S003-W002-00343"
+   ]
+  },
+  "S001-2026-10-03-A04-S4-009": {
+   "code": "0052159532505",
+   "confidence": "likely",
+   "why": "Stonyfield Organic Greek Plain; the row without size matches",
+   "invented": false,
+   "reads": [
+    "D-S001-W002-00346"
+   ]
+  },
+  "S001-2026-10-03-A04-S2-012": {
+   "code": null,
+   "confidence": "sure",
+   "why": "5% fits both 28.8oz and 32oz; no size read",
+   "invented": false,
+   "reads": [
+    "D-S001-W002-00360"
+   ]
+  },
+  "S003-2026-10-03-A04-S2-012": {
+   "code": null,
+   "confidence": "sure",
+   "why": "5% Greek fits both sizes; no size read",
+   "invented": false,
+   "reads": [
+    "D-S003-W002-00358"
+   ]
+  },
+  "S001-2026-10-03-A04-S2-013": {
+   "code": null,
+   "confidence": "sure",
+   "why": "5% fits both sizes; no size read",
+   "invented": false,
+   "reads": [
+    "D-S001-W002-00364",
+    "D-S001-W002-00601"
+   ]
+  },
+  "S002-2026-10-03-A04-S4-013": {
+   "code": "0898248001077",
+   "confidence": "sure",
+   "why": "siggi's vanilla, .3 OZ is truncated 5.3 oz",
+   "invented": false,
+   "reads": [
+    "D-S002-W002-00359"
+   ]
+  },
+  "S002-2026-10-03-A04-S3-009": {
+   "code": "0096619483556",
+   "confidence": "sure",
+   "why": "Kirkland organic Greek is the only matching candidate",
+   "invented": false,
+   "reads": [
+    "D-S002-W002-00360"
+   ]
+  },
+  "S001-2026-10-03-A04-S2-014": {
+   "code": null,
+   "confidence": "sure",
+   "why": "5% fits both sizes; no size read",
+   "invented": false,
+   "reads": [
+    "D-S001-W002-00368"
+   ]
+  },
+  "S003-2026-10-03-A04-S2-014": {
+   "code": null,
+   "confidence": "sure",
+   "why": "5% fits both sizes; no size read",
+   "invented": false,
+   "reads": [
+    "D-S003-W002-00366"
+   ]
+  },
+  "S001-2026-10-03-A04-S4-015": {
+   "code": null,
+   "confidence": "sure",
+   "why": "Two siggi's 24oz rows differ only by spacing; indistinguishable",
+   "invented": false,
+   "reads": [
+    "D-S001-W002-00370"
+   ]
+  },
+  "S002-2026-10-03-A04-S4-015": {
+   "code": null,
+   "confidence": "sure",
+   "why": "Two siggi's skyr rows fit; read is too short",
+   "invented": false,
+   "reads": [
+    "D-S002-W002-00367"
+   ]
+  },
+  "S003-2026-10-03-A04-S4-015": {
+   "code": null,
+   "confidence": "sure",
+   "why": "Two siggi's 24oz rows indistinguishable",
+   "invented": false,
+   "reads": [
+    "D-S003-W002-00368"
+   ]
+  },
+  "S002-2026-10-03-A04-S4-016": {
+   "code": null,
+   "confidence": "sure",
+   "why": "Two siggi's 24 oz rows indistinguishable",
+   "invented": false,
+   "reads": [
+    "D-S002-W002-00371"
+   ]
+  },
+  "S002-2026-10-03-A04-S2-016": {
+   "code": "0689544083023",
+   "confidence": "sure",
+   "why": "FAGE Total 2% 32 oz matches",
+   "invented": false,
+   "reads": [
+    "D-S002-W002-00373"
+   ]
+  },
+  "S003-2026-10-03-A04-S3-013": {
+   "code": "0767707001067",
+   "confidence": "sure",
+   "why": "Read says SALTED; matches the salted row",
+   "invented": false,
+   "reads": [
+    "D-S003-W002-00373"
+   ]
+  },
+  "S003-2026-10-03-A04-S2-016": {
+   "code": "0689544083023",
+   "confidence": "sure",
+   "why": "FAGE 2% 32 OZ matches",
+   "invented": false,
+   "reads": [
+    "D-S003-W002-00374"
+   ]
+  },
+  "S001-2026-10-03-A04-S3-014": {
+   "code": null,
+   "confidence": "likely",
+   "why": "Cut off before salted; both Kerrygold rows fit",
+   "invented": false,
+   "reads": [
+    "D-S001-W002-00376"
+   ]
+  },
+  "S001-2026-10-03-A04-S2-017": {
+   "code": "0689544083023",
+   "confidence": "sure",
+   "why": "FAGE 2% 32 oz matches",
+   "invented": false,
+   "reads": [
+    "D-S001-W002-00377"
+   ]
+  },
+  "S003-2026-10-03-A04-S4-017": {
+   "code": null,
+   "confidence": "sure",
+   "why": "Two siggi's skyr rows fit; no size read",
+   "invented": false,
+   "reads": [
+    "D-S003-W002-00376"
+   ]
+  },
+  "S001-2026-10-03-A04-S3-015": {
+   "code": "0767707001678",
+   "confidence": "likely",
+   "why": "No SALTED in read; plain Pure Irish Butter 8 oz",
+   "invented": false,
+   "reads": [
+    "D-S001-W002-00379"
+   ]
+  },
+  "S001-2026-10-03-A04-S2-018": {
+   "code": null,
+   "confidence": "sure",
+   "why": "2% fits 5.3 oz and 32 oz; no size",
+   "invented": false,
+   "reads": [
+    "D-S001-W002-00380"
+   ]
+  },
+  "S001-2026-10-03-A04-S3-016": {
+   "code": null,
+   "confidence": "sure",
+   "why": "Both Kerrygold rows fit; read too short",
+   "invented": false,
+   "reads": [
+    "D-S001-W002-00382"
+   ]
+  },
+  "S001-2026-10-03-A04-S2-019": {
+   "code": null,
+   "confidence": "sure",
+   "why": "0% fits 5.3oz and 32oz; no size",
+   "invented": false,
+   "reads": [
+    "D-S001-W002-00383"
+   ]
+  },
+  "S001-2026-10-03-A04-S1-019": {
+   "code": "0894700010144",
+   "confidence": "sure",
+   "why": "Chobani Greek Vanilla 32 oz; Zero Sugar differs in name",
+   "invented": false,
+   "reads": [
+    "D-S001-W002-00384"
+   ]
+  },
+  "S003-2026-10-03-A04-S1-022": {
+   "code": null,
+   "confidence": "sure",
+   "why": "Many Chobani Greek rows fit",
+   "invented": false,
+   "reads": [
+    "D-S003-W002-00387"
+   ]
+  },
+  "S002-2026-10-03-A04-S2-020": {
+   "code": null,
+   "confidence": "sure",
+   "why": "Many FAGE Total rows fit",
+   "invented": false,
+   "reads": [
+    "D-S002-W002-00389"
+   ]
+  },
+  "S003-2026-10-03-A04-S3-017": {
+   "code": "0767707001678",
+   "confidence": "likely",
+   "why": "Unsalted 'Pure Irish Butter 8 oz' matches; salted variant names salted",
+   "invented": false,
+   "reads": [
+    "D-S003-W002-00389"
+   ]
+  },
+  "S003-2026-10-03-A04-S2-020": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Fage Total 0 fits both 5.3oz and 32oz sizes",
+   "invented": false,
+   "reads": [
+    "D-S003-W002-00390"
+   ]
+  },
+  "S001-2026-10-03-A04-S2-021": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Fage Total 0% in two sizes, no size read",
+   "invented": false,
+   "reads": [
+    "D-S001-W002-00391"
+   ]
+  },
+  "S002-2026-10-03-A04-S1-024": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Chobani Greek Yogurt V; vanilla 32oz or Zero Sugar vanilla",
+   "invented": false,
+   "reads": [
+    "D-S002-W002-00394"
+   ]
+  },
+  "S003-2026-10-03-A04-S2-021": {
+   "code": "0689544083016",
+   "confidence": "sure",
+   "why": "Fage Total 0% 32oz matches",
+   "invented": false,
+   "reads": [
+    "D-S003-W002-00394"
+   ]
+  },
+  "S001-2026-10-03-A04-S3-019": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Get Vale ambiguous: Great Value or Nature Valley",
+   "invented": false,
+   "reads": [
+    "D-S001-W002-00394"
+   ]
+  },
+  "S001-2026-10-03-A04-S2-022": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Fage Total 0% in two sizes, no size read",
+   "invented": false,
+   "reads": [
+    "D-S001-W002-00395"
+   ]
+  },
+  "S003-2026-10-03-A04-S3-019": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Great Value matches several products",
+   "invented": false,
+   "reads": [
+    "D-S003-W002-00397"
+   ]
+  },
+  "S003-2026-10-03-A04-S2-022": {
+   "code": "0689544080008",
+   "confidence": "sure",
+   "why": "Fage Total 0% 5.3oz matches",
+   "invented": false,
+   "reads": [
+    "D-S003-W002-00398"
+   ]
+  },
+  "S002-2026-10-03-A04-S2-023": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Fage Total 0% in two sizes, no size read",
+   "invented": false,
+   "reads": [
+    "D-S002-W002-00401"
+   ]
+  },
+  "S001-2026-10-03-A04-S1-025": {
+   "code": "0894700010137",
+   "confidence": "likely",
+   "why": "Nonfat Plain is the only Chobani Greek starting with N",
+   "invented": false,
+   "reads": [
+    "D-S001-W002-00408"
+   ]
+  },
+  "S001-2026-10-03-A04-S3-023": {
+   "code": "4099100150889",
+   "confidence": "sure",
+   "why": "Friendly Farms Nonfat matches uniquely",
+   "invented": false,
+   "reads": [
+    "D-S001-W002-00410"
+   ]
+  },
+  "S002-2026-10-03-A04-S3-022": {
+   "code": "4099100150889",
+   "confidence": "sure",
+   "why": "Friendly Farms Nonfat matches uniquely",
+   "invented": false,
+   "reads": [
+    "D-S002-W002-00412"
+   ]
+  },
+  "S003-2026-10-03-A04-S3-023": {
+   "code": "4099100150889",
+   "confidence": "sure",
+   "why": "Friendly Farms Nonfat matches uniquely",
+   "invented": false,
+   "reads": [
+    "D-S003-W002-00412"
+   ]
+  },
+  "S003-2026-10-03-A04-S1-029": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Chobani Greek Yo fits many Chobani products",
+   "invented": false,
+   "reads": [
+    "D-S003-W002-00413"
+   ]
+  },
+  "S001-2026-10-03-A04-S3-024": {
+   "code": "4099100150889",
+   "confidence": "sure",
+   "why": "Friendly Farms Nonfat Greek matches",
+   "invented": false,
+   "reads": [
+    "D-S001-W002-00414"
+   ]
+  },
+  "S002-2026-10-03-A04-S3-023": {
+   "code": "4099100150889",
+   "confidence": "likely",
+   "why": "Friendly Farm New N matches only Friendly Farms",
+   "invented": false,
+   "reads": [
+    "D-S002-W002-00416"
+   ]
+  },
+  "S002-2026-10-03-A04-S1-030": {
+   "code": "0894700010052",
+   "confidence": "sure",
+   "why": "Blu matches Blueberry on the Bottom",
+   "invented": false,
+   "reads": [
+    "D-S002-W002-00418"
+   ]
+  },
+  "S003-2026-10-03-A04-S3-024": {
+   "code": "4099100150889",
+   "confidence": "likely",
+   "why": "Misspelled Friendly Farms New N matches only it",
+   "invented": false,
+   "reads": [
+    "D-S003-W002-00415"
+   ]
+  },
+  "S003-2026-10-03-A04-S1-030": {
+   "code": "0894700010052",
+   "confidence": "sure",
+   "why": "Blueberry on the bottom 5.3 oz matches",
+   "invented": false,
+   "reads": [
+    "D-S003-W002-00416"
+   ]
+  },
+  "S001-2026-10-03-A04-S2-029": {
+   "code": "0073420016142",
+   "confidence": "sure",
+   "why": "Pure & Natural sour cream 14 oz matches",
+   "invented": false,
+   "reads": [
+    "D-S001-W002-00423"
+   ]
+  },
+  "S001-2026-10-03-A04-S2-030": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Daisy Sou fits several sour cream sizes",
+   "invented": false,
+   "reads": [
+    "D-S001-W002-00427"
+   ]
+  },
+  "S002-2026-10-03-A04-S2-030": {
+   "code": "07342646",
+   "confidence": "likely",
+   "why": "Sor Crem 27 g resembles 227 g sour cream",
+   "invented": false,
+   "reads": [
+    "D-S002-W002-00429"
+   ]
+  },
+  "S003-2026-10-03-A04-S2-027": {
+   "code": "07342646",
+   "confidence": "sure",
+   "why": "Daisy sour cream 227 g matches",
+   "invented": false,
+   "reads": [
+    "D-S003-W002-00427"
+   ]
+  },
+  "S001-2026-10-03-A05-S3-001": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Orgain Organic Protein matches two sizes",
+   "invented": false,
+   "reads": [
+    "D-S001-W002-00430"
+   ]
+  },
+  "S002-2026-10-03-A05-S3-001": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Two Orgain Organic Protein sizes; read shows no size",
+   "invented": false,
+   "reads": [
+    "D-S002-W002-00432"
+   ]
+  },
+  "S002-2026-10-03-A05-S3-002": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Two Orgain Organic Protein sizes; no size in read",
+   "invented": false,
+   "reads": [
+    "D-S002-W002-00436"
+   ]
+  },
+  "S003-2026-10-03-A05-S3-002": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Two Orgain Organic Protein sizes; no size in read",
+   "invented": false,
+   "reads": [
+    "D-S003-W002-00433"
+   ]
+  },
+  "S003-2026-10-03-A05-S3-004": {
+   "code": "0851770008297",
+   "confidence": "likely",
+   "why": "Orgain protein shake matches damaged read",
+   "invented": false,
+   "reads": [
+    "D-S003-W002-00441"
+   ]
+  },
+  "S001-2026-10-03-A05-S1-004": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Several Core Power variants fit; no flavor or size",
+   "invented": false,
+   "reads": [
+    "D-S001-W002-00447"
+   ]
+  },
+  "S002-2026-10-03-A05-S1-005": {
+   "code": "0811620021968",
+   "confidence": "likely",
+   "why": "Milkshake 14 ounces matches the vanilla 14oz; others differ",
+   "invented": false,
+   "reads": [
+    "D-S002-W002-00450"
+   ]
+  },
+  "S003-2026-10-03-A05-S3-005": {
+   "code": "0851770008297",
+   "confidence": "sure",
+   "why": "Orgain protein shake 11 fl oz",
+   "invented": false,
+   "reads": [
+    "D-S003-W002-00445"
+   ]
+  },
+  "S003-2026-10-03-A05-S1-005": {
+   "code": "0811620021968",
+   "confidence": "likely",
+   "why": "Milkshake spelling and 14oz match the vanilla listing",
+   "invented": false,
+   "reads": [
+    "D-S003-W002-00447",
+    "D-S003-W002-00613"
+   ]
+  },
+  "S002-2026-10-03-A05-S2-006": {
+   "code": "0016000439627",
+   "confidence": "likely",
+   "why": "Nature Valley Protein Chewy matches the Chewy Bar label",
+   "invented": false,
+   "reads": [
+    "D-S002-W002-00453"
+   ]
+  },
+  "S003-2026-10-03-A05-S1-006": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Multiple Core Power candidates; read too short",
+   "invented": false,
+   "reads": [
+    "D-S003-W002-00451"
+   ]
+  },
+  "S002-2026-10-03-A05-S1-007": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Multiple Core Power candidates fit equally",
+   "invented": false,
+   "reads": [
+    "D-S002-W002-00458"
+   ]
+  },
+  "S001-2026-10-03-A05-S3-009": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Two Premier Protein vanilla listings; no size shown",
+   "invented": false,
+   "reads": [
+    "D-S001-W002-00460"
+   ]
+  },
+  "S003-2026-10-03-A05-S2-008": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Two Optimum Nutrition products fit truncated read",
+   "invented": false,
+   "reads": [
+    "D-S003-W002-00462"
+   ]
+  },
+  "S003-2026-10-03-A05-S3-010": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Two Premier Protein vanilla listings; no size shown",
+   "invented": false,
+   "reads": [
+    "D-S003-W002-00465"
+   ]
+  },
+  "S001-2026-10-03-A05-S4-010": {
+   "code": "0857273008666",
+   "confidence": "sure",
+   "why": "Vital Proteins Collagen Peptides 24 oz read",
+   "invented": false,
+   "reads": [
+    "D-S001-W002-00467",
+    "D-S001-W002-00607"
+   ]
+  },
+  "S002-2026-10-03-A05-S4-011": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Two Vital Proteins products; no size in read",
+   "invented": false,
+   "reads": [
+    "D-S002-W002-00468"
+   ]
+  },
+  "S001-2026-10-03-A05-S2-013": {
+   "code": "0851770007566",
+   "confidence": "likely",
+   "why": "Read shows 43, matching the 43.2 oz size",
+   "invented": false,
+   "reads": [
+    "D-S001-W002-00477"
+   ]
+  },
+  "S003-2026-10-03-A05-S2-012": {
+   "code": "0851770007566",
+   "confidence": "likely",
+   "why": "Read '4.' fits 43.2 oz, not 1.2 kg",
+   "invented": false,
+   "reads": [
+    "D-S003-W002-00478"
+   ]
+  },
+  "S002-2026-10-03-A05-S2-014": {
+   "code": "0851770007566",
+   "confidence": "sure",
+   "why": "432 ounce and 1.22KG match this row",
+   "invented": false,
+   "reads": [
+    "D-S002-W002-00483"
+   ]
+  },
+  "S003-2026-10-03-A05-S2-014": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Two Orgain Organic Protein sizes; no size in read",
+   "invented": false,
+   "reads": [
+    "D-S003-W002-00484"
+   ]
+  },
+  "S003-2026-10-03-A06-S1-011": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Two Kellogg's products; brand only",
+   "invented": false,
+   "reads": [
+    "D-S003-W002-00516"
+   ]
+  },
+  "S002-2026-10-03-A06-S4-004": {
+   "code": "3574669907842",
+   "confidence": "likely",
+   "why": "shmp j matches johnsons shampoo",
+   "invented": false,
+   "reads": [
+    "D-S002-W002-00521"
+   ]
+  },
+  "S001-2026-10-03-A07-S4-001": {
+   "code": "0030772121436",
+   "confidence": "likely",
+   "why": "Tide Detergent matches damaged read",
+   "invented": false,
+   "reads": [
+    "D-S001-W002-00535"
+   ]
+  },
+  "S002-2026-10-03-A07-S4-001": {
+   "code": "0030772121436",
+   "confidence": "likely",
+   "why": "te detergent fits Tide Detergent",
+   "invented": false,
+   "reads": [
+    "D-S002-W002-00537"
+   ]
+  },
+  "S003-2026-10-03-A07-S4-001": {
+   "code": "0030772121436",
+   "confidence": "likely",
+   "why": "Tde Detergnt fits Tide Detergent",
+   "invented": false,
+   "reads": [
+    "D-S003-W002-00537"
+   ]
+  },
+  "S002-2026-10-03-A07-S4-002": {
+   "code": "0030772121436",
+   "confidence": "likely",
+   "why": "'ide Detrent' matches Tide Detergent; label has no 'Laundry'",
+   "invented": false,
+   "reads": [
+    "D-S002-W002-00541"
+   ]
+  },
+  "S002-2026-10-03-A07-S4-003": {
+   "code": "0030772121436",
+   "confidence": "likely",
+   "why": "Tde Detergent matches Tide · Detergent",
+   "invented": false,
+   "reads": [
+    "D-S002-W002-00545"
+   ]
+  },
+  "S003-2026-10-03-A07-S4-003": {
+   "code": "0030772121436",
+   "confidence": "likely",
+   "why": "Tid Detrgent matches Tide · Detergent",
+   "invented": false,
+   "reads": [
+    "D-S003-W002-00545"
+   ]
+  },
+  "S002-2026-10-03-A07-S2-006": {
+   "code": "0078742204666",
+   "confidence": "sure",
+   "why": "Great Value steel wool soap pads 10 pcs",
+   "invented": false,
+   "reads": [
+    "D-S002-W002-00562"
+   ]
+  },
+  "S003-2026-10-04-A01-S3-001": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Mountain D fits regular, diet, multiple sizes",
+   "invented": false,
+   "reads": [
+    "D-S003-W003-00002"
+   ]
+  },
+  "S002-2026-10-04-A01-S3-002": {
+   "code": "01213104",
+   "confidence": "sure",
+   "why": "Mountain Dew 20oz",
+   "invented": false,
+   "reads": [
+    "D-S002-W003-00006"
+   ]
+  },
+  "S003-2026-10-04-A01-S3-002": {
+   "code": "01213104",
+   "confidence": "sure",
+   "why": "Mountain Dew 20oz",
+   "invented": false,
+   "reads": [
+    "D-S003-W003-00006"
+   ]
+  },
+  "S003-2026-10-04-A01-S2-002": {
+   "code": "04904403",
+   "confidence": "sure",
+   "why": "Coke 20z label matches",
+   "invented": false,
+   "reads": [
+    "D-S003-W003-00007"
+   ]
+  },
+  "S002-2026-10-04-A01-S3-003": {
+   "code": "0850027702896",
+   "confidence": "likely",
+   "why": "Olipop cream soda",
+   "invented": false,
+   "reads": [
+    "D-S002-W003-00010"
+   ]
+  },
+  "S002-2026-10-04-A01-S2-006": {
+   "code": "04904500",
+   "confidence": "sure",
+   "why": "Diet Coke 20 fl oz 591 mL",
+   "invented": false,
+   "reads": [
+    "D-S002-W003-00023"
+   ]
+  },
+  "S001-2026-10-04-A01-S2-007": {
+   "code": "0049000701135",
+   "confidence": "sure",
+   "why": "Diet Coke 6pk 15.2 fl oz",
+   "invented": false,
+   "reads": [
+    "D-S001-W003-00027"
+   ]
+  },
+  "S002-2026-10-04-A01-S3-008": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Two Olipop Strawberry Vanilla rows fit equally",
+   "invented": false,
+   "reads": [
+    "D-S002-W003-00030"
+   ]
+  },
+  "S002-2026-10-04-A01-S2-008": {
+   "code": "0078000083408",
+   "confidence": "sure",
+   "why": "Diet Dr Pepper 20 oz",
+   "invented": false,
+   "reads": [
+    "D-S002-W003-00031"
+   ]
+  },
+  "S001-2026-10-04-A01-S4-009": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Several Red Bull variants fit",
+   "invented": false,
+   "reads": [
+    "D-S001-W003-00033"
+   ]
+  },
+  "S002-2026-10-04-A01-S3-009": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Two Olipop Strawberry Vanilla rows fit equally",
+   "invented": false,
+   "reads": [
+    "D-S002-W003-00033"
+   ]
+  },
+  "S003-2026-10-04-A01-S3-009": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Two Olipop Strawberry Vanilla rows fit equally",
+   "invented": false,
+   "reads": [
+    "D-S003-W003-00034"
+   ]
+  },
+  "S002-2026-10-04-A01-S3-010": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Two Olipop Strawberry Vanilla rows fit equally",
+   "invented": false,
+   "reads": [
+    "D-S002-W003-00036"
+   ]
+  },
+  "S002-2026-10-04-A01-S2-010": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Read too fragmentary; many candidates fit",
+   "invented": false,
+   "reads": [
+    "D-S002-W003-00037"
+   ]
+  },
+  "S003-2026-10-04-A01-S4-010": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Two Red Bull Sugarfree sizes fit, no size read",
+   "invented": false,
+   "reads": [
+    "D-S003-W003-00037"
+   ]
+  },
+  "S001-2026-10-04-A01-S1-012": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Coca-Cola alone fits several products",
+   "invented": false,
+   "reads": [
+    "D-S001-W003-00047"
+   ]
+  },
+  "S002-2026-10-04-A01-S1-012": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Read ambiguous among several Coca-Cola rows",
+   "invented": false,
+   "reads": [
+    "D-S002-W003-00046"
+   ]
+  },
+  "S001-2026-10-04-A01-S1-013": {
+   "code": "0049000004632",
+   "confidence": "likely",
+   "why": "Coca-Cola 355 matches 355ml original",
+   "invented": false,
+   "reads": [
+    "D-S001-W003-00050"
+   ]
+  },
+  "S002-2026-10-04-A01-S3-013": {
+   "code": "0012000171741",
+   "confidence": "sure",
+   "why": "Diet Pepsi 20",
+   "invented": false,
+   "reads": [
+    "D-S002-W003-00048"
+   ]
+  },
+  "S001-2026-10-04-A01-S2-014": {
+   "code": "0078000035476",
+   "confidence": "likely",
+   "why": "Dr Pepper zero sugar",
+   "invented": false,
+   "reads": [
+    "D-S001-W003-00053"
+   ]
+  },
+  "S002-2026-10-04-A01-S1-013": {
+   "code": "0049000040869",
+   "confidence": "sure",
+   "why": "Coca-Cola Zero Sugar 20 fl oz",
+   "invented": false,
+   "reads": [
+    "D-S002-W003-00056",
+    "D-S002-W003-00588"
+   ]
+  },
+  "S001-2026-10-04-A01-S3-014": {
+   "code": "01201303",
+   "confidence": "likely",
+   "why": "'epi 12 f' fits Pepsi 12 fl oz; Diet Pepsi 12oz lacks 'fl'",
+   "invented": false,
+   "reads": [
+    "D-S001-W003-00060"
+   ]
+  },
+  "S002-2026-10-04-A01-S1-014": {
+   "code": "0049000040869",
+   "confidence": "sure",
+   "why": "Zero Sugar with 20 fl oz matches only this row",
+   "invented": false,
+   "reads": [
+    "D-S002-W003-00060"
+   ]
+  },
+  "S003-2026-10-04-A01-S1-016": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Zero Sugar in 20oz and 355ml, no size read",
+   "invented": false,
+   "reads": [
+    "D-S003-W003-00061"
+   ]
+  },
+  "S003-2026-10-04-A01-S1-017": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Ze fits multiple Zero Sugar sizes",
+   "invented": false,
+   "reads": [
+    "D-S003-W003-00065"
+   ]
+  },
+  "S002-2026-10-04-A01-S1-016": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Zero Sugar sizes tie, no size read",
+   "invented": false,
+   "reads": [
+    "D-S002-W003-00068"
+   ]
+  },
+  "S001-2026-10-04-A01-S4-019": {
+   "code": "04976400",
+   "confidence": "sure",
+   "why": "Sprite Lemon-Lime 20oz matches, not Zero",
+   "invented": false,
+   "reads": [
+    "D-S001-W003-00071"
+   ]
+  },
+  "S001-2026-10-04-A01-S1-019": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Zero Sugar sizes tie, no size read",
+   "invented": false,
+   "reads": [
+    "D-S001-W003-00074"
+   ]
+  },
+  "S002-2026-10-04-A01-S4-017": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Sprite Lemon-Lime vs Zero variants indistinguishable",
+   "invented": false,
+   "reads": [
+    "D-S002-W003-00069"
+   ]
+  },
+  "S002-2026-10-04-A01-S3-019": {
+   "code": "01212901",
+   "confidence": "likely",
+   "why": "Pepsi 20oz; Diet Pepsi 20 would show diet",
+   "invented": false,
+   "reads": [
+    "D-S002-W003-00070"
+   ]
+  },
+  "S001-2026-10-04-A01-S4-020": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Two Sprite Zero rows, one without size",
+   "invented": false,
+   "reads": [
+    "D-S001-W003-00075"
+   ]
+  },
+  "S001-2026-10-04-A01-S2-020": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Several Kirkland Organic products fit",
+   "invented": false,
+   "reads": [
+    "D-S001-W003-00077"
+   ]
+  },
+  "S001-2026-10-04-A01-S1-020": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Zero Sugar sizes tie, no size read",
+   "invented": false,
+   "reads": [
+    "D-S001-W003-00078"
+   ]
+  },
+  "S002-2026-10-04-A01-S4-018": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Two Sprite Zero rows, size not read",
+   "invented": false,
+   "reads": [
+    "D-S002-W003-00072"
+   ]
+  },
+  "S002-2026-10-04-A01-S3-020": {
+   "code": "01212901",
+   "confidence": "unsure",
+   "why": "PS 20OUNCES likely Pepsi 20oz, weak read",
+   "invented": false,
+   "reads": [
+    "D-S002-W003-00073"
+   ]
+  },
+  "S002-2026-10-04-A01-S2-019": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Several Kirkland Organic products fit",
+   "invented": false,
+   "reads": [
+    "D-S002-W003-00074"
+   ]
+  },
+  "S002-2026-10-04-A01-S1-018": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Zero Sugar sizes tie, no size read",
+   "invented": false,
+   "reads": [
+    "D-S002-W003-00075"
+   ]
+  },
+  "S003-2026-10-04-A01-S3-017": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Several Pepsi products, no variant or size",
+   "invented": false,
+   "reads": [
+    "D-S003-W003-00075"
+   ]
+  },
+  "S003-2026-10-04-A01-S1-020": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Zero Sugar sizes tie, no size read",
+   "invented": false,
+   "reads": [
+    "D-S003-W003-00077"
+   ]
+  },
+  "S001-2026-10-04-A01-S4-021": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Two Sprite Zero rows, no size",
+   "invented": false,
+   "reads": [
+    "D-S001-W003-00079"
+   ]
+  },
+  "S002-2026-10-04-A01-S4-019": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Two Sprite Zero rows, no size read",
+   "invented": false,
+   "reads": [
+    "D-S002-W003-00076"
+   ]
+  },
+  "S001-2026-10-04-A01-S1-022": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Two Diet Coke rows, no size",
+   "invented": false,
+   "reads": [
+    "D-S001-W003-00088"
+   ]
+  },
+  "S001-2026-10-04-A01-S1-023": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Two Diet Coke rows, no size",
+   "invented": false,
+   "reads": [
+    "D-S001-W003-00089"
+   ]
+  },
+  "S002-2026-10-04-A01-S1-020": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Two Diet Coke rows, no size",
+   "invented": false,
+   "reads": [
+    "D-S002-W003-00086"
+   ]
+  },
+  "S002-2026-10-04-A01-S1-021": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Two Diet Coke rows, no size",
+   "invented": false,
+   "reads": [
+    "D-S002-W003-00087"
+   ]
+  },
+  "S003-2026-10-04-A01-S1-023": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Too truncated; many Coca-Cola rows fit",
+   "invented": false,
+   "reads": [
+    "D-S003-W003-00089"
+   ]
+  },
+  "S001-2026-10-04-A01-S1-024": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Diet Coke with and without size both fit; no size read",
+   "invented": false,
+   "reads": [
+    "D-S001-W003-00093"
+   ]
+  },
+  "S003-2026-10-04-A01-S3-021": {
+   "code": "0012000002304",
+   "confidence": "likely",
+   "why": "Pepsi Cola 2 L matches size and name",
+   "invented": false,
+   "reads": [
+    "D-S003-W003-00091"
+   ]
+  },
+  "S001-2026-10-04-A01-S1-025": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Diet Coke two entries, no size in read",
+   "invented": false,
+   "reads": [
+    "D-S001-W003-00097"
+   ]
+  },
+  "S002-2026-10-04-A01-S1-023": {
+   "code": "0049000061055",
+   "confidence": "unsure",
+   "why": "Only Diet candidate with 'Di'; sizeless entry",
+   "invented": false,
+   "reads": [
+    "D-S002-W003-00095"
+   ]
+  },
+  "S003-2026-10-04-A01-S1-025": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Diet Coke two entries, no size in read",
+   "invented": false,
+   "reads": [
+    "D-S003-W003-00097"
+   ]
+  },
+  "S003-2026-10-04-A01-S1-026": {
+   "code": "04965802",
+   "confidence": "likely",
+   "why": "Diet Coke with 355 ml size read",
+   "invented": false,
+   "reads": [
+    "D-S003-W003-00101"
+   ]
+  },
+  "S001-2026-10-04-A01-S1-027": {
+   "code": "0049000024685",
+   "confidence": "likely",
+   "why": "'Original Taste Soda' matches exactly this entry",
+   "invented": false,
+   "reads": [
+    "D-S001-W003-00105"
+   ]
+  },
+  "S002-2026-10-04-A01-S2-026": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Mountain Dew sizes 12oz and 20oz both fit",
+   "invented": false,
+   "reads": [
+    "D-S002-W003-00102"
+   ]
+  },
+  "S003-2026-10-04-A01-S2-028": {
+   "code": "01208500",
+   "confidence": "sure",
+   "why": "Mountain Dew 12 FL OZ matches",
+   "invented": false,
+   "reads": [
+    "D-S003-W003-00107"
+   ]
+  },
+  "S003-2026-10-04-A01-S2-029": {
+   "code": "01208500",
+   "confidence": "sure",
+   "why": "Mountain Dew 12 FL OZ 355 mL matches",
+   "invented": false,
+   "reads": [
+    "D-S003-W003-00110"
+   ]
+  },
+  "S002-2026-10-04-A01-S1-030": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Read too vague among several Coca-Cola entries",
+   "invented": false,
+   "reads": [
+    "D-S002-W003-00114"
+   ]
+  },
+  "S003-2026-10-04-A02-S3-001": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Two Original Ancient Grain sizes; no size read",
+   "invented": false,
+   "reads": [
+    "D-S003-W003-00117"
+   ]
+  },
+  "S001-2026-10-04-A02-S3-002": {
+   "code": "0855140002175",
+   "confidence": "sure",
+   "why": "Original Ancient Grain 12 oz matches",
+   "invented": false,
+   "reads": [
+    "D-S001-W003-00119"
+   ]
+  },
+  "S002-2026-10-04-A02-S3-002": {
+   "code": "0855140002175",
+   "confidence": "sure",
+   "why": "Original Ancient Grain 12 oz (340 g) matches",
+   "invented": false,
+   "reads": [
+    "D-S002-W003-00117"
+   ]
+  },
+  "S003-2026-10-04-A02-S3-002": {
+   "code": "0855140002175",
+   "confidence": "sure",
+   "why": "Original Ancient Grain 12 oz matches",
+   "invented": false,
+   "reads": [
+    "D-S003-W003-00118"
+   ]
+  },
+  "S002-2026-10-04-A02-S3-003": {
+   "code": "0855140002175",
+   "confidence": "sure",
+   "why": "Original Ancient Grain 12 ounces 340 grams",
+   "invented": false,
+   "reads": [
+    "D-S002-W003-00118"
+   ]
+  },
+  "S001-2026-10-04-A02-S3-004": {
+   "code": "0855140002175",
+   "confidence": "sure",
+   "why": "Original Ancient Grain 12 OZ (340 G)",
+   "invented": false,
+   "reads": [
+    "D-S001-W003-00121"
+   ]
+  },
+  "S002-2026-10-04-A02-S3-004": {
+   "code": "0855140002175",
+   "confidence": "sure",
+   "why": "340 grams matches 12 oz entry",
+   "invented": false,
+   "reads": [
+    "D-S002-W003-00119"
+   ]
+  },
+  "S003-2026-10-04-A02-S3-004": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Two Original Ancient Grain sizes; no size read",
+   "invented": false,
+   "reads": [
+    "D-S003-W003-00120"
+   ]
+  },
+  "S003-2026-10-04-A02-S1-001": {
+   "code": "0016000275263",
+   "confidence": "sure",
+   "why": "Cheerios 8.9 oz matches",
+   "invented": false,
+   "reads": [
+    "D-S003-W003-00123"
+   ]
+  },
+  "S003-2026-10-04-A02-S1-002": {
+   "code": "0016000275263",
+   "confidence": "sure",
+   "why": "Cheerios 8.9 oz matches",
+   "invented": false,
+   "reads": [
+    "D-S003-W003-00126"
+   ]
+  },
+  "S001-2026-10-04-A02-S1-003": {
+   "code": "0016000275263",
+   "confidence": "likely",
+   "why": "Cheerios '8. oz' fits 8.9 oz only",
+   "invented": false,
+   "reads": [
+    "D-S001-W003-00130"
+   ]
+  },
+  "S001-2026-10-04-A02-S1-005": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Several Cheerios sizes; no size read",
+   "invented": false,
+   "reads": [
+    "D-S001-W003-00138"
+   ]
+  },
+  "S003-2026-10-04-A02-S3-010": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Two Post Grape-Nuts sizes; no size read",
+   "invented": false,
+   "reads": [
+    "D-S003-W003-00135"
+   ]
+  },
+  "S003-2026-10-04-A02-S4-008": {
+   "code": "0030000012000",
+   "confidence": "likely",
+   "why": "Quick 1-Minute Oats 42 oz",
+   "invented": false,
+   "reads": [
+    "D-S003-W003-00156"
+   ]
+  },
+  "S001-2026-10-04-A02-S2-011": {
+   "code": "0602652171864",
+   "confidence": "likely",
+   "why": "KIND, oats, honey; only KIND oats & honey candidate",
+   "invented": false,
+   "reads": [
+    "D-S001-W003-00163"
+   ]
+  },
+  "S001-2026-10-04-A02-S1-012": {
+   "code": "0860479001522",
+   "confidence": "sure",
+   "why": "225 grams matches the 225 g size",
+   "invented": false,
+   "reads": [
+    "D-S001-W003-00164"
+   ]
+  },
+  "S002-2026-10-04-A02-S4-009": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Quick 1-Minute read shows no size; two sizes fit",
+   "invented": false,
+   "reads": [
+    "D-S002-W003-00161"
+   ]
+  },
+  "S002-2026-10-04-A02-S1-012": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "No size in read; 24 oz and 225 g both fit",
+   "invented": false,
+   "reads": [
+    "D-S002-W003-00164"
+   ]
+  },
+  "S003-2026-10-04-A02-S4-009": {
+   "code": "0030000012000",
+   "confidence": "sure",
+   "why": "1.19 KG matches the 42 oz size",
+   "invented": false,
+   "reads": [
+    "D-S003-W003-00160"
+   ]
+  },
+  "S003-2026-10-04-A02-S3-017": {
+   "code": "0058449890072",
+   "confidence": "sure",
+   "why": "115 oz matches the large size",
+   "invented": false,
+   "reads": [
+    "D-S003-W003-00161"
+   ]
+  },
+  "S002-2026-10-04-A02-S1-013": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "No size in read; two Catalina sizes fit",
+   "invented": false,
+   "reads": [
+    "D-S002-W003-00168"
+   ]
+  },
+  "S003-2026-10-04-A02-S1-013": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "No size in read; two Catalina sizes fit",
+   "invented": false,
+   "reads": [
+    "D-S003-W003-00167"
+   ]
+  },
+  "S001-2026-10-04-A02-S4-008": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "No size in read; two Quick Oats sizes fit",
+   "invented": false,
+   "reads": [
+    "D-S001-W003-00168"
+   ]
+  },
+  "S001-2026-10-04-A02-S3-019": {
+   "code": "0058449770565",
+   "confidence": "sure",
+   "why": "35.3 oz 1 kg size matches",
+   "invented": false,
+   "reads": [
+    "D-S001-W003-00169"
+   ]
+  },
+  "S002-2026-10-04-A02-S4-011": {
+   "code": "0030000011805",
+   "confidence": "sure",
+   "why": "1 lb 2 oz matches Quick Oats small size",
+   "invented": false,
+   "reads": [
+    "D-S002-W003-00169"
+   ]
+  },
+  "S002-2026-10-04-A02-S3-019": {
+   "code": "0058449770565",
+   "confidence": "sure",
+   "why": "35.3 oz 1 kg size matches",
+   "invented": false,
+   "reads": [
+    "D-S002-W003-00170"
+   ]
+  },
+  "S003-2026-10-04-A02-S3-019": {
+   "code": "0058449770565",
+   "confidence": "sure",
+   "why": "35.3 oz 1 kg size matches",
+   "invented": false,
+   "reads": [
+    "D-S003-W003-00169"
+   ]
+  },
+  "S003-2026-10-04-A02-S1-014": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "No size in read; two Catalina sizes fit",
+   "invented": false,
+   "reads": [
+    "D-S003-W003-00171"
+   ]
+  },
+  "S003-2026-10-04-A02-S3-020": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Pumpkin Seed read has no size; two sizes fit",
+   "invented": false,
+   "reads": [
+    "D-S003-W003-00173"
+   ]
+  },
+  "S002-2026-10-04-A02-S4-013": {
+   "code": "0030000010402",
+   "confidence": "likely",
+   "why": "Old Fashioned Oats name matches the 42 oz Quaker",
+   "invented": false,
+   "reads": [
+    "D-S002-W003-00177"
+   ]
+  },
+  "S003-2026-10-04-A02-S4-013": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Two Quaker Old Fashioned sizes fit; read truncated",
+   "invented": false,
+   "reads": [
+    "D-S003-W003-00176"
+   ]
+  },
+  "S002-2026-10-04-A02-S4-015": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Two Quaker Old Fashioned sizes fit; no size",
+   "invented": false,
+   "reads": [
+    "D-S002-W003-00182"
+   ]
+  },
+  "S002-2026-10-04-A02-S3-023": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Brand only; several Nature's Path products fit",
+   "invented": false,
+   "reads": [
+    "D-S002-W003-00184"
+   ]
+  },
+  "S002-2026-10-04-A02-S2-016": {
+   "code": "0016000169685",
+   "confidence": "sure",
+   "why": "Honey Nut Cheerios 18.8 oz matches",
+   "invented": false,
+   "reads": [
+    "D-S002-W003-00185"
+   ]
+  },
+  "S003-2026-10-04-A02-S2-014": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Honey Nut Cheerios, three sizes fit",
+   "invented": false,
+   "reads": [
+    "D-S003-W003-00184"
+   ]
+  },
+  "S002-2026-10-04-A02-S2-018": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Honey Nut Cheerios, three sizes fit",
+   "invented": false,
+   "reads": [
+    "D-S002-W003-00191"
+   ]
+  },
+  "S002-2026-10-04-A02-S2-019": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Read too short; many General Mills fit",
+   "invented": false,
+   "reads": [
+    "D-S002-W003-00195"
+   ]
+  },
+  "S003-2026-10-04-A02-S2-017": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Honey Nut Cheerios, three sizes fit",
+   "invented": false,
+   "reads": [
+    "D-S003-W003-00194"
+   ]
+  },
+  "S001-2026-10-04-A02-S2-018": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Honey Nut Cheerios, three sizes fit",
+   "invented": false,
+   "reads": [
+    "D-S001-W003-00196"
+   ]
+  },
+  "S001-2026-10-04-A02-S1-021": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Two Bob's Red Mill rolled oats fit; read lacks 'Whole Grain'/size",
+   "invented": false,
+   "reads": [
+    "D-S001-W003-00197"
+   ]
+  },
+  "S002-2026-10-04-A02-S2-020": {
+   "code": null,
+   "confidence": "sure",
+   "why": "Three Honey Nut Cheerios sizes fit; no size read",
+   "invented": false,
+   "reads": [
+    "D-S002-W003-00199"
+   ]
+  },
+  "S003-2026-10-04-A02-S2-018": {
+   "code": "0016000124790",
+   "confidence": "sure",
+   "why": "Honey Nut Cheerios 10.8 oz matches exactly",
+   "invented": false,
+   "reads": [
+    "D-S003-W003-00198"
+   ]
+  },
+  "S003-2026-10-04-A02-S1-021": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Two Bob's Red Mill rolled oats fit equally",
+   "invented": false,
+   "reads": [
+    "D-S003-W003-00199"
+   ]
+  },
+  "S001-2026-10-04-A02-S2-019": {
+   "code": "0016000124790",
+   "confidence": "sure",
+   "why": "Honey Nut Cheerios 10.8 oz matches",
+   "invented": false,
+   "reads": [
+    "D-S001-W003-00200"
+   ]
+  },
+  "S001-2026-10-04-A02-S1-022": {
+   "code": "0039978501035",
+   "confidence": "sure",
+   "why": "Old Country matches Muesli uniquely",
+   "invented": false,
+   "reads": [
+    "D-S001-W003-00201"
+   ]
+  },
+  "S002-2026-10-04-A02-S2-021": {
+   "code": "0016000124790",
+   "confidence": "likely",
+   "why": "Honey Nut Cheerios, 0.8 ounces likely 10.8 oz",
+   "invented": false,
+   "reads": [
+    "D-S002-W003-00203"
+   ]
+  },
+  "S003-2026-10-04-A02-S4-019": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Two Quaker Simply Granola honey variants; read ends at HONEY",
+   "invented": false,
+   "reads": [
+    "D-S003-W003-00200"
+   ]
+  },
+  "S003-2026-10-04-A02-S2-019": {
+   "code": null,
+   "confidence": "sure",
+   "why": "Three Honey Nut Cheerios sizes fit; no size read",
+   "invented": false,
+   "reads": [
+    "D-S003-W003-00202"
+   ]
+  },
+  "S003-2026-10-04-A02-S2-020": {
+   "code": null,
+   "confidence": "sure",
+   "why": "Three Honey Nut Cheerios sizes fit; no size read",
+   "invented": false,
+   "reads": [
+    "D-S003-W003-00206"
+   ]
+  },
+  "S003-2026-10-04-A02-S2-021": {
+   "code": "0016000487727",
+   "confidence": "sure",
+   "why": "Cheerios 12 ounces matches",
+   "invented": false,
+   "reads": [
+    "D-S003-W003-00210"
+   ]
+  },
+  "S001-2026-10-04-A02-S2-022": {
+   "code": "0016000487727",
+   "confidence": "sure",
+   "why": "Cheerios with 340 G matches",
+   "invented": false,
+   "reads": [
+    "D-S001-W003-00212"
+   ]
+  },
+  "S003-2026-10-04-A02-S2-022": {
+   "code": "0016000487727",
+   "confidence": "sure",
+   "why": "Cheerios 12 oz 340 g matches",
+   "invented": false,
+   "reads": [
+    "D-S003-W003-00214"
+   ]
+  },
+  "S002-2026-10-04-A03-S4-001": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Three Skinny Pop Original variants fit",
+   "invented": false,
+   "reads": [
+    "D-S002-W003-00217"
+   ]
+  },
+  "S003-2026-10-04-A03-S4-001": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Three Skinny Pop Original variants fit",
+   "invented": false,
+   "reads": [
+    "D-S003-W003-00216"
+   ]
+  },
+  "S003-2026-10-04-A03-S3-001": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Many Nature brand candidates fit; read too short",
+   "invented": false,
+   "reads": [
+    "D-S003-W003-00217"
+   ]
+  },
+  "S003-2026-10-04-A03-S1-001": {
+   "code": "0044000028282",
+   "confidence": "sure",
+   "why": "Belvita Crunchy Blueberry unique match",
+   "invented": false,
+   "reads": [
+    "D-S003-W003-00219"
+   ]
+  },
+  "S001-2026-10-04-A03-S3-002": {
+   "code": "0047495112900",
+   "confidence": "sure",
+   "why": "Fig Bar Blueberry 2 oz matches",
+   "invented": false,
+   "reads": [
+    "D-S001-W003-00219"
+   ]
+  },
+  "S001-2026-10-04-A03-S3-003": {
+   "code": "0047495112900",
+   "confidence": "sure",
+   "why": "Fig Bar blueberry 2 oz matches",
+   "invented": false,
+   "reads": [
+    "D-S001-W003-00223"
+   ]
+  },
+  "S002-2026-10-04-A03-S3-003": {
+   "code": "0047495112900",
+   "confidence": "likely",
+   "why": "Bl fits Blueberry; generic Fig bar less specific",
+   "invented": false,
+   "reads": [
+    "D-S002-W003-00226"
+   ]
+  },
+  "S001-2026-10-04-A03-S2-004": {
+   "code": "0602652176517",
+   "confidence": "likely",
+   "why": "KIND Dark Chocolate; KID is missing N",
+   "invented": false,
+   "reads": [
+    "D-S001-W003-00228"
+   ]
+  },
+  "S002-2026-10-04-A03-S3-005": {
+   "code": "0047495013054",
+   "confidence": "sure",
+   "why": "Raspberry 57 grams matches",
+   "invented": false,
+   "reads": [
+    "D-S002-W003-00234"
+   ]
+  },
+  "S001-2026-10-04-A03-S2-006": {
+   "code": "0096619656493",
+   "confidence": "sure",
+   "why": "Organic Tort matches Tortilla Chips",
+   "invented": false,
+   "reads": [
+    "D-S001-W003-00235"
+   ]
+  },
+  "S003-2026-10-04-A03-S2-006": {
+   "code": "0096619656493",
+   "confidence": "sure",
+   "why": "Organic Tort matches Tortilla Chips",
+   "invented": false,
+   "reads": [
+    "D-S003-W003-00237"
+   ]
+  },
+  "S003-2026-10-04-A03-S2-008": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Organic T fits tortilla chips and other organic items",
+   "invented": false,
+   "reads": [
+    "D-S003-W003-00245"
+   ]
+  },
+  "S001-2026-10-04-A03-S1-009": {
+   "code": null,
+   "confidence": "sure",
+   "why": "No size in read; two Calbee sizes fit equally",
+   "invented": false,
+   "reads": [
+    "D-S001-W003-00248"
+   ]
+  },
+  "S002-2026-10-04-A03-S1-009": {
+   "code": "0071146002456",
+   "confidence": "likely",
+   "why": "Read says .3 ounces (94G), matching the 3.3oz size",
+   "invented": false,
+   "reads": [
+    "D-S002-W003-00249"
+   ]
+  },
+  "S001-2026-10-04-A03-S2-010": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Peanut Bu fits pretzels only weakly; Super Extra Large Peanuts also possible",
+   "invented": false,
+   "reads": [
+    "D-S001-W003-00251"
+   ]
+  },
+  "S001-2026-10-04-A03-S1-010": {
+   "code": "0071146008274",
+   "confidence": "sure",
+   "why": "Read includes 20.0 OZ 567g size",
+   "invented": false,
+   "reads": [
+    "D-S001-W003-00252",
+    "D-S001-W003-00592"
+   ]
+  },
+  "S002-2026-10-04-A03-S4-010": {
+   "code": "0028400147392",
+   "confidence": "sure",
+   "why": "Sun Chips Harvest Cheddar matches only one",
+   "invented": false,
+   "reads": [
+    "D-S002-W003-00250"
+   ]
+  },
+  "S002-2026-10-04-A03-S1-010": {
+   "code": null,
+   "confidence": "sure",
+   "why": "No size in read; two Calbee sizes fit equally",
+   "invented": false,
+   "reads": [
+    "D-S002-W003-00253"
+   ]
+  },
+  "S001-2026-10-04-A03-S2-011": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Pea fits Peanut Butter Pretzels and Peanuts equally",
+   "invented": false,
+   "reads": [
+    "D-S001-W003-00257"
+   ]
+  },
+  "S002-2026-10-04-A03-S3-013": {
+   "code": "0857777004195",
+   "confidence": "sure",
+   "why": "Blueberry RXBAR misspelled, only RXBAR blueberry",
+   "invented": false,
+   "reads": [
+    "D-S002-W003-00263"
+   ]
+  },
+  "S001-2026-10-04-A03-S4-017": {
+   "code": null,
+   "confidence": "sure",
+   "why": "No size in read; two Triscuit sizes fit",
+   "invented": false,
+   "reads": [
+    "D-S001-W003-00277"
+   ]
+  },
+  "S001-2026-10-04-A03-S3-016": {
+   "code": null,
+   "confidence": "sure",
+   "why": "Chocolate Sea Salt matches IQ Bar and two RXBAR rows",
+   "invented": false,
+   "reads": [
+    "D-S001-W003-00278"
+   ]
+  },
+  "S002-2026-10-04-A03-S4-017": {
+   "code": "0044000050986",
+   "confidence": "sure",
+   "why": "Read includes 8.5oz size",
+   "invented": false,
+   "reads": [
+    "D-S002-W003-00278"
+   ]
+  },
+  "S003-2026-10-04-A03-S4-016": {
+   "code": "0044000050986",
+   "confidence": "sure",
+   "why": "Read includes 8.5OZ size",
+   "invented": false,
+   "reads": [
+    "D-S003-W003-00278"
+   ]
+  },
+  "S003-2026-10-04-A03-S2-017": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Lesser Evil P could be Pink Salt, but truncated and damaged",
+   "invented": false,
+   "reads": [
+    "D-S003-W003-00280"
+   ]
+  },
+  "S001-2026-10-04-A03-S4-018": {
+   "code": "0044000050986",
+   "confidence": "sure",
+   "why": "Read includes 8.5oz size",
+   "invented": false,
+   "reads": [
+    "D-S001-W003-00281"
+   ]
+  },
+  "S001-2026-10-04-A03-S2-018": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "HIM fits both Himalayan Pink Salt and Himalayan Gold",
+   "invented": false,
+   "reads": [
+    "D-S001-W003-00283"
+   ]
+  },
+  "S002-2026-10-04-A03-S4-018": {
+   "code": null,
+   "confidence": "sure",
+   "why": "No size in read; two Triscuit sizes fit",
+   "invented": false,
+   "reads": [
+    "D-S002-W003-00282"
+   ]
+  },
+  "S002-2026-10-04-A03-S3-018": {
+   "code": null,
+   "confidence": "sure",
+   "why": "Chocolate sea salt matches several candidates equally",
+   "invented": false,
+   "reads": [
+    "D-S002-W003-00283"
+   ]
+  },
+  "S002-2026-10-04-A03-S2-015": {
+   "code": null,
+   "confidence": "sure",
+   "why": "Lesser Evil popcorn, two flavors fit equally",
+   "invented": false,
+   "reads": [
+    "D-S002-W003-00284"
+   ]
+  },
+  "S003-2026-10-04-A03-S4-017": {
+   "code": null,
+   "confidence": "sure",
+   "why": "No size in read; two Triscuit sizes fit",
+   "invented": false,
+   "reads": [
+    "D-S003-W003-00282"
+   ]
+  },
+  "S003-2026-10-04-A03-S2-018": {
+   "code": "0855469006557",
+   "confidence": "sure",
+   "why": "Himalayan gol matches Gold",
+   "invented": false,
+   "reads": [
+    "D-S003-W003-00284"
+   ]
+  },
+  "S002-2026-10-04-A03-S2-016": {
+   "code": "0180999001001",
+   "confidence": "sure",
+   "why": "Himalayan p matches Pink Salt",
+   "invented": false,
+   "reads": [
+    "D-S002-W003-00288"
+   ]
+  },
+  "S003-2026-10-04-A03-S2-019": {
+   "code": "0180999001001",
+   "confidence": "sure",
+   "why": "Pink salt 5 oz matches",
+   "invented": false,
+   "reads": [
+    "D-S003-W003-00288"
+   ]
+  },
+  "S001-2026-10-04-A03-S2-020": {
+   "code": null,
+   "confidence": "sure",
+   "why": "himal fits Pink Salt and Gold equally",
+   "invented": false,
+   "reads": [
+    "D-S001-W003-00291"
+   ]
+  },
+  "S002-2026-10-04-A03-S4-020": {
+   "code": "0044000051693",
+   "confidence": "sure",
+   "why": "Read includes 12.5 OZ (354) size",
+   "invented": false,
+   "reads": [
+    "D-S002-W003-00290"
+   ]
+  },
+  "S003-2026-10-04-A03-S4-019": {
+   "code": null,
+   "confidence": "sure",
+   "why": "No size in read; two Triscuit sizes fit",
+   "invented": false,
+   "reads": [
+    "D-S003-W003-00290"
+   ]
+  },
+  "S002-2026-10-04-A03-S2-018": {
+   "code": "0180999001001",
+   "confidence": "sure",
+   "why": "Lesser Evil Himalayan Pink Salt 5 oz matches exactly",
+   "invented": false,
+   "reads": [
+    "D-S002-W003-00296"
+   ]
+  },
+  "S003-2026-10-04-A03-S4-020": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Triscuit sea salt; size missing, 8.5oz and 12.5oz both fit",
+   "invented": false,
+   "reads": [
+    "D-S003-W003-00294"
+   ]
+  },
+  "S003-2026-10-04-A03-S3-023": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Three Skinny Pop variants fit; no size or organic shown",
+   "invented": false,
+   "reads": [
+    "D-S003-W003-00309"
+   ]
+  },
+  "S003-2026-10-04-A03-S3-024": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Three Skinny Pop variants fit; no size or organic shown",
+   "invented": false,
+   "reads": [
+    "D-S003-W003-00310"
+   ]
+  },
+  "S001-2026-10-04-A03-S3-027": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Three Skinny Pop variants fit; no size or organic shown",
+   "invented": false,
+   "reads": [
+    "D-S001-W003-00313"
+   ]
+  },
+  "S003-2026-10-04-A03-S3-025": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Three Skinny Pop variants fit; no size or organic shown",
+   "invented": false,
+   "reads": [
+    "D-S003-W003-00311"
+   ]
+  },
+  "S001-2026-10-04-A04-S1-003": {
+   "code": "0073420516208",
+   "confidence": "sure",
+   "why": "Pure & Natural 16oz (454g) matches only this row",
+   "invented": false,
+   "reads": [
+    "D-S001-W003-00316"
+   ]
+  },
+  "S003-2026-10-04-A04-S1-003": {
+   "code": "0073420516208",
+   "confidence": "likely",
+   "why": "Pure & N text matches only the Pure & Natural cottage cheese",
+   "invented": false,
+   "reads": [
+    "D-S003-W003-00314"
+   ]
+  },
+  "S001-2026-10-04-A04-S1-005": {
+   "code": "0073420516208",
+   "confidence": "sure",
+   "why": "Pure Natural 16oz (45g) matches the Pure & Natural row",
+   "invented": false,
+   "reads": [
+    "D-S001-W003-00322"
+   ]
+  },
+  "S002-2026-10-04-A04-S1-005": {
+   "code": "0073420516208",
+   "confidence": "sure",
+   "why": "Pure & Natural 454g read matches this row",
+   "invented": false,
+   "reads": [
+    "D-S002-W003-00320",
+    "D-S002-W003-00608"
+   ]
+  },
+  "S002-2026-10-04-A04-S2-003": {
+   "code": "0856312002757",
+   "confidence": "sure",
+   "why": "Nonfat ultra-filtered 52 fl oz matches exactly",
+   "invented": false,
+   "reads": [
+    "D-S002-W003-00322"
+   ]
+  },
+  "S003-2026-10-04-A04-S1-008": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Daisy cottage cheese; several sizes fit, no size shown",
+   "invented": false,
+   "reads": [
+    "D-S003-W003-00331"
+   ]
+  },
+  "S001-2026-10-04-A04-S1-009": {
+   "code": null,
+   "confidence": "likely",
+   "why": "Two 24 oz rows (one labelled just 24) both fit",
+   "invented": false,
+   "reads": [
+    "D-S001-W003-00337"
+   ]
+  },
+  "S002-2026-10-04-A04-S1-009": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Daisy cottage cheese; several sizes fit",
+   "invented": false,
+   "reads": [
+    "D-S002-W003-00334"
+   ]
+  },
+  "S003-2026-10-04-A04-S2-006": {
+   "code": "0811620021951",
+   "confidence": "sure",
+   "why": "Core Power Chocolate 14oz matches exactly",
+   "invented": false,
+   "reads": [
+    "D-S003-W003-00334"
+   ]
+  },
+  "S003-2026-10-04-A04-S1-009": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Daisy cottage cheese; several sizes fit",
+   "invented": false,
+   "reads": [
+    "D-S003-W003-00335"
+   ]
+  },
+  "S002-2026-10-04-A04-S1-010": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Daisy cottage cheese; several sizes fit",
+   "invented": false,
+   "reads": [
+    "D-S002-W003-00338"
+   ]
+  },
+  "S002-2026-10-04-A04-S4-008": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Stonyfield Organic G; Greek row has no size, ambiguous",
+   "invented": false,
+   "reads": [
+    "D-S002-W003-00339"
+   ]
+  },
+  "S002-2026-10-04-A04-S1-012": {
+   "code": "0073420516406",
+   "confidence": "likely",
+   "why": "Daisy cottage cheese 16 oz; plain row without Pure & Natural",
+   "invented": false,
+   "reads": [
+    "D-S002-W003-00346"
+   ]
+  },
+  "S003-2026-10-04-A04-S1-012": {
+   "code": "0073420516406",
+   "confidence": "likely",
+   "why": "Daisy cottage cheese 16 oz; plain row without Pure & Natural",
+   "invented": false,
+   "reads": [
+    "D-S003-W003-00347"
+   ]
+  },
+  "S001-2026-10-04-A04-S2-012": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "FAGE 5% in 28.8oz and 32oz; size missing",
+   "invented": false,
+   "reads": [
+    "D-S001-W003-00360"
+   ]
+  },
+  "S002-2026-10-04-A04-S3-008": {
+   "code": "0096619483556",
+   "confidence": "sure",
+   "why": "Only Kirkland organic Greek yogurt candidate",
+   "invented": false,
+   "reads": [
+    "D-S002-W003-00356"
+   ]
+  },
+  "S002-2026-10-04-A04-S3-009": {
+   "code": "0096619483556",
+   "confidence": "likely",
+   "why": "Organic GR fits Greek yogurt; other Kirkland organics differ",
+   "invented": false,
+   "reads": [
+    "D-S002-W003-00360"
+   ]
+  },
+  "S003-2026-10-04-A04-S2-013": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "FAGE 5% Greek in 28.8oz and 32oz; size missing",
+   "invented": false,
+   "reads": [
+    "D-S003-W003-00362"
+   ]
+  },
+  "S002-2026-10-04-A04-S2-014": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "FAGE 5% Greek in 28.8oz and 32oz; size missing",
+   "invented": false,
+   "reads": [
+    "D-S002-W003-00365"
+   ]
+  },
+  "S001-2026-10-04-A04-S4-015": {
+   "code": null,
+   "confidence": "sure",
+   "why": "Two siggi's 24 oz skyr rows are indistinguishable by reads",
+   "invented": false,
+   "reads": [
+    "D-S001-W003-00370"
+   ]
+  },
+  "S002-2026-10-04-A04-S4-015": {
+   "code": null,
+   "confidence": "sure",
+   "why": "Two siggi's 24 oz skyr rows fit equally",
+   "invented": false,
+   "reads": [
+    "D-S002-W003-00367"
+   ]
+  },
+  "S002-2026-10-04-A04-S3-011": {
+   "code": "0096619114016",
+   "confidence": "sure",
+   "why": "Kirkland Signature Butter is the only butter match",
+   "invented": false,
+   "reads": [
+    "D-S002-W003-00368"
+   ]
+  },
+  "S003-2026-10-04-A04-S4-015": {
+   "code": null,
+   "confidence": "sure",
+   "why": "Two siggi's 24 oz skyr rows, 24oz vs 24 oz identical",
+   "invented": false,
+   "reads": [
+    "D-S003-W003-00368"
+   ]
+  },
+  "S001-2026-10-04-A04-S3-013": {
+   "code": null,
+   "confidence": "sure",
+   "why": "Two Kerrygold rows, no size or salted distinction in read",
+   "invented": false,
+   "reads": [
+    "D-S001-W003-00374"
+   ]
+  },
+  "S002-2026-10-04-A04-S4-016": {
+   "code": null,
+   "confidence": "sure",
+   "why": "Two siggi's 24 oz rows differ only in spacing",
+   "invented": false,
+   "reads": [
+    "D-S002-W003-00371"
+   ]
+  },
+  "S002-2026-10-04-A04-S3-012": {
+   "code": null,
+   "confidence": "sure",
+   "why": "Two Kerrygold butter rows fit the truncated read",
+   "invented": false,
+   "reads": [
+    "D-S002-W003-00372"
+   ]
+  },
+  "S002-2026-10-04-A04-S2-016": {
+   "code": null,
+   "confidence": "sure",
+   "why": "Fage 2% in 5.3 oz and 32 oz, no size read",
+   "invented": false,
+   "reads": [
+    "D-S002-W003-00373"
+   ]
+  },
+  "S003-2026-10-04-A04-S4-016": {
+   "code": null,
+   "confidence": "sure",
+   "why": "Two identical siggi's 24 oz skyr rows",
+   "invented": false,
+   "reads": [
+    "D-S003-W003-00372"
+   ]
+  },
+  "S001-2026-10-04-A04-S3-014": {
+   "code": null,
+   "confidence": "sure",
+   "why": "Two Kerrygold butter rows fit the truncated read",
+   "invented": false,
+   "reads": [
+    "D-S001-W003-00376"
+   ]
+  },
+  "S001-2026-10-04-A04-S2-017": {
+   "code": "0689544083023",
+   "confidence": "sure",
+   "why": "Fage Total 2% 32 oz matches",
+   "invented": false,
+   "reads": [
+    "D-S001-W003-00377"
+   ]
+  },
+  "S002-2026-10-04-A04-S4-017": {
+   "code": null,
+   "confidence": "sure",
+   "why": "Two identical siggi's 24 oz skyr rows",
+   "invented": false,
+   "reads": [
+    "D-S002-W003-00375"
+   ]
+  },
+  "S003-2026-10-04-A04-S4-017": {
+   "code": null,
+   "confidence": "sure",
+   "why": "Two identical siggi's 24 oz skyr rows",
+   "invented": false,
+   "reads": [
+    "D-S003-W003-00376"
+   ]
+  },
+  "S001-2026-10-04-A04-S3-015": {
+   "code": null,
+   "confidence": "likely",
+   "why": "Salted row also 8 oz; read lacks salted, ambiguous",
+   "invented": false,
+   "reads": [
+    "D-S001-W003-00379"
+   ]
+  },
+  "S001-2026-10-04-A04-S2-018": {
+   "code": "0689544080206",
+   "confidence": "sure",
+   "why": "Fage Total 2% 5.3 oz",
+   "invented": false,
+   "reads": [
+    "D-S001-W003-00380"
+   ]
+  },
+  "S002-2026-10-04-A04-S2-018": {
+   "code": "0689544080206",
+   "confidence": "sure",
+   "why": "Fage Total 2% 5. oz means 5.3 oz",
+   "invented": false,
+   "reads": [
+    "D-S002-W003-00381"
+   ]
+  },
+  "S001-2026-10-04-A04-S3-016": {
+   "code": null,
+   "confidence": "likely",
+   "why": "Two Kerrygold 8 oz rows; read lacks salted",
+   "invented": false,
+   "reads": [
+    "D-S001-W003-00383"
+   ]
+  },
+  "S001-2026-10-04-A04-S2-019": {
+   "code": "0689544083016",
+   "confidence": "sure",
+   "why": "Fage Total 0% 32oz",
+   "invented": false,
+   "reads": [
+    "D-S001-W003-00385"
+   ]
+  },
+  "S001-2026-10-04-A04-S2-020": {
+   "code": null,
+   "confidence": "sure",
+   "why": "Fage 0% in 5.3oz and 32oz, no size read",
+   "invented": false,
+   "reads": [
+    "D-S001-W003-00386"
+   ]
+  },
+  "S002-2026-10-04-A04-S3-015": {
+   "code": null,
+   "confidence": "likely",
+   "why": "Two Kerrygold 8 oz rows; read lacks salted",
+   "invented": false,
+   "reads": [
+    "D-S002-W003-00385"
+   ]
+  },
+  "S002-2026-10-04-A04-S2-019": {
+   "code": "0689544083016",
+   "confidence": "sure",
+   "why": "Fage Total 0% 32oz",
+   "invented": false,
+   "reads": [
+    "D-S002-W003-00387"
+   ]
+  },
+  "S002-2026-10-04-A04-S2-020": {
+   "code": null,
+   "confidence": "sure",
+   "why": "Fage 0% in two sizes, no size read",
+   "invented": false,
+   "reads": [
+    "D-S002-W003-00388"
+   ]
+  },
+  "S002-2026-10-04-A04-S1-022": {
+   "code": null,
+   "confidence": "sure",
+   "why": "Several Chobani vanilla candidates; read cut at V",
+   "invented": false,
+   "reads": [
+    "D-S002-W003-00389"
+   ]
+  },
+  "S003-2026-10-04-A04-S3-017": {
+   "code": null,
+   "confidence": "sure",
+   "why": "Two Kerrygold butter rows fit the truncated read",
+   "invented": false,
+   "reads": [
+    "D-S003-W003-00387"
+   ]
+  },
+  "S003-2026-10-04-A04-S2-020": {
+   "code": null,
+   "confidence": "sure",
+   "why": "Fage 0% in two sizes, no size read",
+   "invented": false,
+   "reads": [
+    "D-S003-W003-00389"
+   ]
+  },
+  "S001-2026-10-04-A04-S2-021": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Total 0 matches 5.3oz and 32oz sizes; no size read",
+   "invented": false,
+   "reads": [
+    "D-S001-W003-00391"
+   ]
+  },
+  "S002-2026-10-04-A04-S2-021": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Fage Total, fat percent and size unreadable",
+   "invented": false,
+   "reads": [
+    "D-S002-W003-00393"
+   ]
+  },
+  "S003-2026-10-04-A04-S2-022": {
+   "code": "0689544080008",
+   "confidence": "sure",
+   "why": "Fage Total 0% 5.3oz fully matches",
+   "invented": false,
+   "reads": [
+    "D-S003-W003-00398"
+   ]
+  },
+  "S001-2026-10-04-A04-S2-023": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Total 0 fits 5.3oz and 32oz; no size",
+   "invented": false,
+   "reads": [
+    "D-S001-W003-00399"
+   ]
+  },
+  "S002-2026-10-04-A04-S2-023": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Total 0 fits 5.3oz and 32oz; no size",
+   "invented": false,
+   "reads": [
+    "D-S002-W003-00401"
+   ]
+  },
+  "S002-2026-10-04-A04-S2-024": {
+   "code": "0811620021982",
+   "confidence": "likely",
+   "why": "Generic Core Power High Protein Milk Shake, no flavor or size",
+   "invented": false,
+   "reads": [
+    "D-S002-W003-00405"
+   ]
+  },
+  "S002-2026-10-04-A04-S1-028": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Many Chobani Greek yogurts fit; no flavor or size",
+   "invented": false,
+   "reads": [
+    "D-S002-W003-00410"
+   ]
+  },
+  "S001-2026-10-04-A04-S3-023": {
+   "code": "4099100150889",
+   "confidence": "sure",
+   "why": "Friendly Farms nonfat Greek yogurt, 85 g truncated 850 g",
+   "invented": false,
+   "reads": [
+    "D-S001-W003-00410"
+   ]
+  },
+  "S003-2026-10-04-A04-S3-023": {
+   "code": "4099100150889",
+   "confidence": "sure",
+   "why": "Friendly Farms nonfat Greek yogurt 850 g",
+   "invented": false,
+   "reads": [
+    "D-S003-W003-00412"
+   ]
+  },
+  "S002-2026-10-04-A04-S1-030": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Chobani Greek Yogurt B ambiguous; Blueberry likely but cut",
+   "invented": false,
+   "reads": [
+    "D-S002-W003-00418"
+   ]
+  },
+  "S003-2026-10-04-A04-S3-024": {
+   "code": "4099100150889",
+   "confidence": "sure",
+   "why": "Friendly Farms nonfat Greek yogurt, size truncated",
+   "invented": false,
+   "reads": [
+    "D-S003-W003-00415"
+   ]
+  },
+  "S003-2026-10-04-A04-S1-030": {
+   "code": "0894700010052",
+   "confidence": "likely",
+   "why": "Blue matches Blueberry on the Bottom",
+   "invented": false,
+   "reads": [
+    "D-S003-W003-00416"
+   ]
+  },
+  "S001-2026-10-04-A04-S1-029": {
+   "code": "0041570056707",
+   "confidence": "sure",
+   "why": "Blue Diamond almondmilk 1.9l matches 1.89l",
+   "invented": false,
+   "reads": [
+    "D-S001-W003-00424"
+   ]
+  },
+  "S001-2026-10-04-A04-S1-030": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Almond fits both almondmilk and Nut Thins",
+   "invented": false,
+   "reads": [
+    "D-S001-W003-00428"
+   ]
+  },
+  "S002-2026-10-04-A04-S3-026": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Many fairlife products fit; no detail",
+   "invented": false,
+   "reads": [
+    "D-S002-W003-00428"
+   ]
+  },
+  "S002-2026-10-04-A04-S1-033": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Blue Diamond brand fits two products",
+   "invented": false,
+   "reads": [
+    "D-S002-W003-00430"
+   ]
+  },
+  "S003-2026-10-04-A04-S2-027": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Daisy sour cream has several sizes; none read",
+   "invented": false,
+   "reads": [
+    "D-S003-W003-00427"
+   ]
+  },
+  "S002-2026-10-04-A05-S3-001": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Orgain Organic Protein two sizes; no size read",
+   "invented": false,
+   "reads": [
+    "D-S002-W003-00432"
+   ]
+  },
+  "S001-2026-10-04-A05-S3-002": {
+   "code": "0851770008631",
+   "confidence": "likely",
+   "why": "1.2 KG matches the 1.2 kg entry",
+   "invented": false,
+   "reads": [
+    "D-S001-W003-00433"
+   ]
+  },
+  "S003-2026-10-04-A05-S4-002": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Two RXBAR Chocolate Sea Salt entries fit equally",
+   "invented": false,
+   "reads": [
+    "D-S003-W003-00432"
+   ]
+  },
+  "S003-2026-10-04-A05-S3-002": {
+   "code": "0851770008631",
+   "confidence": "likely",
+   "why": "1.2 kg matches the 1.2 kg entry",
+   "invented": false,
+   "reads": [
+    "D-S003-W003-00433"
+   ]
+  },
+  "S002-2026-10-04-A05-S3-003": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Orgain Organic Protein two sizes; no size read",
+   "invented": false,
+   "reads": [
+    "D-S002-W003-00440"
+   ]
+  },
+  "S002-2026-10-04-A05-S4-004": {
+   "code": "0193908007292",
+   "confidence": "sure",
+   "why": "RXBAR Protein Bars matches",
+   "invented": false,
+   "reads": [
+    "D-S002-W003-00443"
+   ]
+  },
+  "S002-2026-10-04-A05-S1-005": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Several Core Power products fit",
+   "invented": false,
+   "reads": [
+    "D-S002-W003-00450"
+   ]
+  },
+  "S002-2026-10-04-A05-S1-006": {
+   "code": "0811620021968",
+   "confidence": "likely",
+   "why": "Core Power Milkshake 14oz spelling matches Vanilla entry",
+   "invented": false,
+   "reads": [
+    "D-S002-W003-00454"
+   ]
+  },
+  "S002-2026-10-04-A05-S4-008": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Vital Proteins collagen; no size shown, two sizes fit",
+   "invented": false,
+   "reads": [
+    "D-S002-W003-00459"
+   ]
+  },
+  "S003-2026-10-04-A05-S4-008": {
+   "code": "0850019568240",
+   "confidence": "sure",
+   "why": "Read includes 'I tablespoon', matching that size",
+   "invented": false,
+   "reads": [
+    "D-S003-W003-00456"
+   ]
+  },
+  "S001-2026-10-04-A05-S4-008": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Vital Proteins collagen; no size shown, two sizes fit",
+   "invented": false,
+   "reads": [
+    "D-S001-W003-00459"
+   ]
+  },
+  "S001-2026-10-04-A05-S3-009": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Premier Protein Vanilla matches two candidate codes",
+   "invented": false,
+   "reads": [
+    "D-S001-W003-00460"
+   ]
+  },
+  "S003-2026-10-04-A05-S4-009": {
+   "code": "0857273008666",
+   "confidence": "sure",
+   "why": "Vital Proteins collagen with 24 oz",
+   "invented": false,
+   "reads": [
+    "D-S003-W003-00460"
+   ]
+  },
+  "S003-2026-10-04-A05-S3-009": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Premier Protein v matches two vanilla candidates",
+   "invented": false,
+   "reads": [
+    "D-S003-W003-00461"
+   ]
+  },
+  "S001-2026-10-04-A05-S4-009": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Vital Proteins collagen; no size shown, two sizes fit",
+   "invented": false,
+   "reads": [
+    "D-S001-W003-00463"
+   ]
+  },
+  "S001-2026-10-04-A05-S3-010": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Premier Protein Va matches two vanilla candidates",
+   "invented": false,
+   "reads": [
+    "D-S001-W003-00464"
+   ]
+  },
+  "S002-2026-10-04-A05-S4-010": {
+   "code": "0857273008666",
+   "confidence": "sure",
+   "why": "Vital Proteins collagen with 24 oz",
+   "invented": false,
+   "reads": [
+    "D-S002-W003-00465"
+   ]
+  },
+  "S003-2026-10-04-A05-S4-010": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Vital Proteins; no size readable, two sizes fit",
+   "invented": false,
+   "reads": [
+    "D-S003-W003-00464"
+   ]
+  },
+  "S001-2026-10-04-A05-S3-011": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Premier Protein Vani matches two vanilla candidates",
+   "invented": false,
+   "reads": [
+    "D-S001-W003-00469"
+   ]
+  },
+  "S002-2026-10-04-A05-S4-011": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Vital Proteins collagen; no size shown, two sizes fit",
+   "invented": false,
+   "reads": [
+    "D-S002-W003-00468"
+   ]
+  },
+  "S003-2026-10-04-A05-S4-011": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Vital Proteins collagen; no size shown, two sizes fit",
+   "invented": false,
+   "reads": [
+    "D-S003-W003-00468"
+   ]
+  },
+  "S001-2026-10-04-A05-S2-013": {
+   "code": "0851770007566",
+   "confidence": "sure",
+   "why": "Orgain Organic Protein with 43.2 oz 1.22kg",
+   "invented": false,
+   "reads": [
+    "D-S001-W003-00477"
+   ]
+  },
+  "S002-2026-10-04-A05-S2-012": {
+   "code": "0851770007566",
+   "confidence": "sure",
+   "why": "Orgain Organic Protein with 43.2 oz 1.22kg",
+   "invented": false,
+   "reads": [
+    "D-S002-W003-00477"
+   ]
+  },
+  "S002-2026-10-04-A05-S2-013": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Orgain Organic Protein; two sizes, none in read",
+   "invented": false,
+   "reads": [
+    "D-S002-W003-00480"
+   ]
+  },
+  "S003-2026-10-04-A05-S2-013": {
+   "code": "0851770007566",
+   "confidence": "sure",
+   "why": "Orgain Organic Protein with 43.2 oz 1.22kg",
+   "invented": false,
+   "reads": [
+    "D-S003-W003-00481"
+   ]
+  },
+  "S001-2026-10-04-A05-S2-015": {
+   "code": "0851770007566",
+   "confidence": "sure",
+   "why": "Orgain Organic Protein, 43.2 oz, 1.22kg",
+   "invented": false,
+   "reads": [
+    "D-S001-W003-00483"
+   ]
+  },
+  "S002-2026-10-04-A06-S1-001": {
+   "code": null,
+   "confidence": "unsure",
+   "why": "Colgate matches two products; read too short",
+   "invented": false,
+   "reads": [
+    "D-S002-W003-00488"
+   ]
+  },
+  "S003-2026-10-04-A07-S4-001": {
+   "code": "0030772121436",
+   "confidence": "likely",
+   "why": "'Ti Detergnt' fits Tide Detergent",
+   "invented": false,
+   "reads": [
+    "D-S003-W003-00537"
+   ]
+  },
+  "S001-2026-10-04-A07-S2-008": {
+   "code": "0078742204666",
+   "confidence": "likely",
+   "why": "Great Value steel wool fits; Brillo is other brand",
+   "invented": false,
+   "reads": [
+    "D-S001-W003-00563"
+   ]
+  }
+ }
+}

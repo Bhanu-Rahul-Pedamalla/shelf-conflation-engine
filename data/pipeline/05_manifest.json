@@ -1,0 +1,68 @@
+{
+ "stage": 5,
+ "name": "language model",
+ "input": {
+  "path": "data/pipeline/04_reads.jsonl",
+  "rows": 5705,
+  "open_reads": 163,
+  "open_spots": 159
+ },
+ "output": {
+  "path": "data/pipeline/05_reads.jsonl",
+  "rows": 5705,
+  "fields_added": [
+   "match_llm_confidence",
+   "match_llm_why"
+  ]
+ },
+ "rules": {
+  "model": "claude-haiku-5-5",
+  "candidates": 10,
+  "batch": 25,
+  "accept": [
+   "sure"
+  ],
+  "effort": "low",
+  "prices_usd_per_million": {
+   "input": 0.1,
+   "output": 0.5
+  },
+  "prices_source": "https://platform.claude.com/docs/en/about-claude/pricing"
+ },
+ "bill": {
+  "calls": 7,
+  "api_calls": 0,
+  "cached_calls": 7,
+  "input_tokens": 80688,
+  "output_tokens": 22946,
+  "usd": 0.0195,
+  "model": "claude-haiku-5-5"
+ },
+ "answered_here": 47,
+ "spots_by_outcome": {
+  "model said none": 91,
+  "below accepted confidence": 23,
+  "no answer returned": 1,
+  "invented code": 0
+ },
+ "answered": 5589,
+ "by_method": {
+  "barcode": 821,
+  "other day": 557,
+  "exact text": 2249,
+  "same spot": 225,
+  "close spelling": 1690,
+  "no answer": 116,
+  "language model": 47
+ },
+ "checks": {
+  "rows in = rows out": true,
+  "same ids in the same order": true,
+  "every original field unchanged": true,
+  "no earlier answer changed": true,
+  "every answer is a catalog code": true,
+  "every answer here is one of the candidates shown": true,
+  "answered + no answer = rows": true,
+  "every unanswered row says why": true
+ }
+}

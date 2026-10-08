@@ -387,15 +387,16 @@ def score_llm_measurement(model=None):
     for key in ("sure", "likely", "unsure", "none"):
         if key in table:
             c = table[key]
-            pct = f"{100 * c['right'] / c['spots']:5.1f}%" if a and c["spots"] and key != "none" else ""
+            pct = f"{100 * c['right'] / c['spots']:5.1f}%" if c["spots"] and key != "none" else ""
             print(f"  {key:<14} {c['spots']:>5} {c['right']:>5} {c['wrong']:>5}   {pct}")
+    print(f"  {'no reply':<14} {len(m.get('spots_without_reply', [])):>5}   (left out of the model's array; those reads stay open)")
     print("\n  every wrong answer")
     for spot, a, true_codes in wrong:
         reads = [r for r in read_jsonl(PIPELINE / "03_reads.jsonl") if r["spot_id"] == spot]
         print(f"  {spot}  reads {[r['ocr_text'] for r in reads]}  ({a['confidence']}: {a['why']})")
         print(f"      answered {a['code']}  {product_label(products, a['code'])}")
         print(f"      truth    {', '.join(product_label(products, t) for t in true_codes)}")
-    if stage5:
+    if stage5 and stage5["rules"]["model"] == model:
         print(f"\n  with the other-days tier, stage 5 asked about {stage5['input']['open_spots']} spots for USD {stage5['bill']['usd']:.4f}; "
               f"without it, {m['spots_asked']} spots for USD {m['bill']['usd']:.4f}")
     return True
