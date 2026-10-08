@@ -1,0 +1,147 @@
+{
+ "stage": 2,
+ "name": "exact match",
+ "input": {
+  "path": "data/pipeline/01_reads.jsonl",
+  "rows": 5705,
+  "catalogs": {
+   "v1": "data/catalog_raw.jsonl",
+   "v2": "data/catalog_v2.jsonl"
+  },
+  "catalog_codes": 303,
+  "catalog_texts": 305
+ },
+ "output": {
+  "path": "data/pipeline/02_reads.jsonl",
+  "rows": 5705,
+  "fields_added": [
+   "match_code",
+   "match_method",
+   "match_catalog",
+   "match_note"
+  ]
+ },
+ "answered": 3070,
+ "by_method": {
+  "barcode": 821,
+  "no answer": 2635,
+  "exact text": 2249
+ },
+ "no_answer_by_note": {
+  "no barcode, text fits 0 rows": 2628,
+  "no barcode, text fits 2 rows": 7
+ },
+ "answer_catalog": {
+  "v1 v2": 3048,
+  "v1": 9,
+  "v2": 13
+ },
+ "barcode_and_text_both": 385,
+ "barcode_and_text_disagree": 0,
+ "by_walk": [
+  {
+   "store_id": "S001",
+   "walk_id": "W001",
+   "rows": 603,
+   "barcode": 83,
+   "exact text": 241,
+   "no answer": 279
+  },
+  {
+   "store_id": "S001",
+   "walk_id": "W002",
+   "rows": 612,
+   "barcode": 84,
+   "exact text": 221,
+   "no answer": 307
+  },
+  {
+   "store_id": "S001",
+   "walk_id": "W003",
+   "rows": 607,
+   "barcode": 99,
+   "exact text": 244,
+   "no answer": 264
+  },
+  {
+   "store_id": "S001",
+   "walk_id": "W004",
+   "rows": 56,
+   "barcode": 6,
+   "exact text": 21,
+   "no answer": 29
+  },
+  {
+   "store_id": "S002",
+   "walk_id": "W001",
+   "rows": 599,
+   "barcode": 104,
+   "exact text": 246,
+   "no answer": 249
+  },
+  {
+   "store_id": "S002",
+   "walk_id": "W002",
+   "rows": 622,
+   "barcode": 81,
+   "exact text": 252,
+   "no answer": 289
+  },
+  {
+   "store_id": "S002",
+   "walk_id": "W003",
+   "rows": 621,
+   "barcode": 82,
+   "exact text": 225,
+   "no answer": 314
+  },
+  {
+   "store_id": "S002",
+   "walk_id": "W004",
+   "rows": 48,
+   "barcode": 6,
+   "exact text": 28,
+   "no answer": 14
+  },
+  {
+   "store_id": "S003",
+   "walk_id": "W001",
+   "rows": 600,
+   "barcode": 89,
+   "exact text": 225,
+   "no answer": 286
+  },
+  {
+   "store_id": "S003",
+   "walk_id": "W002",
+   "rows": 621,
+   "barcode": 80,
+   "exact text": 269,
+   "no answer": 272
+  },
+  {
+   "store_id": "S003",
+   "walk_id": "W003",
+   "rows": 612,
+   "barcode": 90,
+   "exact text": 235,
+   "no answer": 287
+  },
+  {
+   "store_id": "S003",
+   "walk_id": "W004",
+   "rows": 104,
+   "barcode": 17,
+   "exact text": 42,
+   "no answer": 45
+  }
+ ],
+ "checks": {
+  "rows in = rows out": true,
+  "same ids in the same order": true,
+  "every original field unchanged": true,
+  "every answer is a catalog code": true,
+  "answered + no answer = rows": true,
+  "every unanswered row says why": true
+ }
+}

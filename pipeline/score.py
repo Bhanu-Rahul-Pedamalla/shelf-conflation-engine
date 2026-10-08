@@ -2,6 +2,7 @@
 
     python pipeline/score.py ingest       # stage 0 against the truth
     python pipeline/score.py normalize    # stage 1 against the truth
+    python pipeline/score.py exact        # stage 2 against the truth
 
 This is the only pipeline file that reads a truth file: data/detections_truth.csv and
 data/malformed_truth.csv. A matcher hands over its answers and gets back right / wrong / no answer.
@@ -147,6 +148,59 @@ def score_normalize():
     return clean
 
 
+def score_exact():
+    """Stage 2 against the truth: right, wrong and no answer, by method, next to the naive baseline;
+    every wrong answer named; and the answers that name a product only v1 lists checked against
+    the truth's own record of which catalog the label came from."""
+    rows = read_jsonl(PIPELINE / "02_reads.jsonl")
+    manifest = json.loads((PIPELINE / "02_manifest.json").read_text(encoding="utf-8"))
+    products = {}
+    for path in (ROOT / "data" / "catalog_raw.jsonl", ROOT / "data" / "catalog_v2.jsonl"):
+        for p in read_jsonl(path):
+            products.setdefault(p["code"], p)
+    with (ROOT / "data" / "baseline_results.csv").open(encoding="utf-8") as f:
+        baseline = collections.Counter(b["outcome"] for b in csv.DictReader(f))
+
+    scored = score({r["detection_id"]: r["match_code"] for r in rows})
+    by_id = {r["detection_id"]: r for r in rows}
+    results = {"naive baseline": None, "stage 2, barcode": [s for s in scored if by_id[s["detection_id"]]["match_method"] == "barcode"],
+               "stage 2, exact text": [s for s in scored if by_id[s["detection_id"]]["match_method"] == "exact text"],
+               "stage 2, all": scored}
+    t = tally(scored)
+    print("SCORE  stage 2 exact match against the truth")
+    print(f"  rows {len(rows)}, scored {len(scored)}, rows without a truth row: {len(rows) - len(scored)}")
+    print(f"  {'attempt':<24} {'right':>5} {'wrong':>5} {'no answer':>9}   right %")
+    print(f"  {'naive baseline':<24} {baseline['right']:>5} {baseline['wrong']:>5} {baseline['no answer']:>9}   "
+          f"{100 * baseline['right'] / sum(baseline.values()):5.1f}%")
+    for name, part in results.items():
+        if part is None:
+            continue
+        c = tally(part)
+        print(f"  {name:<24} {c['right']:>5} {c['wrong']:>5} {c['no answer']:>9}   "
+              f"{100 * c['right'] / len(scored):5.1f}%")
+    print(f"  gain over the baseline: {t['right'] - baseline['right']} more right, "
+          f"{t['wrong'] - baseline['wrong']:+d} wrong")
+
+    label = lambda code: " · ".join(x for x in (products[code].get("brands"), products[code].get("product_name"),
+                                                 products[code].get("quantity")) if x)
+    print("\n  every wrong answer")
+    for s in scored:
+        if s["outcome"] == "wrong":
+            print(f"  {s['detection_id']}  read {by_id[s['detection_id']]['ocr_text']!r} ({s['damage']})")
+            print(f"      answered {s['answer']}  {label(s['answer'])}")
+            print(f"      truth    {s['true_code']}  {label(s['true_code'])}")
+
+    v1_only = [s for s in scored if by_id[s["detection_id"]]["match_catalog"] == "v1"]
+    v1_only_ok = sum(1 for s in v1_only if s["label_catalog"] == "v1" and s["outcome"] == "right")
+    print(f"\n  answers naming a product only v1 lists: {len(v1_only)}, of which the label really came from v1 "
+          f"and the answer is right: {v1_only_ok}")
+    for name, ok in manifest["checks"].items():
+        print(f"  CHECK    {name}: {ok}")
+    clean = len(rows) == len(scored) and all(manifest["checks"].values()) and v1_only_ok == len(v1_only)
+    print(f"  RESULT   {'stage 2 answered ' + str(t['right'] + t['wrong']) + ' reads, ' + str(t['wrong']) + ' wrong, nothing lost' if clean else 'stage 2 FAILED'}")
+    return clean
+
+
 def main():
     sys.stdout.reconfigure(encoding="utf-8")
     stage = sys.argv[1] if len(sys.argv) > 1 else ""
@@ -154,7 +208,9 @@ def main():
         return 0 if score_ingest() else 1
     if stage == "normalize":
         return 0 if score_normalize() else 1
-    sys.exit("usage: python pipeline/score.py ingest | normalize")
+    if stage == "exact":
+        return 0 if score_exact() else 1
+    sys.exit("usage: python pipeline/score.py ingest | normalize | exact")
 
 
 if __name__ == "__main__":
