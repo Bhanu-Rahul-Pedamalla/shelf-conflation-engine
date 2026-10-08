@@ -1,0 +1,56 @@
+{
+ "stage": 3,
+ "name": "close spelling",
+ "input": {
+  "path": "data/pipeline/02_reads.jsonl",
+  "rows": 5705
+ },
+ "output": {
+  "path": "data/pipeline/03_reads.jsonl",
+  "rows": 5705,
+  "fields_added": [
+   "spot_id",
+   "match_score",
+   "match_gap"
+  ]
+ },
+ "rules": {
+  "box_overlap": 0.5,
+  "same_spot_m": 0.06,
+  "scorer": "partial_ratio",
+  "block": "first word",
+  "score_min": 80,
+  "gap_min": 10
+ },
+ "spots": {
+  "count": 5258,
+  "sizes": {
+   "1": 4832,
+   "2": 406,
+   "3": 19,
+   "4": 1
+  }
+ },
+ "answered_here": {
+  "same spot": 225,
+  "close spelling": 1690
+ },
+ "answered": 4985,
+ "by_method": {
+  "barcode": 821,
+  "no answer": 720,
+  "exact text": 2249,
+  "same spot": 225,
+  "close spelling": 1690
+ },
+ "checks": {
+  "rows in = rows out": true,
+  "same ids in the same order": true,
+  "every original field unchanged": true,
+  "no stage 2 answer changed": true,
+  "every answer is a catalog code": true,
+  "answered + no answer = rows": true,
+  "every unanswered row says why": true,
+  "every read has a spot": true
+ }
+}

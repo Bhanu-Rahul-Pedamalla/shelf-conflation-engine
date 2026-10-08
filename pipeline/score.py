@@ -3,6 +3,7 @@
     python pipeline/score.py ingest       # stage 0 against the truth
     python pipeline/score.py normalize    # stage 1 against the truth
     python pipeline/score.py exact        # stage 2 against the truth
+    python pipeline/score.py fuzzy        # stage 3 against the truth; --curve re-measures the spelling rule
 
 This is the only pipeline file that reads a truth file: data/detections_truth.csv and
 data/malformed_truth.csv. A matcher hands over its answers and gets back right / wrong / no answer.
@@ -201,6 +202,96 @@ def score_exact():
     return clean
 
 
+def product_label(products, code):
+    p = products[code]
+    return " · ".join(x for x in (p.get("brands"), p.get("product_name"), p.get("quantity")) if x)
+
+
+def score_fuzzy(curve=False):
+    """Stage 3 against the truth: right, wrong and no answer by method next to stage 2 and the
+    baseline; every wrong answer named; the spots checked against the truth's facings; and, with
+    --curve, the right/wrong counts of the spelling rule across thresholds and gaps, re-measured."""
+    rows = read_jsonl(PIPELINE / "03_reads.jsonl")
+    prev = read_jsonl(PIPELINE / "02_reads.jsonl")
+    manifest = json.loads((PIPELINE / "03_manifest.json").read_text(encoding="utf-8"))
+    products = {}
+    for path in (ROOT / "data" / "catalog_raw.jsonl", ROOT / "data" / "catalog_v2.jsonl"):
+        for p in read_jsonl(path):
+            products.setdefault(p["code"], p)
+    with (ROOT / "data" / "baseline_results.csv").open(encoding="utf-8") as f:
+        baseline = collections.Counter(b["outcome"] for b in csv.DictReader(f))
+
+    scored = score({r["detection_id"]: r["match_code"] for r in rows})
+    stage2 = tally(score({r["detection_id"]: r["match_code"] for r in prev}))
+    by_id = {r["detection_id"]: r for r in rows}
+    t = tally(scored)
+    print("SCORE  stage 3 close spelling against the truth")
+    print(f"  rows {len(rows)}, scored {len(scored)}, rows without a truth row: {len(rows) - len(scored)}")
+    print(f"  {'attempt':<26} {'right':>5} {'wrong':>5} {'no answer':>9}   right %")
+    for name, c in (("naive baseline", baseline), ("stage 2", stage2)):
+        print(f"  {name:<26} {c['right']:>5} {c['wrong']:>5} {c['no answer']:>9}   {100 * c['right'] / len(scored):5.1f}%")
+    for method in ("barcode", "exact text", "same spot", "close spelling"):
+        c = tally([s for s in scored if by_id[s["detection_id"]]["match_method"] == method])
+        print(f"  {'stage 3, ' + method:<26} {c['right']:>5} {c['wrong']:>5} {'':>9}")
+    print(f"  {'stage 3, all':<26} {t['right']:>5} {t['wrong']:>5} {t['no answer']:>9}   {100 * t['right'] / len(scored):5.1f}%")
+    print(f"  gain over stage 2: {t['right'] - stage2['right']} more right, {t['wrong'] - stage2['wrong']:+d} wrong")
+
+    print("\n  every wrong answer")
+    for s in scored:
+        if s["outcome"] == "wrong":
+            r = by_id[s["detection_id"]]
+            how = f"{r['match_method']}" + (f", score {r['match_score']} gap {r['match_gap']}" if "match_score" in r else "")
+            print(f"  {s['detection_id']}  read {r['ocr_text']!r} ({s['damage']}; {how})")
+            print(f"      answered {s['answer']}  {product_label(products, s['answer'])}")
+            print(f"      truth    {s['true_code']}  {product_label(products, s['true_code'])}")
+
+    facing = lambda s: (s["store_id"], s["aisle"], s["shelf"], s["position"], s["facing"])
+    truth_of = {s["detection_id"]: s for s in scored}
+    spots = {}
+    for r in rows:
+        spots.setdefault(r["spot_id"], []).append(r)
+    mixed = [spot for spot, ms in spots.items() if len({facing(truth_of[m["detection_id"]]) for m in ms}) > 1]
+    doubles = sum(1 for s in scored if s["extra"] == "double_in_frame")
+    second = sum(1 for s in scored if s["extra"] == "second_badge")
+    joined_doubles = sum(1 for s in scored if s["extra"] == "double_in_frame"
+                         and by_id[s["detection_id"]]["spot_id"] == by_id[s["duplicate_of"]]["spot_id"])
+    print(f"\n  spots {len(spots)}: holding reads of more than one facing {len(mixed)}")
+    print(f"  second boxes joined to their first box: {joined_doubles} of {doubles}; second-badge reads: {second} "
+          f"(a second-badge read is joined when the first badge's read of the facing lies within the rule's distance)")
+    for name, ok in manifest["checks"].items():
+        print(f"  CHECK    {name}: {ok}")
+
+    if curve:
+        import match_fuzzy   # pipeline/match_fuzzy.py, for the same candidates and block
+        from rapidfuzz import fuzz, process
+        codes_of_text, _, by_first = match_fuzzy.load_candidates()
+        open_rows = [r for r in prev if not r["match_code"] and r["text_norm"]]
+        print(f"\n  the spelling rule re-measured on the {len(open_rows)} reads with text that stage 2 left open "
+              f"(before the spot rule), right/wrong at each threshold")
+        for scorer_name, scorer in (("partial_ratio", fuzz.partial_ratio), ("ratio", fuzz.ratio)):
+            for block in ("first word", "none"):
+                found = []
+                for r in open_rows:
+                    pool = (by_first.get(r["text_norm"].split()[0]) if block == "first word" else None) or list(codes_of_text)
+                    got = process.extract(r["text_norm"], pool, scorer=scorer, limit=2)
+                    codes = codes_of_text[got[0][0]]
+                    found.append((truth_of[r["detection_id"]]["true_code"], next(iter(codes)) if len(codes) == 1 else None,
+                                  got[0][1], got[1][1] if len(got) > 1 else 0))
+                print(f"  {scorer_name} / block {block}")
+                print("    gap    " + "".join(f"{'t=' + str(th):>10}" for th in range(50, 101, 5)))
+                for gap in (0, 5, 10, 15):
+                    cells = []
+                    for th in range(50, 101, 5):
+                        right = sum(1 for tc, c, s1, s2 in found if c and s1 >= th and s1 - s2 >= gap and c == tc)
+                        wrong = sum(1 for tc, c, s1, s2 in found if c and s1 >= th and s1 - s2 >= gap and c != tc)
+                        cells.append(f"{right:>5}/{wrong:<4}")
+                    print(f"    {gap:<6} " + "".join(cells))
+
+    clean = len(rows) == len(scored) and all(manifest["checks"].values())
+    print(f"  RESULT   {'stage 3 answered ' + str(t['right'] + t['wrong']) + ' reads in all, ' + str(t['wrong']) + ' wrong, nothing lost' if clean else 'stage 3 FAILED'}")
+    return clean
+
+
 def main():
     sys.stdout.reconfigure(encoding="utf-8")
     stage = sys.argv[1] if len(sys.argv) > 1 else ""
@@ -210,7 +301,9 @@ def main():
         return 0 if score_normalize() else 1
     if stage == "exact":
         return 0 if score_exact() else 1
-    sys.exit("usage: python pipeline/score.py ingest | normalize | exact")
+    if stage == "fuzzy":
+        return 0 if score_fuzzy(curve="--curve" in sys.argv) else 1
+    sys.exit("usage: python pipeline/score.py ingest | normalize | exact | fuzzy [--curve]")
 
 
 if __name__ == "__main__":
