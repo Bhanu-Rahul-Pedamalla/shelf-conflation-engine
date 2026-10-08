@@ -1,0 +1,58 @@
+{
+ "stage": 6,
+ "name": "golden record",
+ "input": {
+  "path": "data/pipeline/05_reads.jsonl",
+  "rows": 5705
+ },
+ "output": {
+  "path": "data/pipeline/06_golden.jsonl",
+  "records": 1763
+ },
+ "rules": {
+  "slot_m": 0.2,
+  "method_rank": {
+   "barcode": 1,
+   "exact text": 2,
+   "close spelling": 3,
+   "same spot": 4,
+   "other day": 5,
+   "language model": 6
+  },
+  "survivorship": "best method rank, then most reads; even split contested; a code absent from the catalog version in effect retires to history when a current code competes",
+  "catalog_v2_effective_from": "2026-10-03"
+ },
+ "records_by_status": {
+  "one product": 1741,
+  "no answer": 18,
+  "contested": 1,
+  "dissent outvoted": 3
+ },
+ "records_by_method": {
+  "barcode": 697,
+  "exact text": 901,
+  "close spelling": 120,
+  "language model": 25,
+  "other day": 1
+ },
+ "records_by_catalog_version": {
+  "v2": 1728,
+  "v1": 16
+ },
+ "records_by_store": {
+  "S001": 587,
+  "S002": 588,
+  "S003": 588
+ },
+ "records_with_history": 8,
+ "products_not_in_version": 3,
+ "checks": {
+  "every read in exactly one record": true,
+  "one record per store, aisle, shelf and slot": true,
+  "supporting + dissenting + history + open = reads, in every record": true,
+  "every product is a catalog code": true,
+  "every product has a supporting read, first seen on or before last seen": true,
+  "every history product is absent from the catalog version in effect": true,
+  "a contested record names two or more candidates and no product": true
+ }
+}

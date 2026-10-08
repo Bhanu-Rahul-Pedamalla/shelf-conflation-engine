@@ -4,9 +4,10 @@
     python pipeline/score.py normalize    # stage 1 against the truth
     python pipeline/score.py exact        # stage 2 against the truth
     python pipeline/score.py fuzzy        # stage 3 against the truth; --curve re-measures the spelling rule
+    python pipeline/score.py crossday     # stage 4; llm, llm --measurement: stage 5; golden: stage 6, the record against the shelf truth
 
-This is the only pipeline file that reads a truth file: data/detections_truth.csv and
-data/malformed_truth.csv. A matcher hands over its answers and gets back right / wrong / no answer.
+This is the only pipeline file that reads a truth file: data/detections_truth.csv, data/malformed_truth.csv
+and data/shelf_truth_day*.csv. A matcher hands over its answers and gets back right / wrong / no answer.
 A stage hands over its output and gets back what it kept, lost or let through that it should not have.
 """
 import collections
@@ -351,7 +352,9 @@ def main():
         return 0 if score_llm_measurement(sys.argv[sys.argv.index("--model") + 1] if "--model" in sys.argv else None) else 1
     if stage == "llm":
         return 0 if score_stage(5, "language model", "language model", 4) else 1
-    sys.exit("usage: python pipeline/score.py ingest | normalize | exact | fuzzy [--curve] | crossday | llm [--measurement [--model id]]")
+    if stage == "golden":
+        return 0 if score_golden() else 1
+    sys.exit("usage: python pipeline/score.py ingest | normalize | exact | fuzzy [--curve] | crossday | llm [--measurement [--model id]] | golden")
 
 
 def score_llm_measurement(model=None):
@@ -400,6 +403,114 @@ def score_llm_measurement(model=None):
         print(f"\n  with the other-days tier, stage 5 asked about {stage5['input']['open_spots']} spots for USD {stage5['bill']['usd']:.4f}; "
               f"without it, {m['spots_asked']} spots for USD {m['bill']['usd']:.4f}")
     return True
+
+
+def score_golden():
+    """The golden record against the shelf truth: each record's product on the day it was last seen,
+    and against the last day; every wrong or contested record named; the reads the matching stages
+    got wrong, and whether their spot outvoted them."""
+    from golden import RANK
+    records = read_jsonl(PIPELINE / "06_golden.jsonl")
+    manifest = json.loads((PIPELINE / "06_manifest.json").read_text(encoding="utf-8"))
+    reads = read_jsonl(PIPELINE / "05_reads.jsonl")
+    with DET_TRUTH.open(encoding="utf-8") as f:
+        truth = {t["detection_id"]: t for t in csv.DictReader(f)}
+    dates = sorted({d for rec in records for d in rec["days_read"]})
+    day_of = {d: i + 1 for i, d in enumerate(dates)}
+    shelf = collections.defaultdict(dict)
+    for day in day_of.values():
+        with (ROOT / "data" / f"shelf_truth_day{day}.csv").open(encoding="utf-8") as f:
+            for t in csv.DictReader(f):
+                shelf[(t["store_id"], t["aisle"], t["shelf"], t["position"], t["facing"])][day] = t
+    last_day = max(day_of.values())
+    products = load_products()
+
+    def facing_of(rid):
+        t = truth[rid]
+        return (t["store_id"], t["aisle"], t["shelf"], t["position"], t["facing"])
+
+    mixed, records_of_facing = 0, collections.defaultdict(set)
+    correctness, currency, history = collections.Counter(), collections.Counter(), collections.Counter()
+    named = []
+    for rec in records:
+        facings = collections.Counter(facing_of(i) for i in rec["source_reads"])
+        mixed += len(facings) > 1
+        for fc in facings:
+            records_of_facing[fc].add(rec["spot_id"])
+        facing = facings.most_common(1)[0][0]
+        final = shelf[facing][last_day]["actual_code"]
+        for h in rec["history"]:
+            for d in h["days_seen"]:
+                history["right" if shelf[facing][day_of[d]]["actual_code"] == h["product_code"] else "wrong"] += 1
+        if not rec["product_code"]:
+            correctness[rec["status"]] += 1
+            currency[rec["status"]] += 1
+            if rec["status"] == "contested":
+                named.append((rec, facing, None))
+            continue
+        on_last_seen = shelf[facing][day_of[rec["last_seen"][:10]]]["actual_code"]
+        ok = rec["product_code"] == on_last_seen
+        correctness["right on the day last seen" if ok else "wrong on the day last seen"] += 1
+        if not ok:
+            named.append((rec, facing, on_last_seen))
+        if rec["product_code"] == final:
+            currency["current on the last day"] += 1
+        elif final == "":
+            currency["shelf emptied after last seen"] += 1
+        elif ok:
+            currency["shelf changed after last seen"] += 1
+        else:
+            currency["wrong"] += 1
+    never_read = [fc for fc in shelf if fc not in records_of_facing]
+    empty_all_days = sum(1 for fc in never_read if all(t["actual_code"] == "" for t in shelf[fc].values()))
+    split = sum(1 for v in records_of_facing.values() if len(v) > 1)
+
+    print("SCORE  stage 6 golden record against the shelf truth")
+    print(f"  records {len(records)}, truth facings {len(shelf)}: read at least once {len(records_of_facing)}, never read {len(never_read)} "
+          f"(empty on every day: {empty_all_days})")
+    print(f"  records holding a read of a neighbouring facing: {mixed}; facings spread over two records: {split}")
+    print(f"  {'the record, on the day its product was last seen':<52} {'records':>7}")
+    for k, v in sorted(correctness.items(), key=lambda kv: -kv[1]):
+        print(f"  {k:<52} {v:>7}")
+    print(f"  {'the record, against day ' + str(last_day) + ' (the last day)':<52} {'records':>7}")
+    for k, v in sorted(currency.items(), key=lambda kv: -kv[1]):
+        print(f"  {k:<52} {v:>7}")
+    print(f"  history entries (a product the catalog replaced) against the truth of their days: "
+          f"{history.get('right', 0)} right, {history.get('wrong', 0)} wrong")
+    print("\n  every record wrong on the day last seen, and every contested one")
+    for rec, facing, on_last_seen in named:
+        if rec["status"] == "contested":
+            print(f"  {rec['spot_id']}  contested: " + " vs ".join(f"{c['product_label']} ({', '.join(c['reads'])})" for c in rec["candidates"]))
+            print(f"      truth    {product_label(products, shelf[facing][last_day]['actual_code'])}")
+        else:
+            print(f"  {rec['spot_id']}  answered {rec['product_code']}  {rec['product_label']} by {rec['method']} ({', '.join(rec['supporting_reads'])})")
+            print(f"      truth    {product_label(products, on_last_seen)} on {rec['last_seen'][:10]}")
+
+    print("\n  the reads the matching stages got wrong, and what their spot made of them")
+    by_id = {r["detection_id"]: r for r in reads}
+    rec_of = {rid: rec for rec in records for rid in rec["source_reads"]}
+    for s in score({r["detection_id"]: r["match_code"] for r in reads}):
+        if s["outcome"] != "wrong":
+            continue
+        r, rec = by_id[s["detection_id"]], rec_of[s["detection_id"]]
+        print(f"  {r['detection_id']}  {r['ocr_text']!r} said {product_label(products, r['match_code'])} by {r['match_method']}")
+        if r["detection_id"] in rec["supporting_reads"]:
+            verdict = f"NOT outvoted: the record {rec['spot_id']} took it ({len(rec['supporting_reads'])} reads for, {len(rec['dissenting_reads'])} against)"
+        elif rec["status"] == "contested":
+            cands = " vs ".join(f"{len(c['reads'])} for {c['product_label']}" for c in rec["candidates"])
+            verdict = f"not outvoted: {rec['spot_id']} is contested, {cands}; no product recorded"
+        elif RANK[r["match_method"]] > rec["confidence_rank"]:
+            verdict = (f"outranked: {rec['spot_id']} recorded {rec['product_label']} by {rec['method']} "
+                       f"({len(rec['supporting_reads'])} reads) over this {r['match_method']} read")
+        else:
+            verdict = (f"outvoted {len(rec['supporting_reads'])} to {len([d for d in rec['dissenting_reads'] if d['product_code'] == r['match_code']])}: "
+                       f"{rec['spot_id']} recorded {rec['product_label']} by {rec['method']}")
+        print(f"      {verdict}")
+    for cname, ok in manifest["checks"].items():
+        print(f"  CHECK    {cname}: {ok}")
+    clean = all(manifest["checks"].values()) and correctness.get("wrong on the day last seen", 0) == 0 and history.get("wrong", 0) == 0
+    print(f"  RESULT   {'stage 6: ' + str(correctness.get('right on the day last seen', 0)) + ' records right on the day last seen, 0 wrong, ' + str(correctness.get('contested', 0)) + ' contested, ' + str(correctness.get('no answer', 0)) + ' without an answer' if clean else 'stage 6 FAILED'}")
+    return clean
 
 
 if __name__ == "__main__":
