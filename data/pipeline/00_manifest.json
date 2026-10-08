@@ -1,0 +1,149 @@
+{
+ "stage": 0,
+ "name": "ingest",
+ "input": {
+  "path": "data/detections.jsonl",
+  "bytes": 2336632,
+  "sha256": "d65fe574a0cdce1d17a77f491d8261198bf22f31b4415cb4950f601da49c7263",
+  "lines": 5927
+ },
+ "output": {
+  "path": "data/pipeline/00_reads.jsonl",
+  "rows": 5705,
+  "sha256": "d5b4ab9afb8859ea9e43d0c8d16f59379f9313d79911ba2dff34b02139ffb92e"
+ },
+ "quarantine": {
+  "path": "data/pipeline/00_quarantine.jsonl",
+  "rows": 60,
+  "by_reason": {
+   "unreadable": 9,
+   "missing_field": 9,
+   "wrong_type": 9,
+   "bad_timestamp": 9,
+   "out_of_range": 9,
+   "empty_read": 8,
+   "id_conflict": 7
+  }
+ },
+ "duplicates_dropped": 162,
+ "by_walk": [
+  {
+   "store_id": "?",
+   "walk_id": "?",
+   "lines": 9,
+   "rows_out": 0,
+   "duplicates": 0,
+   "quarantined": 9
+  },
+  {
+   "store_id": "?",
+   "walk_id": "W003",
+   "lines": 1,
+   "rows_out": 0,
+   "duplicates": 0,
+   "quarantined": 1
+  },
+  {
+   "store_id": "S001",
+   "walk_id": "W001",
+   "lines": 627,
+   "rows_out": 603,
+   "duplicates": 17,
+   "quarantined": 7
+  },
+  {
+   "store_id": "S001",
+   "walk_id": "W002",
+   "lines": 627,
+   "rows_out": 612,
+   "duplicates": 9,
+   "quarantined": 6
+  },
+  {
+   "store_id": "S001",
+   "walk_id": "W003",
+   "lines": 642,
+   "rows_out": 607,
+   "duplicates": 31,
+   "quarantined": 4
+  },
+  {
+   "store_id": "S001",
+   "walk_id": "W004",
+   "lines": 56,
+   "rows_out": 56,
+   "duplicates": 0,
+   "quarantined": 0
+  },
+  {
+   "store_id": "S002",
+   "walk_id": "W001",
+   "lines": 616,
+   "rows_out": 599,
+   "duplicates": 13,
+   "quarantined": 4
+  },
+  {
+   "store_id": "S002",
+   "walk_id": "W002",
+   "lines": 659,
+   "rows_out": 622,
+   "duplicates": 30,
+   "quarantined": 7
+  },
+  {
+   "store_id": "S002",
+   "walk_id": "W003",
+   "lines": 650,
+   "rows_out": 621,
+   "duplicates": 23,
+   "quarantined": 6
+  },
+  {
+   "store_id": "S002",
+   "walk_id": "W004",
+   "lines": 49,
+   "rows_out": 48,
+   "duplicates": 0,
+   "quarantined": 1
+  },
+  {
+   "store_id": "S003",
+   "walk_id": "W001",
+   "lines": 606,
+   "rows_out": 600,
+   "duplicates": 0,
+   "quarantined": 6
+  },
+  {
+   "store_id": "S003",
+   "walk_id": "W002",
+   "lines": 648,
+   "rows_out": 621,
+   "duplicates": 21,
+   "quarantined": 6
+  },
+  {
+   "store_id": "S003",
+   "walk_id": "W003",
+   "lines": 627,
+   "rows_out": 612,
+   "duplicates": 13,
+   "quarantined": 2
+  },
+  {
+   "store_id": "S003",
+   "walk_id": "W004",
+   "lines": 110,
+   "rows_out": 104,
+   "duplicates": 5,
+   "quarantined": 1
+  }
+ ],
+ "checks": {
+  "lines_in = rows_out + duplicates + quarantined": true,
+  "every id out is distinct": true,
+  "rows out are in time order": true,
+  "every quarantined row has a reason from the list": true
+ }
+}
