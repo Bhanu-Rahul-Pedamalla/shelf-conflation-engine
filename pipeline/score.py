@@ -1,6 +1,7 @@
 """The scorer. Every matcher in this repo is measured here, the same way.
 
-    python pipeline/score.py ingest     # stage 0 against the truth
+    python pipeline/score.py ingest       # stage 0 against the truth
+    python pipeline/score.py normalize    # stage 1 against the truth
 
 This is the only pipeline file that reads a truth file: data/detections_truth.csv and
 data/malformed_truth.csv. A matcher hands over its answers and gets back right / wrong / no answer.
@@ -108,12 +109,52 @@ def score_ingest():
     return clean
 
 
+def score_normalize():
+    """Stage 1 against the truth: nothing lost, nothing changed but the added field, and how many reads
+    the normalized text brings back to their label, next to what case-folding alone managed."""
+    import normalize   # pipeline/normalize.py, for the function applied to the label side
+    with DET_TRUTH.open(encoding="utf-8") as f:
+        truth = {t["detection_id"]: t for t in csv.DictReader(f)}
+    before = read_jsonl(PIPELINE / "00_reads.jsonl")
+    after = read_jsonl(PIPELINE / "01_reads.jsonl")
+    manifest = json.loads((PIPELINE / "01_manifest.json").read_text(encoding="utf-8"))
+
+    same_rows = [r["detection_id"] for r in before] == [o["detection_id"] for o in after]
+    untouched = all({k: v for k, v in o.items() if k != "text_norm"} == r for r, o in zip(before, after))
+    missing_truth = sum(1 for o in after if o["detection_id"] not in truth)
+
+    by_kind = {}
+    for o in after:
+        t = truth[o["detection_id"]]
+        c = by_kind.setdefault(t["damage"], {"reads": 0, "casefold": 0, "normalized": 0})
+        c["reads"] += 1
+        c["casefold"] += o["ocr_text"].casefold() == t["clean_text"].casefold()
+        c["normalized"] += o["text_norm"] == normalize.normalize_text(t["clean_text"])
+    total = {k: sum(c[k] for c in by_kind.values()) for k in ("reads", "casefold", "normalized")}
+
+    print("SCORE  stage 1 normalize against the truth")
+    print(f"  rows {len(before)} in, {len(after)} out, same ids in the same order: {same_rows}, "
+          f"original fields untouched: {untouched}, rows without a truth row: {missing_truth}")
+    print(f"  reads equal to their label: case-folded alone {total['casefold']}, normalized {total['normalized']}, "
+          f"of {total['reads']}  (gain {total['normalized'] - total['casefold']})")
+    print(f"\n  {'damage to the read':<26} {'reads':>5} {'casefold':>9} {'normalized':>11}")
+    for kind, c in sorted(by_kind.items(), key=lambda kv: -kv[1]["reads"]):
+        print(f"  {kind:<26} {c['reads']:>5} {c['casefold']:>9} {c['normalized']:>11}")
+    for name, ok in manifest["checks"].items():
+        print(f"  CHECK    {name}: {ok}")
+    clean = same_rows and untouched and not missing_truth and all(manifest["checks"].values())
+    print(f"  RESULT   {'stage 1 lost nothing and changed nothing but text_norm' if clean else 'stage 1 FAILED'}")
+    return clean
+
+
 def main():
     sys.stdout.reconfigure(encoding="utf-8")
     stage = sys.argv[1] if len(sys.argv) > 1 else ""
     if stage == "ingest":
         return 0 if score_ingest() else 1
-    sys.exit("usage: python pipeline/score.py ingest")
+    if stage == "normalize":
+        return 0 if score_normalize() else 1
+    sys.exit("usage: python pipeline/score.py ingest | normalize")
 
 
 if __name__ == "__main__":

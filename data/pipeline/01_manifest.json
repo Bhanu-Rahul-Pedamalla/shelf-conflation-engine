@@ -1,0 +1,32 @@
+{
+ "stage": 1,
+ "name": "normalize",
+ "input": {
+  "path": "data/pipeline/00_reads.jsonl",
+  "rows": 5705
+ },
+ "output": {
+  "path": "data/pipeline/01_reads.jsonl",
+  "rows": 5705,
+  "field_added": "text_norm"
+ },
+ "text_changed": 5161,
+ "text_changed_beyond_case": 3205,
+ "distinct_texts": {
+  "in": 4176,
+  "out": 3170
+ },
+ "rules_fired": {
+  "case": 4518,
+  "unit": 1340,
+  "punctuation": 2665,
+  "spacing": 87,
+  "accent": 101
+ },
+ "checks": {
+  "rows in = rows out": true,
+  "same ids in the same order": true,
+  "every original field unchanged": true,
+  "text_norm never empty when the read had text": true
+ }
+}
