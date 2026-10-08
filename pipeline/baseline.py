@@ -28,6 +28,30 @@ def load_jsonl(path):
         return [json.loads(line) for line in f if line.strip()]
 
 
+def load_reads(path):
+    """The reads file as the badge sent it. A line these matchers cannot read is skipped and counted.
+
+    The simplest matchers take what they can read and leave the rest: a line that is not JSON, or a
+    record without an id, a text or a barcode field. Anything else is matched as it is.
+    """
+    rows, skipped = [], 0
+    with path.open(encoding="utf-8") as f:
+        for line in f:
+            if not line.strip():
+                continue
+            try:
+                d = json.loads(line)
+            except json.JSONDecodeError:
+                skipped += 1
+                continue
+            if not (isinstance(d, dict) and isinstance(d.get("detection_id"), str)
+                    and isinstance(d.get("ocr_text"), str) and "read_barcode" in d):
+                skipped += 1
+                continue
+            rows.append(d)
+    return rows, skipped
+
+
 def catalog_text(p):
     """Brand, name and size of a catalog row as one string."""
     brand = (p.get("brands") or "").strip()
@@ -55,12 +79,14 @@ def only(codes):
 def main():
     sys.stdout.reconfigure(encoding="utf-8")
     catalog = load_jsonl(CATALOG)
-    detections = load_jsonl(DETECTIONS)
+    detections, skipped = load_reads(DETECTIONS)
     by_text, by_text_nocase, codes = build_lookups(catalog)
 
     exact, nocase, barcode, together = {}, {}, {}, {}
     for d in detections:
         i = d["detection_id"]
+        if i in together:      # the first row with an id is the one answered; a later row with the same id is a repeat
+            continue
         exact[i] = only(by_text.get(d["ocr_text"]))
         nocase[i] = only(by_text_nocase.get(d["ocr_text"].casefold()))
         barcode[i] = d["read_barcode"] if d["read_barcode"] in codes else None
@@ -74,8 +100,10 @@ def main():
     }
 
     # A re-sent row repeats an id. The naive matchers answer per id, so repeats change nothing here.
-    print(f"\nNAIVE BASELINE - {len(detections)} rows in the file, {len(together)} distinct detections, "
-          f"{len(catalog)} products in catalog v1\n")
+    # A damaged row that still carries an id and a text is matched like any other; it has no truth
+    # row, so it is not scored.
+    print(f"\nNAIVE BASELINE - {len(detections) + skipped} rows in the file, {skipped} skipped as unreadable, "
+          f"{len(together)} distinct ids, {len(catalog)} products in catalog v1\n")
     score.print_table(results)
 
     rows = results["all three together"]

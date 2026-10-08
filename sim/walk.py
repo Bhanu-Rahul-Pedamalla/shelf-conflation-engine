@@ -7,6 +7,8 @@ Reads   data/shelf_truth_dayN.csv   what is really on the shelf on each day
 Writes  data/detections.jsonl       what the badge reports. This is the pipeline's input.
         data/detections_truth.csv   the right answer for each detection.
                                     The pipeline never reads this file.
+        data/malformed_truth.csv    which lines of the reads file arrived damaged, and how.
+                                    The pipeline never reads this file either.
 
 Every number in the ASSUMED blocks is a guess. None is measured from a real badge or store.
 The label text is built from the catalog row and then damaged. Real labels differ more.
@@ -25,6 +27,7 @@ import planogram  # sim/planogram.py
 
 DETECTIONS = catalog.ROOT / "data" / "detections.jsonl"
 DET_TRUTH = catalog.ROOT / "data" / "detections_truth.csv"
+MALFORMED_TRUTH = catalog.ROOT / "data" / "malformed_truth.csv"
 WALKS_FILE = catalog.ROOT / "data" / "walks.json"   # each walk's schedule and path, and the assumed numbers
 
 # ---- ASSUMED: who walks, when, and how fast. Every store gets every walk in this list.
@@ -46,6 +49,15 @@ SECOND_BADGE_WALK = "W004" # a second associate walks one aisle of each store on
 SECOND_BADGE_GAP_S = 120   # ... starting this many seconds after walk W001
 P_RESEND_FRAME = 0.03      # a frame's detections are sent again, byte for byte, same ids
 DUPLICATE_SEED = 5000      # a store's duplicate seed = its seed + 5000, so nothing above is disturbed
+
+# ---- ASSUMED: about one row in a hundred reaches the pipeline damaged on the way: the line cut short,
+# ---- a field missing, a value of the wrong type, the timestamp written another way, a value outside
+# ---- its range, a read with no text and no barcode, or an id already used, carrying different content.
+# ---- A damaged row is an extra row placed right after the clean row it was copied from. No clean row changes.
+P_MALFORMED = 0.01
+MALFORMED_KINDS = ("cut_line", "missing_field", "wrong_type", "bad_timestamp",
+                   "out_of_range", "empty_read", "id_conflict")
+MALFORMED_SEED = 7000      # a store's damage seed = its seed + 7000, so nothing above is disturbed
 
 # ---- ASSUMED: store geometry, in metres. x runs along the aisle, y across the
 # ---- store from aisle to aisle, z up from the floor.
@@ -294,6 +306,86 @@ def add_resends(detections, truth, rng):
     return detections + copies
 
 
+def damage_row(m, kind, rng):
+    """One damaged copy of a read: the line that reaches the pipeline, and what was done to it."""
+    if kind == "cut_line":                                  # the transmission stopped partway
+        line = json.dumps(m, ensure_ascii=False)
+        cut = rng.randint(len(line) // 4, len(line) - 3)
+        return line[:cut], f"cut at {cut} of {len(line)} characters"
+    if kind == "missing_field":
+        field = rng.choice(["ts", "store_id", "aisle", "x", "ocr_text", "confidence", "bbox"])
+        del m[field]
+        what = f"no {field}"
+    elif kind == "wrong_type":                              # a number sent as text, or a box with three numbers
+        field = rng.choice(["confidence", "shelf", "x", "bbox"])
+        m[field] = m[field][:3] if field == "bbox" else str(m[field])
+        what = f"{field} is {m[field]!r}"
+    elif kind == "bad_timestamp":                           # the same moment, written another way
+        ts = datetime.datetime.strptime(m["ts"], "%Y-%m-%dT%H:%M:%S.%fZ").replace(tzinfo=datetime.timezone.utc)
+        m["ts"] = rng.choice([ts.strftime("%Y-%m-%d %H:%M:%S"), ts.strftime("%d/%m/%Y %H:%M:%S"),
+                              str(int(ts.timestamp() * 1000))])
+        what = f"ts is {m['ts']!r}"
+    elif kind == "out_of_range":
+        field = rng.choice(["confidence", "shelf", "z"])
+        m[field] = {"confidence": round(1 + rng.uniform(0.05, 0.9), 2), "shelf": rng.choice([0, -1]),
+                    "z": -m["z"]}[field]
+        what = f"{field} is {m[field]}"
+    elif kind == "empty_read":
+        m["ocr_text"], m["read_barcode"] = "", None
+        m["confidence"] = round(rng.uniform(0.30, 0.45), 2)
+        what = "no text and no barcode"
+    elif kind == "id_conflict":                             # the same id again, with the text read differently
+        text, _ = damage(m["ocr_text"], rng)
+        m["ocr_text"] = text if text != m["ocr_text"] else m["ocr_text"].swapcase()
+        m["confidence"] = max(0.30, round(m["confidence"] - rng.uniform(0.05, 0.20), 2))
+        what = f"same id, text read as {m['ocr_text']!r}"
+    return json.dumps(m, ensure_ascii=False), what
+
+
+def add_malformed(rows, rng):
+    """Some rows arrive damaged. Each damaged row is an extra row placed right after the clean row it was
+    copied from, with its own id numbered after the walk's last one, so no clean row changes.
+
+    The kinds are taken in turn, so every kind is in the file. Returns the file's items in order: a clean
+    row as a dict, a damaged row as (line, note), where line is the text as it will sit in the file.
+    """
+    last = {}   # walk prefix -> highest id number so far, doubles included
+    for d in rows:
+        prefix, number = d["detection_id"].rsplit("-", 1)
+        last[prefix] = max(last.get(prefix, 0), int(number))
+    out, k = [], 0
+    for d in rows:
+        out.append(d)
+        if rng.random() >= P_MALFORMED:
+            continue
+        kind = MALFORMED_KINDS[k % len(MALFORMED_KINDS)]
+        k += 1
+        prefix = d["detection_id"].rsplit("-", 1)[0]
+        m = dict(d)
+        if kind != "id_conflict":                           # a conflict keeps the id it collides with
+            last[prefix] += 1
+            m["detection_id"] = f"{prefix}-{last[prefix]:05d}"
+        line, what = damage_row(m, kind, rng)
+        out.append((line, {"store_id": d["store_id"], "walk_id": d["walk_id"], "kind": kind, "what": what,
+                           "detection_id": m["detection_id"], "copied_from": d["detection_id"]}))
+    return out
+
+
+def report_malformed(ledger, lines, clean_rows):
+    """The damaged rows, counted by kind, with one example of each."""
+    print(f"\nDAMAGED ROWS - rows that reach the pipeline unusable, about {P_MALFORMED:.0%} of rows, kinds taken in turn")
+    for kind in MALFORMED_KINDS:
+        print(f"  {kind:<14} {sum(1 for r in ledger if r['kind'] == kind):>3}")
+    print(f"  CHECK    lines in the file = clean rows + damaged rows: {len(lines)} = {clean_rows} + {len(ledger)}: "
+          f"{len(lines) == clean_rows + len(ledger)}")
+    print("\nONE EXAMPLE OF EACH KIND")
+    shown = set()
+    for r in ledger:
+        if r["kind"] not in shown:
+            shown.add(r["kind"])
+            print(f"  line {r['line']:>5}  {r['kind']:<14} copied from {r['copied_from']}: {r['what']}")
+
+
 def report_walk(store, badge, walk, shelf_rows, detections, legs):
     """One walk in detail, aisle by aisle. Printed with: python sim/walk.py --legs"""
     print(f"\nSTORE {store}  badge {badge}  walk {walk}")
@@ -338,8 +430,12 @@ def print_reads(facing, reads, label):
               f"  barcode {d['read_barcode'] or '-':<14} read: {d['ocr_text']}")
 
 
-def report_duplicates(file_rows, pairs, base):
-    """The three kinds of duplicate, counted, with one example of each per store."""
+def report_duplicates(file_rows, pairs, base, line_of):
+    """The three kinds of duplicate, counted, with one example of each per store.
+
+    file_rows are the clean rows; line_of gives each id's line numbers in the file as written,
+    damaged rows included, so the lines printed here are the real ones.
+    """
     doubles = [(d, t) for d, t in pairs if t["extra"] == "double_in_frame"]
     second = [(d, t) for d, t in pairs if t["extra"] == "second_badge"]
     resent_rows = len(file_rows) - len(pairs)
@@ -363,9 +459,6 @@ def report_duplicates(file_rows, pairs, base):
           f"re-sent rows in the file = {resent_rows}")
 
     by_id = {d["detection_id"]: d for d, _ in pairs}
-    line_of = {}
-    for n, d in enumerate(file_rows, start=1):
-        line_of.setdefault(d["detection_id"], []).append(n)
     print("\nONE EXAMPLE OF EACH KIND PER STORE")
     for store in sorted({d["store_id"] for d in file_rows}):
         d, t = next(((d, t) for d, t in doubles if d["store_id"] == store), (None, None))
@@ -427,8 +520,11 @@ def report_drift(base, walks):
           f"{sum(1 for _, t in later if t['true_code'] in old_size)}")
 
 
-def report(shelves, file_rows, truth, walks):
-    """All stores and walks together: totals, re-scans, duplicates, drift, damage, barcodes, samples."""
+def report(shelves, file_rows, truth, walks, line_of):
+    """All stores and walks together: totals, re-scans, duplicates, drift, damage, barcodes, samples.
+
+    file_rows are the clean rows. The damaged rows have their own report.
+    """
     by_truth = {t["detection_id"]: t for t in truth}
     first = {}
     for d in file_rows:
@@ -484,7 +580,7 @@ def report(shelves, file_rows, truth, walks):
                     print_reads(facing, v, f"{note}   label: {v[0][1]['clean_text']}")
                     break
 
-    report_duplicates(file_rows, pairs, base)
+    report_duplicates(file_rows, pairs, base, line_of)
     report_drift(base, walks)
 
     print(f"\nDAMAGE TO THE TEXT - all {len(pairs)} distinct detections")
@@ -519,8 +615,8 @@ def build_all(shelves, labels):
     """Every walk in every store, each past the shelf and the labels as they were on the
     walk's day, then the duplicates on top.
 
-    Returns the rows as they go into the file (re-sent rows included), one truth row
-    per detection id, and each walk's details.
+    Returns the file's items in order (a clean row as a dict, a damaged row as (line, note)),
+    one truth row per detection id, and each walk's details.
     """
     file_rows, truth, walks = [], [], {}
     for s, (store, store_seed) in enumerate(planogram.STORES.items()):
@@ -557,10 +653,13 @@ def build_all(shelves, labels):
                                              "speed": first["speed"], "day": first["day"],
                                              "aisle": aisle, "legs": legs}
 
+        store_rows = []
         for d, t in blocks:
             d, t = add_doubles(d, t, dup_rng)           # twice in one frame
-            file_rows += add_resends(d, t, dup_rng)     # frames sent again
+            store_rows += add_resends(d, t, dup_rng)    # frames sent again
             truth += t
+        # Damage on the way. One generator per store, separate from the duplicates' own.
+        file_rows += add_malformed(store_rows, random.Random(store_seed + MALFORMED_SEED))
     return file_rows, truth, walks
 
 
@@ -574,7 +673,8 @@ def walks_record(walks):
             "frames_per_second": FRAME_HZ, "camera_height_m": CAMERA_Z, "image_px": [IMAGE_W, IMAGE_H],
             "p_unit": P_UNIT, "p_truncate": P_TRUNCATE, "p_drop": P_DROP, "p_case": P_CASE,
             "p_barcode": P_BARCODE, "p_double": P_DOUBLE, "p_resend_frame": P_RESEND_FRAME,
-            "second_badge_gap_s": SECOND_BADGE_GAP_S, "catalog_v2_effective_day": drift.EFFECTIVE_DAY,
+            "second_badge_gap_s": SECOND_BADGE_GAP_S, "p_malformed": P_MALFORMED,
+            "catalog_v2_effective_day": drift.EFFECTIVE_DAY,
         },
         "walks": [{
             "store_id": store, "walk_id": walk, "badge_id": info["badge"], "day": info["day"],
@@ -589,25 +689,37 @@ def walks_record(walks):
 def main():
     sys.stdout.reconfigure(encoding="utf-8")
     shelves = read_shelves()
-    file_rows, truth, walks = build_all(shelves, label_sources())
-    lines = [json.dumps(d, ensure_ascii=False) for d in file_rows]
+    items, truth, walks = build_all(shelves, label_sources())
+    lines, clean, ledger, line_of = [], [], [], {}
+    for n, item in enumerate(items, start=1):
+        if isinstance(item, dict):
+            lines.append(json.dumps(item, ensure_ascii=False))
+            clean.append(item)
+            line_of.setdefault(item["detection_id"], []).append(n)
+        else:
+            line, note = item
+            lines.append(line)
+            ledger.append({"line": n, **note})
     DETECTIONS.write_text("\n".join(lines) + "\n", encoding="utf-8", newline="\n")
     planogram.write_csv(DET_TRUTH, truth)
+    planogram.write_csv(MALFORMED_TRUTH, ledger)
     WALKS_FILE.write_text(json.dumps(walks_record(walks), indent=1) + "\n", encoding="utf-8", newline="\n")
-    print(f"Wrote {DETECTIONS.relative_to(catalog.ROOT)} ({len(file_rows)} rows) "
-          f"and {DET_TRUTH.relative_to(catalog.ROOT)} ({len(truth)} rows), "
+    print(f"Wrote {DETECTIONS.relative_to(catalog.ROOT)} ({len(lines)} rows, {len(ledger)} of them damaged), "
+          f"{DET_TRUTH.relative_to(catalog.ROOT)} ({len(truth)} rows), "
+          f"{MALFORMED_TRUTH.relative_to(catalog.ROOT)} ({len(ledger)} rows), "
           f"{len(planogram.STORES)} stores, {len(walks)} walks, and {WALKS_FILE.relative_to(catalog.ROOT)}")
-    report_walks(shelves, file_rows, truth, walks)
+    report_walks(shelves, clean, truth, walks)
     if "--legs" in sys.argv:   # every walk aisle by aisle
         doubles = {t["detection_id"] for t in truth if t["extra"] == "double_in_frame"}
         for (store, walk), info in walks.items():
-            mine = {d["detection_id"]: d for d in file_rows
+            mine = {d["detection_id"]: d for d in clean
                     if d["store_id"] == store and d["walk_id"] == walk and d["detection_id"] not in doubles}
             report_walk(store, info["badge"], walk,
                         [r for r in shelves[info["day"]] if r["store_id"] == store
                          and info["aisle"] in (None, r["aisle"])],
                         list(mine.values()), info["legs"])
-    report(shelves, file_rows, truth, walks)
+    report(shelves, clean, truth, walks, line_of)
+    report_malformed(ledger, lines, len(clean))
 
 
 if __name__ == "__main__":

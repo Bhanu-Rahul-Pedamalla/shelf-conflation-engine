@@ -647,6 +647,36 @@ function parseCSV(text) {            // RFC 4180: quoted fields, doubled quotes,
   return rows.map(r => Object.fromEntries(head.map((h, i) => [h, r[i]])));
 }
 const parseJSONL = text => text.split("\n").filter(Boolean).map(line => JSON.parse(line));
+
+// The reads file as it arrives, damage included. A row is usable by the same rule the pipeline's
+// ingest stage applies (pipeline/ingest.py): every field present with its type, a timestamp in the one
+// form the badge writes, values in range, and a text or a barcode to match. Anything else is damaged.
+const num = v => typeof v === "number" && Number.isFinite(v);
+const str = v => typeof v === "string";
+const usable = d => d && typeof d === "object" && !Array.isArray(d)
+  && ["detection_id", "badge_id", "store_id", "walk_id", "aisle", "image_ref"].every(k => str(d[k]) && d[k].trim())
+  && str(d.ts) && /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/.test(d.ts)
+  && Number.isInteger(d.shelf) && d.shelf >= 1
+  && ["position_x", "x", "y", "z", "confidence"].every(k => num(d[k])) && d.x >= 0 && d.y >= 0 && d.z >= 0
+  && d.confidence >= 0 && d.confidence <= 1
+  && Array.isArray(d.bbox) && d.bbox.length === 4 && d.bbox.every(Number.isInteger)
+  && str(d.ocr_text) && (d.read_barcode === null || (str(d.read_barcode) && /^\d+$/.test(d.read_barcode)))
+  && (d.ocr_text.trim() || d.read_barcode !== null);
+// Every line counted once: usable and first with its id -> a read; the same line again -> a repeat;
+// unreadable, unusable, or an id already seen with different content -> damaged.
+function readFeed(text) {
+  const first = new Map(), seen = new Map();
+  let rows = 0, damaged = 0;
+  for (const line of text.split("\n").filter(Boolean)) {
+    rows++;
+    let d = null;
+    try { d = JSON.parse(line); } catch (e) { damaged++; continue; }
+    if (!usable(d)) { damaged++; continue; }
+    if (!first.has(d.detection_id)) { first.set(d.detection_id, d); seen.set(d.detection_id, line); }
+    else if (seen.get(d.detection_id) !== line) damaged++;
+  }
+  return { first, rows, damaged };
+}
 const facingKey = r => [r.aisle, r.shelf, r.position, r.facing].join("|");
 const productLine = p => p ? [p.brands, p.product_name, p.quantity].filter(Boolean).join(" · ") : "unknown";
 
@@ -671,8 +701,7 @@ async function boot() {
     first: new Map(), change: new Map(), hard: new Map(),
   };
   D.product = new Map([...D.v2, ...D.v1]);                       // v1 wins where both list a code
-  D.rows = 0;
-  for (const d of parseJSONL(det)) { D.rows++; if (!D.first.has(d.detection_id)) D.first.set(d.detection_id, d); }
+  ({ first: D.first, rows: D.rows, damaged: D.damaged } = readFeed(det));
   D.changes = parseCSV(changes);
   for (const c of D.changes) {                           // what catalog v2 changed, by the barcode on the shelf
     if (c.change === "renamed") D.change.set(c.v1_code, c);
@@ -989,7 +1018,7 @@ function handover() {
   const reads = [...D.first.values()];
   const t = { right: 0, wrong: 0, "no answer": 0 }; for (const b of D.base.values()) t[b.outcome]++;
   $("ho-gets").innerHTML = [
-    `The reads file, all <b>${N(D.rows)}</b> rows, in the order they arrived.`,
+    `The reads file, all <b>${N(D.rows)}</b> rows, <b>${N(D.damaged)}</b> of them damaged, in the order they arrived.`,
     `The catalog, both versions.`,
     `Nothing else. No truth file: the pipeline never sees which product was really there. In the real job there is none either.`,
   ].map(x => `<li>${x}</li>`).join("");

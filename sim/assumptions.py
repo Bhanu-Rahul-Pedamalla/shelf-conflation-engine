@@ -87,6 +87,10 @@ def build():
         f"{pct(walk.P_DOUBLE)} of detections are reported twice in the same frame, with a new id and the text read again.",
         f"A second badge walks one aisle of each store on day 1, {walk.SECOND_BADGE_GAP_S} seconds after the first walk starts.",
         f"{pct(walk.P_RESEND_FRAME)} of frames are sent twice, unchanged.",
+        f"About {pct(walk.P_MALFORMED)} of rows reach the pipeline damaged on the way: the line cut short, a field "
+        "missing, a value of the wrong type, the timestamp written another way, a value outside its range, a read "
+        "with no text and no barcode, or an id already used with different content. Each is an extra row; no clean "
+        "row changes.",
         # catalog v2
         f"Catalog v2 takes effect on day {drift.EFFECTIVE_DAY}: {kinds['renamed']} products renamed by a fixed rule, "
         f"{kinds['new_size']} given a size {pct(1 - drift.SHRINK)} smaller and a new barcode, {kinds['discontinued']} "

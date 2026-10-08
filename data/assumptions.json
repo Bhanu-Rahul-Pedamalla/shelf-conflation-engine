@@ -30,6 +30,7 @@
   "5% of detections are reported twice in the same frame, with a new id and the text read again.",
   "A second badge walks one aisle of each store on day 1, 120 seconds after the first walk starts.",
   "3% of frames are sent twice, unchanged.",
+  "About 1% of rows reach the pipeline damaged on the way: the line cut short, a field missing, a value of the wrong type, the timestamp written another way, a value outside its range, a read with no text and no barcode, or an id already used with different content. Each is an extra row; no clean row changes.",
   "Catalog v2 takes effect on day 2: 3 products renamed by a fixed rule, 2 given a size 10% smaller and a new barcode, 1 discontinued, and 1 real product added. A name that carries its size is rewritten with the new size. The renames, the sizes and the new barcodes are simulated.",
   "A simulated barcode keeps the first 7 digits of the barcode it replaces and carries a valid check digit.",
   "From day 2 all stock of a resized product carries the new barcode. Stock of the discontinued product stays on the shelf with its old label. The planogram is not updated.",
