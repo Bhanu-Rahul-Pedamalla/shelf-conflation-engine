@@ -1,0 +1,46 @@
+{
+ "stage": 4,
+ "name": "other days",
+ "input": {
+  "path": "data/pipeline/03_reads.jsonl",
+  "rows": 5705,
+  "catalog_v2_effective_from": "2026-10-03"
+ },
+ "output": {
+  "path": "data/pipeline/04_reads.jsonl",
+  "rows": 5705,
+  "fields_added": [
+   "match_support"
+  ]
+ },
+ "rules": {
+  "same_position_m": 0.08,
+  "text_min": 60,
+  "catalog_version_by_date": true
+ },
+ "answered_here": 557,
+ "left_open_by_reason": {
+  "no neighbour": 159,
+  "neighbours disagree": 3,
+  "text disagrees": 1
+ },
+ "answered": 5542,
+ "by_method": {
+  "barcode": 821,
+  "other day": 557,
+  "exact text": 2249,
+  "same spot": 225,
+  "close spelling": 1690,
+  "no answer": 163
+ },
+ "checks": {
+  "rows in = rows out": true,
+  "same ids in the same order": true,
+  "every original field unchanged": true,
+  "no earlier answer changed": true,
+  "every answer is a catalog code": true,
+  "every answer here was in the catalog on the read's day": true,
+  "answered + no answer = rows": true,
+  "every unanswered row says why": true
+ }
+}

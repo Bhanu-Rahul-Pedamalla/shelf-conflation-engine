@@ -1,9 +1,10 @@
 {
   "derived_from": "catalog_raw.jsonl",
   "derived_from_sha256": "f2c513676047f4c07f8e4a60fd5ea1dbf1b2feeef220c36412ed86c092268a92",
-  "built_at_utc": "2026-10-03T18:03:30+00:00",
+  "built_at_utc": "2026-10-08T22:58:24+00:00",
   "seed": 7000,
   "effective_day": 2,
+  "effective_from": "2026-10-03",
   "simulated": "renames, new sizes and new barcodes are simulated; the one new product is real",
   "new_barcode_rule": "GS1 GTIN Management Standard, rule 'Declared net content': any change to the declared net content printed on the pack requires a new GTIN. https://www.gs1.org/1/gtinrules/en/rule/266/declared-net-content",
   "new_product_pull": {

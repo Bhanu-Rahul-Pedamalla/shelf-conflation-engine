@@ -34,7 +34,7 @@ WALKS_FILE = catalog.ROOT / "data" / "walks.json"   # each walk's schedule and p
 # ---- Each walk in a store is a different associate with their own badge.
 # ---- Each walk goes past the shelf as it was on that day (shelf_truth_day1/2/3.csv),
 # ---- so later walks re-scan the same facings and also see what was restocked or ran out.
-DAY_ONE = datetime.date(2026, 10, 2)
+DAY_ONE = drift.DAY_ONE     # the walks start on the catalog's day one
 WALKS = [
     # walk,  day, start (UTC), speed in metres per second
     ("W001", 0, "09:00", 1.0),

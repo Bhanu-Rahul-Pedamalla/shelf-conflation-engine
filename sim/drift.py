@@ -39,6 +39,8 @@ GS1_RULE = ("GS1 GTIN Management Standard, rule 'Declared net content': any chan
 # ---- ASSUMED: what changes between catalog v1 and v2, and when.
 SEED = 7000              # which products change
 EFFECTIVE_DAY = 2        # shelves and labels follow v2 from this day on
+DAY_ONE = datetime.date(2026, 10, 2)   # the first day of the walks; day 2 is the day after
+EFFECTIVE_FROM = DAY_ONE + datetime.timedelta(days=EFFECTIVE_DAY - 1)   # the date v2 took effect, as a catalog states it
 RENAMED = 3              # same barcode, new name
 NEW_SIZE = 2             # new size, and so a new barcode (GS1 rule above)
 DISCONTINUED = 1         # gone from v2. Leftover stock stays on the shelf.
@@ -149,6 +151,7 @@ def save(v2, changes, info):
         "built_at_utc": datetime.datetime.now(datetime.timezone.utc).isoformat(timespec="seconds"),
         "seed": SEED,
         "effective_day": EFFECTIVE_DAY,
+        "effective_from": EFFECTIVE_FROM.isoformat(),
         "simulated": "renames, new sizes and new barcodes are simulated; the one new product is real",
         "new_barcode_rule": GS1_RULE,
         "new_product_pull": info,

@@ -292,6 +292,48 @@ def score_fuzzy(curve=False):
     return clean
 
 
+def load_products():
+    products = {}
+    for path in (ROOT / "data" / "catalog_raw.jsonl", ROOT / "data" / "catalog_v2.jsonl"):
+        for p in read_jsonl(path):
+            products.setdefault(p["code"], p)
+    return products
+
+
+def score_stage(number, name, method, prev_number):
+    """A matching stage against the truth: right, wrong and no answer next to the stage before it,
+    the rows answered here by outcome, and every wrong answer named. Shared by the stages after 3."""
+    rows = read_jsonl(PIPELINE / f"{number:02d}_reads.jsonl")
+    prev = read_jsonl(PIPELINE / f"{prev_number:02d}_reads.jsonl")
+    manifest = json.loads((PIPELINE / f"{number:02d}_manifest.json").read_text(encoding="utf-8"))
+    products = load_products()
+    scored = score({r["detection_id"]: r["match_code"] for r in rows})
+    before = tally(score({r["detection_id"]: r["match_code"] for r in prev}))
+    by_id = {r["detection_id"]: r for r in rows}
+    t = tally(scored)
+    here = tally([s for s in scored if by_id[s["detection_id"]]["match_method"] == method])
+    print(f"SCORE  stage {number} {name} against the truth")
+    print(f"  rows {len(rows)}, scored {len(scored)}, rows without a truth row: {len(rows) - len(scored)}")
+    print(f"  {'attempt':<26} {'right':>5} {'wrong':>5} {'no answer':>9}   right %")
+    print(f"  {'stage ' + str(prev_number):<26} {before['right']:>5} {before['wrong']:>5} {before['no answer']:>9}   {100 * before['right'] / len(scored):5.1f}%")
+    print(f"  {'stage ' + str(number) + ', ' + method:<26} {here['right']:>5} {here['wrong']:>5}")
+    print(f"  {'stage ' + str(number) + ', all':<26} {t['right']:>5} {t['wrong']:>5} {t['no answer']:>9}   {100 * t['right'] / len(scored):5.1f}%")
+    print(f"  gain over stage {prev_number}: {t['right'] - before['right']} more right, {t['wrong'] - before['wrong']:+d} wrong")
+    print("\n  every wrong answer")
+    for s in scored:
+        if s["outcome"] == "wrong":
+            r = by_id[s["detection_id"]]
+            how = r["match_method"] + (f", score {r['match_score']}" if "match_score" in r else "")
+            print(f"  {s['detection_id']}  read {r['ocr_text']!r} ({s['damage']}; {how})")
+            print(f"      answered {s['answer']}  {product_label(products, s['answer'])}")
+            print(f"      truth    {s['true_code']}  {product_label(products, s['true_code'])}")
+    for cname, ok in manifest["checks"].items():
+        print(f"  CHECK    {cname}: {ok}")
+    clean = len(rows) == len(scored) and all(manifest["checks"].values())
+    print(f"  RESULT   {'stage ' + str(number) + ' answered ' + str(here['right'] + here['wrong']) + ' reads here, ' + str(here['wrong']) + ' wrong, nothing lost' if clean else 'stage ' + str(number) + ' FAILED'}")
+    return clean
+
+
 def main():
     sys.stdout.reconfigure(encoding="utf-8")
     stage = sys.argv[1] if len(sys.argv) > 1 else ""
@@ -303,7 +345,60 @@ def main():
         return 0 if score_exact() else 1
     if stage == "fuzzy":
         return 0 if score_fuzzy(curve="--curve" in sys.argv) else 1
-    sys.exit("usage: python pipeline/score.py ingest | normalize | exact | fuzzy [--curve]")
+    if stage == "crossday":
+        return 0 if score_stage(4, "other days", "other day", 3) else 1
+    if stage == "llm" and "--measurement" in sys.argv:
+        return 0 if score_llm_measurement(sys.argv[sys.argv.index("--model") + 1] if "--model" in sys.argv else None) else 1
+    if stage == "llm":
+        return 0 if score_stage(5, "language model", "language model", 4) else 1
+    sys.exit("usage: python pipeline/score.py ingest | normalize | exact | fuzzy [--curve] | crossday | llm [--measurement [--model id]]")
+
+
+def score_llm_measurement(model=None):
+    """The measurement run against the truth: for each confidence word, how often the model's answer
+    was right, so the stage can decide which words to accept; and what the bill would have been
+    without the other-days tier."""
+    import match_llm
+    model = model or match_llm.MODEL
+    path = PIPELINE / f"llm_measurement_{model}.json"
+    m = json.loads(path.read_text(encoding="utf-8"))
+    with DET_TRUTH.open(encoding="utf-8") as f:
+        truth = {t["detection_id"]: t for t in csv.DictReader(f)}
+    products = load_products()
+    stage5 = json.loads((PIPELINE / "05_manifest.json").read_text(encoding="utf-8")) if (PIPELINE / "05_manifest.json").exists() else None
+
+    table = {}
+    wrong = []
+    for spot, a in m["answers"].items():
+        true_codes = {truth[i]["true_code"] for i in a["reads"]}
+        key = a["confidence"] if a["code"] else "none"
+        c = table.setdefault(key, {"spots": 0, "right": 0, "wrong": 0})
+        c["spots"] += 1
+        if a["code"]:
+            if a["code"] in true_codes and len(true_codes) == 1:
+                c["right"] += 1
+            else:
+                c["wrong"] += 1
+                wrong.append((spot, a, sorted(true_codes)))
+    print(f"SCORE  the language model on every spot stage 3 left open  ({model})")
+    print(f"  spots asked {m['spots_asked']}, reads in them {m['reads_in_them']}, calls {m['bill']['calls']}, "
+          f"tokens {m['bill']['input_tokens']} in / {m['bill']['output_tokens']} out, USD {m['bill']['usd']:.4f}")
+    print(f"  {'the model said':<14} {'spots':>5} {'right':>5} {'wrong':>5}   right %")
+    for key in ("sure", "likely", "unsure", "none"):
+        if key in table:
+            c = table[key]
+            pct = f"{100 * c['right'] / c['spots']:5.1f}%" if a and c["spots"] and key != "none" else ""
+            print(f"  {key:<14} {c['spots']:>5} {c['right']:>5} {c['wrong']:>5}   {pct}")
+    print("\n  every wrong answer")
+    for spot, a, true_codes in wrong:
+        reads = [r for r in read_jsonl(PIPELINE / "03_reads.jsonl") if r["spot_id"] == spot]
+        print(f"  {spot}  reads {[r['ocr_text'] for r in reads]}  ({a['confidence']}: {a['why']})")
+        print(f"      answered {a['code']}  {product_label(products, a['code'])}")
+        print(f"      truth    {', '.join(product_label(products, t) for t in true_codes)}")
+    if stage5:
+        print(f"\n  with the other-days tier, stage 5 asked about {stage5['input']['open_spots']} spots for USD {stage5['bill']['usd']:.4f}; "
+              f"without it, {m['spots_asked']} spots for USD {m['bill']['usd']:.4f}")
+    return True
 
 
 if __name__ == "__main__":
