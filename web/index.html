@@ -16,6 +16,7 @@
 
   URL flags:  ?view=full&store=S002&day=2&t=30   open the full store at a store, a day and a moment
               &facing=A01-3-7-1                  pin the card of one facing (aisle-shelf-position-facing)
+              &map=pipeline                      colour each facing by the stage of the pipeline that decided it, instead of by the shelf's state
               ?snapshot=1&store=..&day=..&t=..   the full store only: title, legend, map and counters, for clean screenshots
               ?snapshot=1&view=story             the story alone, at the start of the aisle, with no buttons
               ?snapshot=1&view=story&t=3         the story frozen 3 seconds in
@@ -27,6 +28,8 @@
     --accent: #4fc3b0; --go: #2fbf71;
     --stocked: #56667a; --empty: #e0a23c; --misplaced: #e06aa8; --restocked: #5aa2f0; --newempty: #f0703c;
     --drift: #c8d65a; --right: #4fc3b0; --wrong: #e06a6a; --none: #55606e;
+    /* the verdict map: the stage that decided a facing, cheapest first */
+    --m-barcode: #2fbf71; --m-exact: #4fc3b0; --m-spot: #9b7bf0; --m-spelling: #5aa2f0; --m-otherday: #e0a23c; --m-llm: #e06aa8;
   }
   * { box-sizing: border-box; }
   [hidden] { display: none !important; }
@@ -352,6 +355,19 @@
   .st-empty     { fill: var(--empty);     fill-opacity: 0; stroke: var(--empty);     opacity: 1; }
   .st-newempty  { fill: var(--newempty);  fill-opacity: 0; stroke: var(--newempty);  opacity: 1; stroke-dasharray: 3 2; }
   .facing.read  { opacity: 1; }
+  /* the verdict map: a solid fill per deciding stage; open is a hollow white dash, contested is hatched red, never read is a dim outline */
+  .v-barcode  { fill: var(--m-barcode);  fill-opacity: 1; stroke: var(--m-barcode);  opacity: 1; }
+  .v-exact    { fill: var(--m-exact);    fill-opacity: 1; stroke: var(--m-exact);    opacity: 1; }
+  .v-spot     { fill: var(--m-spot);     fill-opacity: 1; stroke: var(--m-spot);     opacity: 1; }
+  .v-spelling { fill: var(--m-spelling); fill-opacity: 1; stroke: var(--m-spelling); opacity: 1; }
+  .v-otherday { fill: var(--m-otherday); fill-opacity: 1; stroke: var(--m-otherday); opacity: 1; }
+  .v-llm      { fill: var(--m-llm);      fill-opacity: 1; stroke: var(--m-llm);      opacity: 1; }
+  .v-open      { fill: #fff; fill-opacity: 0; stroke: #fff; stroke-dasharray: 2 2; opacity: 1; }
+  .v-contested { fill: url(#hatch); fill-opacity: 1; stroke: var(--wrong); stroke-width: 1.6; opacity: 1; }
+  .v-never     { fill: var(--none); fill-opacity: 0; stroke: var(--none); opacity: 1; }
+  #legend i.hatch { background: repeating-linear-gradient(135deg, var(--wrong) 0 2px, transparent 2px 4px); border: 1px solid var(--wrong); }
+  #legend .vline { flex-basis: 100%; }
+  #legend .vline a { color: var(--accent); }
   .facing.drift { stroke: var(--drift); }
   .facing.pinned { stroke: #fff; stroke-width: 2; }
   .facing.morph { transition: fill 1s, fill-opacity 1s, stroke 1s, opacity 1s; }
@@ -554,6 +570,7 @@
   <div class="group" id="speeds"><span>Speed</span></div>
   <div class="group" id="stores"><span>Store</span></div>
   <div class="group" id="days"><span>Day</span></div>
+  <div class="group" id="maps"><span>Map</span></div>
   <input id="scrub" type="range" min="0" max="1" step="0.05" value="0" aria-label="Walk time">
   <div id="clock"></div>
 </div>
@@ -571,8 +588,8 @@
   </aside>
 </main>
 <div id="strip" hidden>
-  <h4>The simple lookup, on every read</h4>
-  <p>The lookup matches the exact text, the text ignoring case, or the barcode against the retailer's list (catalog v1), and answers only when exactly one row fits. Counted for the store and day chosen above.</p>
+  <h4 id="striptitle">The simple lookup, on every read</h4>
+  <p id="stripintro">The lookup matches the exact text, the text ignoring case, or the barcode against the retailer's list (catalog v1), and answers only when exactly one row fits. Counted for the store and day chosen above.</p>
   <div id="basebar"></div>
   <div id="basetext"></div>
 </div>
@@ -683,13 +700,28 @@ const productLine = p => p ? [p.brands, p.product_name, p.quantity].filter(Boole
 let D = null;        // everything loaded
 let scene = null;    // the chosen store and day
 let M = null;        // map measurements, in screen pixels
-const S = { store: "S001", day: 1, t: 0, playing: false, speed: 1, applied: 0, last: 0, pinned: null };
+const S = { store: "S001", day: 1, t: 0, playing: false, speed: 1, applied: 0, last: 0, pinned: null, map: "reads" };
+// the verdict map: how the pipeline's record decided each facing. The class names the stage; the legend names it in words.
+const VMAP = { barcode: ["v-barcode", "barcode"], "exact text": ["v-exact", "exact text"], "same spot": ["v-spot", "same spot, another read of it"],
+               "close spelling": ["v-spelling", "close spelling"], "other day": ["v-otherday", "the same position on another day"],
+               "language model": ["v-llm", "the language model"] };
+const VMARK = { open: ["v-open", "open: read, nothing could name it"], contested: ["v-contested", "contested: two reads, two products"],
+                "never read": ["v-never", "never read: nothing on the shelf on any day"] };
+function verdictClass(f) {                 // the record at this facing, as a class on the map
+  const r = D.realogram && D.realogram.get(S.store + "|" + facingKey(f));
+  if (!r) return "v-never";
+  if (VMARK[r.verdict]) return VMARK[r.verdict][0];
+  return r.method && VMAP[r.method] ? VMAP[r.method][0] : "v-never";
+}
 
 async function boot() {
   const names = ["planogram.csv", "shelf_truth_day1.csv", "shelf_truth_day2.csv", "shelf_truth_day3.csv",
                  "detections.jsonl", "detections_truth.csv", "catalog_raw.jsonl", "catalog_v2.jsonl",
                  "catalog_changes_truth.csv", "walks.json", "baseline_results.csv", "assumptions.json"];
   const [plan, d1, d2, d3, det, truth, cat1, cat2, changes, walks, base, facts] = await Promise.all(names.map(load));
+  // the pipeline's verdicts, when the pipeline has run; without them the map has only the reads view
+  const optional = async name => { try { return await load(name); } catch (e) { return null; } };
+  const [realogram, m8] = await Promise.all([optional("pipeline/08_realogram.jsonl"), optional("pipeline/08_manifest.json")]);
   D = {
     plan: parseCSV(plan),
     shelf: { 1: parseCSV(d1), 2: parseCSV(d2), 3: parseCSV(d3) },
@@ -728,6 +760,8 @@ async function boot() {
   D.stores = [...new Set(D.plan.map(r => r.store_id))].sort();
   D.category = new Map(D.plan.map(r => [r.aisle, r.category]));
   D.effective = D.walks.assumed.catalog_v2_effective_day;
+  D.realogram = realogram && m8 ? new Map(parseJSONL(realogram).map(r => [r.store_id + "|" + facingKey(r), r])) : null;
+  D.m8 = realogram && m8 ? JSON.parse(m8) : null;
 
   // the list of what is verified and what is assumed, as written by sim/assumptions.py
   const list = JSON.parse(facts);
@@ -742,6 +776,7 @@ async function boot() {
   document.body.classList.toggle("snapshot", SNAPSHOT);
   document.body.classList.toggle("clip", !!CLIP); document.body.classList.toggle("clip-square", CLIP === "square");
   document.body.classList.toggle("story", storyShot);
+  if (D.realogram && Q.get("map") === "pipeline") S.map = "pipeline";
   buildControls();
   $("main").hidden = false; $("strip").hidden = false; $("counters").hidden = false; $("context").hidden = !SNAPSHOT;
   if (SNAPSHOT) $("facts").hidden = true;
@@ -873,6 +908,8 @@ function drawMap() {
   measure();
   hideCard(true);
   const svg = $("map"); svg.replaceChildren();
+  const defs = svgEl("defs"), hatch = svgEl("pattern", { id: "hatch", width: 4, height: 4, patternUnits: "userSpaceOnUse", patternTransform: "rotate(45)" });
+  hatch.append(svgEl("rect", { width: 2, height: 4, fill: "var(--wrong)" })); defs.append(hatch); svg.append(defs);
   const height = scene.aisles.length * M.band + 4;
   svg.setAttribute("width", M.width); svg.setAttribute("height", height); svg.setAttribute("viewBox", `0 0 ${M.width} ${height}`);
   scene.el = new Map();
@@ -895,7 +932,7 @@ function drawMap() {
     const w = M.slot - M.gap, h = M.row - 2;
     const fx = M.left + f.slot * M.slot + M.gap / 2, fy = bandTop(i) + (4 - f.shelf) * M.row + 1;
     const rect = svgEl("rect", { x: fx, y: fy, width: w, height: h, rx: Math.min(2, w / 3), "data-key": facingKey(f),
-                                 class: "facing st-" + f.status + (f.change ? " drift" : "") });
+                                 class: S.map === "pipeline" ? "facing " + verdictClass(f) : "facing st-" + f.status + (f.change ? " drift" : "") });
     svg.append(rect);
     if (f.hard) {
       const r = Math.max(0.9, Math.min(2, Math.min(w, h) / 5));
@@ -907,6 +944,7 @@ function drawMap() {
   badge.append(svgEl("circle", { r: 5 }), svgEl("text", { y: 4 }));
   svg.append(badge);
 
+  if (S.map === "pipeline") { drawVerdictLegend(all); return; }
   const count = {};
   for (const f of all) count[f.status] = (count[f.status] || 0) + 1;
   const changed = all.filter(f => f.change).length, hard = all.filter(f => f.hard).length;
@@ -916,6 +954,20 @@ function drawMap() {
   }).join("") + (changed ? `<span><i style="border:1.5px solid var(--drift)"></i>label changed in catalog v2 ${changed}</span>` : "") +
     (hard ? `<span><i class="dot"></i>same name, different size ${hard}</span>` : "") +
     `<span>bright = read by the badge</span>`;
+}
+
+function drawVerdictLegend(all) {      // the verdict map's legend: one entry per deciding stage, with this store's counts, then the marks, then the stage 8 line
+  const count = {};
+  for (const f of all) { const c = verdictClass(f); count[c] = (count[c] || 0) + 1; }
+  const sw = (cls, style) => `<i class="${cls === 'v-contested' ? 'hatch' : ''}" style="${style}"></i>`;
+  const entries = Object.values(VMAP).filter(([cls]) => count[cls]).map(([cls, name]) => `<span>${sw(cls, 'background:var(--m-' + cls.slice(2) + ')')}${name} ${count[cls]}</span>`)
+    .concat(Object.values(VMARK).filter(([cls]) => count[cls]).map(([cls, name]) =>
+      `<span>${cls === 'v-contested' ? sw(cls, '') : sw(cls, 'border:1.5px ' + (cls === 'v-open' ? 'dashed #fff' : 'solid var(--none)'))}${name} ${count[cls]}</span>`));
+  const c = D.m8.compliance_by_store[S.store], a = D.m8.compliance_all;
+  $("legend").innerHTML = `<span class="vline">Each facing in the colour of the stage that decided it, from every read of all three days. Decided cheapest first.</span>` + entries.join("") +
+    `<span class="vline">Store ${S.store}: ${c.compliant} of ${c.planned_facings} planned facings hold the planned product (${c.compliance_pct}%) &middot; ` +
+    `${c.different_product} a different product &middot; ${c.contested} contested &middot; ${c.open} open &middot; ${c.never_read} never read &middot; ${c.not_seen_on_latest_walk} not seen on the latest walk. ` +
+    `All stores: ${a.compliant} of ${a.planned_facings} (${a.compliance_pct}%). <a href="pipeline/">How, and the numbers behind it.</a></span>`;
 }
 
 function morph(before) {       // on a day change, a facing fades from what it was to what it is, then settles
@@ -975,6 +1027,17 @@ function facingHTML(f) {
   if (f.hard) html += `<div class="sep"></div><div><b>Same name, different size.</b> Also in the catalog: ` +
     f.hard.map(o => esc(o.quantity || "no size given") + " (" + esc(o.code) + ")").join(", ") + `</div>`;
   if (f.change) html += `<div class="sep"></div>` + changeHTML(f.change);
+  const rec = D.realogram && D.realogram.get(S.store + "|" + facingKey(f));
+  if (rec) {
+    html += `<div class="sep"></div><div class="lab">The pipeline's record, from every read of all three days</div>`;
+    if (rec.verdict === "never read") html += `<div>No read on any day, so no record.</div>`;
+    else if (rec.verdict === "open") html += `<div><b>Open.</b> ${rec.reads} read${rec.reads > 1 ? "s" : ""}, none could be named: ` +
+      (rec.open_reads || []).map(id => { const d = D.first.get(id); return d ? `<span class="tag">${esc(d.ocr_text)}</span>` : ""; }).join(" ") + `</div>`;
+    else if (rec.verdict === "contested") html += `<div><b>Contested.</b> ` + rec.candidates.map(c => `${esc(c.product_label)} (${c.reads.length} read)`).join(" vs ") + `. No product recorded.</div>`;
+    else html += `<div><b>${esc(rec.product_label)}</b> by ${esc(rec.method)}, ${rec.supporting} of ${rec.reads} reads &middot; ${esc(rec.verdict)}` +
+      (rec.catalog_status && rec.catalog_status !== "current" ? ` &middot; <span class="note">${esc(rec.catalog_status)}</span>` : "") +
+      ` &middot; last seen ${esc(rec.last_seen.slice(0, 10))}${rec.seen_on_latest_walk === false ? ", not on the latest walk" : ""}</div>`;
+  }
   html += `<div class="sep"></div>`;
   if (!reads.length) html += `<div class="lab">${f.actual_code ? "No read on this day." : "Nothing to read here: an empty facing gives no detection."}</div>`;
   else html += `<div class="lab">Read ${reads.length} time${reads.length > 1 ? "s" : ""} on this day</div>` + reads.map(e => {
@@ -1411,6 +1474,7 @@ function render(listChanged) {
       `</div><div class="verdict"><span class="tag ${b.outcome === "no answer" ? "" : b.outcome}">lookup: ${VERDICT[b.outcome]}${b.method ? " by " + b.method : ""}</span></div></li>`;
   }).join("");
 
+  if (S.map === "pipeline") { renderPipelineStrip(); } else {
   const pct = k => (100 * n[k] / T.detections).toFixed(2) + "%";
   $("basebar").innerHTML = ["right", "wrong", "no answer"].map((k, i) =>
     `<div style="width:${pct(k)};background:var(--${["right", "wrong", "none"][i]})"></div>`).join("");
@@ -1419,6 +1483,7 @@ function render(listChanged) {
     `<b>${n["no answer"]} no answer</b> of ${n.detections} reads. ` +
     `<span style="color:var(--dim)">Whole day in this store: ${T.right} matched, ${T.wrong} wrong, ${T["no answer"]} no answer of ${T.detections}.` +
     `<span class="more"> The lookup matches the exact text, the text ignoring case, or the barcode against catalog v1.</span></span>`;
+  }
 
   const at = badgePoint(S.t), badge = $("badge");
   badge.style.display = at ? "" : "none";
@@ -1432,6 +1497,20 @@ function render(listChanged) {
   const now = new Date(scene.dayStart + S.t * 1000).toISOString();
   $("clock").textContent = `${now.slice(0, 10)}  ${now.slice(11, 19)} UTC   +${S.t.toFixed(1)} s`;
   if (SNAPSHOT) $("context").textContent = `Store ${scene.store} · day ${scene.day} · ${now.slice(0, 10)} ${now.slice(11, 19)} UTC`;
+}
+
+function renderPipelineStrip() {        // the stage 8 manifest's numbers for this store: what the pipeline made of every planned facing
+  if (renderPipelineStrip.drawn === S.store) return;        // written once per store, not once per frame
+  renderPipelineStrip.drawn = S.store;
+  const c = D.m8.compliance_by_store[S.store], a = D.m8.compliance_all;
+  $("striptitle").textContent = "The pipeline, on every shelf spot";
+  $("stripintro").textContent = "One record per shelf spot from every read of all three days, then each planned facing judged against it. Counted for the store chosen above; the day buttons change the shelf, not the record.";
+  const parts = [["compliant", "var(--m-exact)"], ["different_product", "var(--misplaced)"], ["contested", "var(--wrong)"], ["open", "#fff"], ["never_read", "var(--none)"]];
+  $("basebar").innerHTML = parts.map(([k, col]) => `<div style="width:${(100 * c[k] / c.planned_facings).toFixed(2)}%;background:${col}"></div>`).join("");
+  $("basetext").innerHTML = `Store ${S.store}: <b style="color:var(--right)">${c.compliant} of ${c.planned_facings} planned facings hold the planned product</b> (${c.compliance_pct}%) &middot; ` +
+    `<b style="color:var(--misplaced)">${c.different_product} a different product</b> &middot; <b style="color:var(--wrong)">${c.contested} contested</b> &middot; <b>${c.open} open</b> &middot; ${c.never_read} never read &middot; ` +
+    `${c.not_seen_on_latest_walk} not seen on the latest walk. <span style="color:var(--dim)">All stores: ${a.compliant} of ${a.planned_facings} (${a.compliance_pct}%), ` +
+    `${a.open} open, ${a.contested} contested, ${a.never_read} never read. The shelf truth, which the pipeline never reads, puts the open and contested spots and ${a.not_seen_on_latest_walk} stale records against it: <a href="pipeline/">the report</a>.</span>`;
 }
 
 function tick(ms) {
@@ -1453,6 +1532,16 @@ function setPlaying(on) {
   S.playing = on;
   $("playtext").textContent = on ? "Pause" : "Play"; $("playicon").setAttribute("d", on ? PAUSE : PLAY);
 }
+function setMap(v) {                    // the reads map or the verdict map, same facings, same controls
+  S.map = v;
+  for (const b of $("maps").querySelectorAll("button")) b.classList.toggle("on", b.dataset.v === v);
+  const pinned = S.pinned; drawMap(); seek(S.t); if (pinned) pin(pinned);
+  renderPipelineStrip.drawn = null;
+  if (v === "reads") {
+    $("striptitle").textContent = "The simple lookup, on every read";
+    $("stripintro").textContent = "The lookup matches the exact text, the text ignoring case, or the barcode against the retailer's list (catalog v1), and answers only when exactly one row fits. Counted for the store and day chosen above.";
+  }
+}
 function choose(store, day) {
   const before = scene && scene.store === store && scene.day !== day
     ? new Map([...scene.facings].map(([key, f]) => [key, f.status])) : null;
@@ -1470,6 +1559,9 @@ function buildControls() {
   };
   for (const s of D.stores) add("stores", s, s, () => choose(s, S.day));
   for (const d of [1, 2, 3]) add("days", "day " + d, d, () => choose(S.store, d));
+  if (D.realogram) for (const [v, name] of [["reads", "what the badge read"], ["pipeline", "what the pipeline decided"]])
+    add("maps", name, v, () => setMap(v)).classList.toggle("on", v === S.map);
+  else $("maps").hidden = true;
   for (const v of [1, 4, 16]) add("speeds", v + "x", v, e => {
     S.speed = v; for (const b of $("speeds").querySelectorAll("button")) b.classList.toggle("on", b === e.target);
   }).classList.toggle("on", v === 1);
