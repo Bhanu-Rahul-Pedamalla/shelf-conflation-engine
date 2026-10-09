@@ -1,0 +1,530 @@
+RUN  2026-10-09T04:31:59Z  python 3.13.2  Windows 11
+
+==== stage 0  ingest            python pipeline/ingest.py                          0.65 s   exit 0
+STAGE 0  INGEST   data\detections.jsonl -> data\pipeline\00_reads.jsonl
+  lines in              5927   sha256 d65fe574a0cdce1d
+  rows out              5705   every usable read once, in time order
+  duplicates dropped     162   same id, same content: the frame was sent twice
+  quarantined             60   unreadable 9 | missing_field 9 | wrong_type 9 | bad_timestamp 9 | out_of_range 9 | empty_read 8 | id_conflict 7
+  CHECK    lines_in = rows_out + duplicates + quarantined: True
+  CHECK    every id out is distinct: True
+  CHECK    rows out are in time order: True
+  CHECK    every quarantined row has a reason from the list: True
+  CHECK    5927 = 5705 + 162 + 60
+
+  store  walk    lines    out    dup   quar
+  ?      ?           9      0      0      9
+  ?      W003        1      0      0      1
+  S001   W001      627    603     17      7
+  S001   W002      627    612      9      6
+  S001   W003      642    607     31      4
+  S001   W004       56     56      0      0
+  S002   W001      616    599     13      4
+  S002   W002      659    622     30      7
+  S002   W003      650    621     23      6
+  S002   W004       49     48      0      1
+  S003   W001      606    600      0      6
+  S003   W002      648    621     21      6
+  S003   W003      627    612     13      2
+  S003   W004      110    104      5      1
+
+  one quarantined row per reason
+  line   207  unreadable     Unterminated string starting at: line 1 column 365 (char 364)
+  line   217  missing_field  no aisle
+  line   224  wrong_type     x is str: '2.473'
+  line   227  bad_timestamp  2026-10-02 09:00:16
+  line   341  out_of_range   shelf 0
+  line   456  empty_read     no text and no barcode
+  line   530  id_conflict    id first seen on line 529 with different content
+
+Wrote data\pipeline\00_reads.jsonl (5705 rows), data\pipeline\00_quarantine.jsonl (60 rows) and data\pipeline\00_manifest.json
+
+==== score                      python pipeline/score.py ingest                    0.35 s   exit 0
+SCORE  stage 0 ingest against the truth
+  real detections 5705: in the output 5705, missing 0, present twice 0
+  rows in the output that are not real detections: 0
+  duplicates dropped 162 = rows the simulation sent twice 162: True
+  quarantined 60 = damaged rows planted 60: True, the same lines: True, the expected reason on 60 of 60
+
+  planted as     rows   quarantined as rows
+  cut_line          9   unreadable        9
+  missing_field     9   missing_field     9
+  wrong_type        9   wrong_type        9
+  bad_timestamp     9   bad_timestamp     9
+  out_of_range      9   out_of_range      9
+  empty_read        8   empty_read        8
+  id_conflict       7   id_conflict       7
+  CHECK    lines_in = rows_out + duplicates + quarantined: True
+  CHECK    every id out is distinct: True
+  CHECK    rows out are in time order: True
+  CHECK    every quarantined row has a reason from the list: True
+  RESULT   stage 0 kept every real detection once and nothing else
+
+==== stage 1  normalize         python pipeline/normalize.py                       0.70 s   exit 0
+STAGE 1  NORMALIZE   data\pipeline\00_reads.jsonl -> data\pipeline\01_reads.jsonl
+  rows in               5705
+  rows out              5705   one field added: text_norm
+  text changed          5161   beyond case alone 3205
+  distinct texts        4176 -> 3170
+  rules fired         case 4518 | punctuation 2665 | unit 1340 | accent 101 | spacing 87
+  CHECK    rows in = rows out: True
+  CHECK    same ids in the same order: True
+  CHECK    every original field unchanged: True
+  CHECK    text_norm never empty when the read had text: True
+
+  one example per rule
+  case           'poppi Raspberry Bubbly Soda 12oz' -> 'poppi raspberry bubbly soda 12 oz'
+  unit           'poppi Raspberry Bubbly Soda 12oz' -> 'poppi raspberry bubbly soda 12 oz'
+  punctuation    'Coke 20z 20 FL OZ (591 ml)' -> 'coke 20z 20 fl oz 591 ml'
+  spacing        'Diet Dr Pepper  ml' -> 'diet dr pepper ml'
+  accent         'Snacks Generation LLC, núrail nut granola blueberry cinnamon sweet & crunchy 624G' -> 'snacks generation llc nurail nut granola blueberry cinnamon sweet crunchy 624 g'
+
+Wrote data\pipeline\01_reads.jsonl (5705 rows) and data\pipeline\01_manifest.json
+
+==== score                      python pipeline/score.py normalize                 0.50 s   exit 0
+SCORE  stage 1 normalize against the truth
+  rows 5705 in, 5705 out, same ids in the same order: True, original fields untouched: True, rows without a truth row: 0
+  reads equal to their label: case-folded alone 2205, normalized 2643, of 5705  (gain 438)
+
+  damage to the read         reads  casefold  normalized
+  none                        1174      1174        1174
+  case                         787       787         787
+  drop                         611         0           5
+  truncate                     503         0           0
+  unit                         417       154         417
+  drop+case                    383         0           4
+  truncate+case                319         0           0
+  truncate+drop                298         0           0
+  unit+case                    252        89         252
+  unit+drop                    229         1           3
+  truncate+drop+case           166         0           0
+  unit+truncate                165         0           0
+  unit+drop+case               148         0           1
+  unit+truncate+case            97         0           0
+  unit+truncate+drop            89         0           0
+  unit+truncate+drop+case       67         0           0
+  CHECK    rows in = rows out: True
+  CHECK    same ids in the same order: True
+  CHECK    every original field unchanged: True
+  CHECK    text_norm never empty when the read had text: True
+  RESULT   stage 1 lost nothing and changed nothing but text_norm
+
+==== stage 2  exact match       python pipeline/match_exact.py                     0.41 s   exit 0
+STAGE 2  EXACT MATCH   data\pipeline\01_reads.jsonl -> data\pipeline\02_reads.jsonl
+  rows in               5705
+  catalog                303   codes over v1 and v2, 305 distinct texts
+  answered              3070   barcode 821 | exact text 2249
+  no answer             2635   no barcode, text fits 0 rows 2628 | no barcode, text fits 2 rows 7
+  answer's catalog    v1 9 | v1 v2 3048 | v2 13
+  barcode and text both present 385, disagreeing 0
+  CHECK    rows in = rows out: True
+  CHECK    same ids in the same order: True
+  CHECK    every original field unchanged: True
+  CHECK    every answer is a catalog code: True
+  CHECK    answered + no answer = rows: True
+  CHECK    every unanswered row says why: True
+
+  store  walk     rows  barcode   text  none
+  S001   W001      603       83    241   279
+  S001   W002      612       84    221   307
+  S001   W003      607       99    244   264
+  S001   W004       56        6     21    29
+  S002   W001      599      104    246   249
+  S002   W002      622       81    252   289
+  S002   W003      621       82    225   314
+  S002   W004       48        6     28    14
+  S003   W001      600       89    225   286
+  S003   W002      621       80    269   272
+  S003   W003      612       90    235   287
+  S003   W004      104       17     42    45
+
+Wrote data\pipeline\02_reads.jsonl (5705 rows) and data\pipeline\02_manifest.json
+
+==== score                      python pipeline/score.py exact                     0.35 s   exit 0
+SCORE  stage 2 exact match against the truth
+  rows 5705, scored 5705, rows without a truth row: 0
+  attempt                  right wrong no answer   right %
+  naive baseline            2665     2      3038    46.7%
+  stage 2, barcode           821     0         0    14.4%
+  stage 2, exact text       2247     2         0    39.4%
+  stage 2, all              3068     2      2635    53.8%
+  gain over the baseline: 403 more right, +0 wrong
+
+  every wrong answer
+  D-S002-W002-00033  read 'OLIPOP Strawberry Vanilla' (unit+truncate)
+      answered 0860439001012  Olipop · Strawberry Vanilla
+      truth    0850027702919  OLIPOP · Strawberry Vanilla · 355 mL
+  D-S003-W001-00221  read "nature's bakery fig bar" (truncate+case)
+      answered 0047495610048  Nature's Bakery · Fig bar
+      truth    0047495112900  Nature's Bakery · Fig Bar Blueberry · 2 oz
+
+  answers naming a product only v1 lists: 9, of which the label really came from v1 and the answer is right: 9
+  CHECK    rows in = rows out: True
+  CHECK    same ids in the same order: True
+  CHECK    every original field unchanged: True
+  CHECK    every answer is a catalog code: True
+  CHECK    answered + no answer = rows: True
+  CHECK    every unanswered row says why: True
+  RESULT   stage 2 answered 3070 reads, 2 wrong, nothing lost
+
+==== stage 3  close spelling    python pipeline/match_fuzzy.py                     6.10 s   exit 0
+STAGE 3  CLOSE SPELLING   data\pipeline\02_reads.jsonl -> data\pipeline\03_reads.jsonl
+  rows in               5705
+  spots                 5258   sizes 1 reads: 4832 | 2 reads: 406 | 3 reads: 19 | 4 reads: 1
+  answered here         1915   same spot 225 | close spelling 1690 | spot disagrees 0
+  answered in all       4985   exact text 2249 | close spelling 1690 | barcode 821 | no answer 720 | same spot 225
+  no answer              720
+  CHECK    rows in = rows out: True
+  CHECK    same ids in the same order: True
+  CHECK    every original field unchanged: True
+  CHECK    no stage 2 answer changed: True
+  CHECK    every answer is a catalog code: True
+  CHECK    answered + no answer = rows: True
+  CHECK    every unanswered row says why: True
+  CHECK    every read has a spot: True
+
+  one example per method answered here
+  same spot       D-S002-W001-00571  'Cok 20z 20 fl. z (591 mL)' -> 04904403  from a exact text read of the same spot
+  close spelling  D-S003-W001-00001  'POPPI RASPBE' -> 0709586514894  score 100 gap 24
+
+Wrote data\pipeline\03_reads.jsonl (5705 rows) and data\pipeline\03_manifest.json
+
+==== score                      python pipeline/score.py fuzzy                     0.49 s   exit 0
+SCORE  stage 3 close spelling against the truth
+  rows 5705, scored 5705, rows without a truth row: 0
+  attempt                    right wrong no answer   right %
+  naive baseline              2665     2      3038    46.7%
+  stage 2                     3068     2      2635    53.8%
+  stage 3, barcode             821     0          
+  stage 3, exact text         2247     2          
+  stage 3, same spot           225     0          
+  stage 3, close spelling     1689     1          
+  stage 3, all                4982     3       720    87.3%
+  gain over stage 2: 1914 more right, +1 wrong
+
+  every wrong answer
+  D-S002-W002-00033  read 'OLIPOP Strawberry Vanilla' (unit+truncate; exact text)
+      answered 0860439001012  Olipop · Strawberry Vanilla
+      truth    0850027702919  OLIPOP · Strawberry Vanilla · 355 mL
+  D-S003-W001-00060  read 'psi 12 foz' (unit+truncate+drop; close spelling, score 95 gap 11)
+      answered 01280504  Pepsi · Diet Pepsi · 12oz
+      truth    01201303  Pepsi · Pepsi · 12 fl oz (355 ml)
+  D-S003-W001-00221  read "nature's bakery fig bar" (truncate+case; exact text)
+      answered 0047495610048  Nature's Bakery · Fig bar
+      truth    0047495112900  Nature's Bakery · Fig Bar Blueberry · 2 oz
+
+  spots 5258: holding reads of more than one facing 1
+  second boxes joined to their first box: 288 of 288; second-badge reads: 197 (a second-badge read is joined when the first badge's read of the facing lies within the rule's distance)
+  CHECK    rows in = rows out: True
+  CHECK    same ids in the same order: True
+  CHECK    every original field unchanged: True
+  CHECK    no stage 2 answer changed: True
+  CHECK    every answer is a catalog code: True
+  CHECK    answered + no answer = rows: True
+  CHECK    every unanswered row says why: True
+  CHECK    every read has a spot: True
+  RESULT   stage 3 answered 4985 reads in all, 3 wrong, nothing lost
+
+==== stage 4  other days        python pipeline/match_crossday.py                  0.53 s   exit 0
+STAGE 4  OTHER DAYS   data\pipeline\03_reads.jsonl -> data\pipeline\04_reads.jsonl
+  rows in               5705   open before this stage 720
+  catalog v2 from     2026-10-03
+  answered here          557   left open: no neighbour 159 | neighbours disagree 3 | text disagrees 1
+  answered in all       5542   exact text 2249 | close spelling 1690 | barcode 821 | other day 557 | same spot 225 | no answer 163
+  no answer              163
+  CHECK    rows in = rows out: True
+  CHECK    same ids in the same order: True
+  CHECK    every original field unchanged: True
+  CHECK    no earlier answer changed: True
+  CHECK    every answer is a catalog code: True
+  CHECK    every answer here was in the catalog on the read's day: True
+  CHECK    answered + no answer = rows: True
+  CHECK    every unanswered row says why: True
+
+  one example answered here, and one left open for each reason
+  D-S001-W001-00002  'mountain'  -> 01213104  score 100, 2 reads
+  D-S003-W001-00002  'Mountain De'  other days: no answered read at this position
+  D-S003-W001-00078  'Sprite Zero Sug'  other days: 2 reads name 2 products
+  D-S002-W003-00249  'Calbee HARVEST SNAPS Lightly Slted Crispy Baked Veggie Snacks .3ounces (94G)'  other days: 1 reads name 0041570052785, text scores 39 below 60
+
+Wrote data\pipeline\04_reads.jsonl (5705 rows) and data\pipeline\04_manifest.json
+
+==== score                      python pipeline/score.py crossday                  0.47 s   exit 0
+SCORE  stage 4 other days against the truth
+  rows 5705, scored 5705, rows without a truth row: 0
+  attempt                    right wrong no answer   right %
+  stage 3                     4982     3       720    87.3%
+  stage 4, other day           557     0
+  stage 4, all                5539     3       163    97.1%
+  gain over stage 3: 557 more right, +0 wrong
+
+  every wrong answer
+  D-S002-W002-00033  read 'OLIPOP Strawberry Vanilla' (unit+truncate; exact text)
+      answered 0860439001012  Olipop · Strawberry Vanilla
+      truth    0850027702919  OLIPOP · Strawberry Vanilla · 355 mL
+  D-S003-W001-00060  read 'psi 12 foz' (unit+truncate+drop; close spelling, score 95)
+      answered 01280504  Pepsi · Diet Pepsi · 12oz
+      truth    01201303  Pepsi · Pepsi · 12 fl oz (355 ml)
+  D-S003-W001-00221  read "nature's bakery fig bar" (truncate+case; exact text)
+      answered 0047495610048  Nature's Bakery · Fig bar
+      truth    0047495112900  Nature's Bakery · Fig Bar Blueberry · 2 oz
+  CHECK    rows in = rows out: True
+  CHECK    same ids in the same order: True
+  CHECK    every original field unchanged: True
+  CHECK    no earlier answer changed: True
+  CHECK    every answer is a catalog code: True
+  CHECK    every answer here was in the catalog on the read's day: True
+  CHECK    answered + no answer = rows: True
+  CHECK    every unanswered row says why: True
+  RESULT   stage 4 answered 557 reads here, 0 wrong, nothing lost
+
+==== stage 5  language model    python pipeline/match_llm.py                       0.79 s   exit 0
+STAGE 5  LANGUAGE MODEL   data\pipeline\04_reads.jsonl -> data\pipeline\05_reads.jsonl
+  rows in               5705   open before this stage 163 reads in 159 spots
+  model               claude-haiku-5-5   candidates per spot 10, spots per call 25, accepted confidence sure
+  calls                    7   to the API 0, from the cache 7
+  tokens               80688 in, 22946 out   USD 0.0195 (0.012 cents per spot asked)
+  answered here           47   reads; spots: model said none 91 | below accepted confidence 23 | no answer returned 1 | invented code 0
+  answered in all       5589   exact text 2249 | close spelling 1690 | barcode 821 | other day 557 | same spot 225 | no answer 116 | language model 47
+  no answer              116
+  CHECK    rows in = rows out: True
+  CHECK    same ids in the same order: True
+  CHECK    every original field unchanged: True
+  CHECK    no earlier answer changed: True
+  CHECK    every answer is a catalog code: True
+  CHECK    every answer here is one of the candidates shown: True
+  CHECK    answered + no answer = rows: True
+  CHECK    every unanswered row says why: True
+
+  one example answered here, and one the model declined
+  D-S003-W001-00002  'Mountain De'  none (Two regular Mountain Dew sizes fit; read shows no size)
+  D-S001-W001-00026  'diet coke - 6pk/16.9 floz'  -> 0049000024692 (sure: Exact match: Diet Coke 6pk/16.9 fl oz)
+
+Wrote data\pipeline\05_reads.jsonl (5705 rows), data\pipeline\05_calls.jsonl (7 calls) and data\pipeline\05_manifest.json
+
+==== score                      python pipeline/score.py llm                       0.48 s   exit 0
+SCORE  stage 5 language model against the truth
+  rows 5705, scored 5705, rows without a truth row: 0
+  attempt                    right wrong no answer   right %
+  stage 4                     5539     3       163    97.1%
+  stage 5, language model       47     0
+  stage 5, all                5586     3       116    97.9%
+  gain over stage 4: 47 more right, +0 wrong
+
+  every wrong answer
+  D-S002-W002-00033  read 'OLIPOP Strawberry Vanilla' (unit+truncate; exact text)
+      answered 0860439001012  Olipop · Strawberry Vanilla
+      truth    0850027702919  OLIPOP · Strawberry Vanilla · 355 mL
+  D-S003-W001-00060  read 'psi 12 foz' (unit+truncate+drop; close spelling, score 95)
+      answered 01280504  Pepsi · Diet Pepsi · 12oz
+      truth    01201303  Pepsi · Pepsi · 12 fl oz (355 ml)
+  D-S003-W001-00221  read "nature's bakery fig bar" (truncate+case; exact text)
+      answered 0047495610048  Nature's Bakery · Fig bar
+      truth    0047495112900  Nature's Bakery · Fig Bar Blueberry · 2 oz
+  CHECK    rows in = rows out: True
+  CHECK    same ids in the same order: True
+  CHECK    every original field unchanged: True
+  CHECK    no earlier answer changed: True
+  CHECK    every answer is a catalog code: True
+  CHECK    every answer here is one of the candidates shown: True
+  CHECK    answered + no answer = rows: True
+  CHECK    every unanswered row says why: True
+  RESULT   stage 5 answered 47 reads here, 0 wrong, nothing lost
+
+==== stage 6  golden record     python pipeline/golden.py                          0.53 s   exit 0
+STAGE 6  GOLDEN RECORD   data\pipeline\05_reads.jsonl -> data\pipeline\06_golden.jsonl
+  reads in              5705   in 1763 spots (store, aisle, shelf, 0.20 m slot); S001 587, S002 588, S003 588
+  records               1763   one product 1741 | no answer 18 | dissent outvoted 3 | contested 1
+  decided by          barcode 697 | exact text 901 | close spelling 120 | other day 1 | language model 25
+  catalog, last seen  v1 16 | v2 1728   product not in that version 3
+  history                  8   records also carry a product the catalog has since replaced (9 reads)
+  CHECK    every read in exactly one record: True
+  CHECK    one record per store, aisle, shelf and slot: True
+  CHECK    supporting + dissenting + history + open = reads, in every record: True
+  CHECK    every product is a catalog code: True
+  CHECK    every product has a supporting read, first seen on or before last seen: True
+  CHECK    every history product is absent from the catalog version in effect: True
+  CHECK    a contested record names two or more candidates and no product: True
+
+  the contested record, and one where a dissenting read lost
+  S002-A01-S3-009  OLIPOP · Strawberry Vanilla · 355 mL (1 read, exact text) vs Olipop · Strawberry Vanilla (1 read, exact text)
+  S003-A01-S3-016  Pepsi · Pepsi · 12 fl oz (355 ml) by exact text (2 reads); lost: D-S003-W001-00060 said Pepsi · Diet Pepsi · 12oz by close spelling
+
+Wrote data\pipeline\06_golden.jsonl (1763 records) and data\pipeline\06_manifest.json
+
+==== score                      python pipeline/score.py golden                    0.61 s   exit 0
+SCORE  stage 6 golden record against the shelf truth
+  records 1763, truth facings 1812: read at least once 1763, never read 49 (empty on every day: 49)
+  records holding a read of a neighbouring facing: 4; facings spread over two records: 4
+  the record, on the day its product was last seen     records
+  right on the day last seen                              1744
+  no answer                                                 18
+  contested                                                  1
+  the record, against day 3 (the last day)             records
+  current on the last day                                 1735
+  no answer                                                 18
+  shelf emptied after last seen                              8
+  shelf changed after last seen                              1
+  contested                                                  1
+  history entries (a product the catalog replaced) against the truth of their days: 8 right, 0 wrong
+
+  every record wrong on the day last seen, and every contested one
+  S002-A01-S3-009  contested: OLIPOP · Strawberry Vanilla · 355 mL (D-S002-W001-00032) vs Olipop · Strawberry Vanilla (D-S002-W002-00033)
+      truth    OLIPOP · Strawberry Vanilla · 355 mL
+
+  the reads the matching stages got wrong, and what their spot made of them
+  D-S002-W002-00033  'OLIPOP Strawberry Vanilla' said Olipop · Strawberry Vanilla by exact text
+      not outvoted: S002-A01-S3-009 is contested, 1 for OLIPOP · Strawberry Vanilla · 355 mL vs 1 for Olipop · Strawberry Vanilla; no product recorded
+  D-S003-W001-00060  'psi 12 foz' said Pepsi · Diet Pepsi · 12oz by close spelling
+      outranked: S003-A01-S3-016 recorded Pepsi · Pepsi · 12 fl oz (355 ml) by exact text (2 reads) over this close spelling read
+  D-S003-W001-00221  "nature's bakery fig bar" said Nature's Bakery · Fig bar by exact text
+      outvoted 2 to 1: S003-A03-S3-002 recorded Nature's Bakery · Fig Bar Blueberry · 2 oz by exact text
+  CHECK    every read in exactly one record: True
+  CHECK    one record per store, aisle, shelf and slot: True
+  CHECK    supporting + dissenting + history + open = reads, in every record: True
+  CHECK    every product is a catalog code: True
+  CHECK    every product has a supporting read, first seen on or before last seen: True
+  CHECK    every history product is absent from the catalog version in effect: True
+  CHECK    a contested record names two or more candidates and no product: True
+  RESULT   stage 6: 1744 records right on the day last seen, 0 wrong, 1 contested, 18 without an answer
+
+==== stage 7  versioning        python pipeline/versioning.py                      0.34 s   exit 0
+STAGE 7  VERSIONING   data\pipeline\06_golden.jsonl -> data\pipeline\07_golden.jsonl
+  catalog v1 300 rows, v2 300 rows, v2 in effect from 2026-10-03
+  changes found            7   renamed 3 | new size, new barcode 2 | discontinued 1 | new 1
+      0028400147392  product_name: 'Harvest Cheddar' -> 'Harvest Cheddar Classic'
+      0811620021968  product_name: 'High Protein Milkshake Vanilla' -> 'High Protein Milkshake'
+      4099100150889  product_name: 'NONFAT GREEK YOGURT' -> 'New NONFAT GREEK YOGURT'
+      0049000024692 -> 0049000701135  Coke · Diet Coke - 6pk/16.9 fl oz Bottles · 16.9 fl oz  ->  15.2 fl oz
+      0626232131703  discontinued: Attitude · Dishwashing liquid  nature technology · 700 ml. 23.7 Fl. oz
+      0689544083009 -> 0689544082941  FAGE · Total 5% Milkfat Greek Yogurt · 32oz  ->  28.8oz
+      0849429003274  new: Deviant · Creamy Root Beer · 12 fl oz
+  records               1763   current 1707 | renamed in v2 22 | new size since v2 11 | discontinued in v2, still on the shelf 3 | old size, successor not read here 1
+  relabelled              22   records now carry the name of the catalog version in effect
+  history                  8   entries explained by a change (the record's product is the old code's successor); 0 not explained
+  leftovers                3   records keep a product v2 dropped: S001-A07-S1-004 read on 2026-10-02, 2026-10-03, 2026-10-04; S002-A07-S1-004 read on 2026-10-03, 2026-10-04; S003-A07-S1-004 read on 2026-10-02, 2026-10-03, 2026-10-04
+  CHECK    the changes applied to v1 rebuild v2, code for code and label for label: True
+  CHECK    every code only in v1 and every code only in v2 appears in exactly one change: True
+  CHECK    every record with a product has a lineage with one step per version, and its product is one of the steps: True
+  CHECK    every record's label is the label of the catalog version in effect on the day last seen, or v1's when that version lacks the code: True
+  CHECK    no record was dropped, and every stage 6 field but the label and the history is unchanged: True
+  CHECK    every discontinued leftover was read after the catalog moved on: True
+  CHECK    migrating twice changes nothing: True
+
+Wrote data\pipeline\07_catalog_changes.jsonl (7 changes), data\pipeline\07_golden.jsonl (1763 records) and data\pipeline\07_manifest.json
+
+==== test                       python pipeline/test_versioning.py                 0.80 s   exit 0
+TEST   stage 7 versioning: the record survives the catalog change
+  PASS   test_the_changes_rebuild_v2: 7 changes (renamed 3, new size, new barcode 2, discontinued 1, new 1) rebuild v2's 300 rows from v1's 300
+  PASS   test_the_record_built_before_the_change_survives_it: 2010 reads before 2026-10-03 -> 1714 records, 1676 with a product: same code in v2 1665, successor code in v2 9, dropped by v2, record kept 2, lost 0
+  PASS   test_the_migration_predicts_what_the_later_days_read: 9 pre-change records moved to a successor code: 8 confirmed by the later days' reads, 1 not read again
+  PASS   test_the_dropped_products_stay_on_the_record: 3 records keep a product v2 dropped, every one read after 2026-10-03: S001-A07-S1-004 (3 reads), S002-A07-S1-004 (3 reads), S003-A07-S1-004 (3 reads)
+  PASS   test_every_version_view_is_that_version_s_code: 1744 records with a product: 1744 known to v1, 1741 known to v2, 3 dropped by v2, 0 new in v2
+  PASS   test_the_migration_is_idempotent_and_is_what_was_written: 1763 records: migrate(stage 6) == stage 7 file, migrate(stage 7) == stage 7
+  RESULT   6 of 6 passed
+
+==== score                      python pipeline/score.py versioning                0.30 s   exit 0
+SCORE  stage 7 versioning against the truth
+  catalog changes between v1 and v2        truth found matched
+  discontinued                                 1     1       1
+  new                                          1     1       1
+  new_size                                     2     2       2
+  renamed                                      3     3       3
+  all                                          7     7       7   missed 0, extra 0, old and new values right 7 of 7
+
+  the records a change touched, against the shelf on day 3 (the last day)
+  current                                    product on the shelf on the last day 1699 | shelf empty 8
+  renamed in v2                              product on the shelf on the last day 22 | label is v2's 22
+  new size since v2                          product on the shelf on the last day 11 | label is v2's 11
+  discontinued in v2, still on the shelf     still on the shelf on the last day 3
+  old size, successor not read here          successor named by the migration is what the shelf holds 1
+  CHECK    the changes applied to v1 rebuild v2, code for code and label for label: True
+  CHECK    every code only in v1 and every code only in v2 appears in exactly one change: True
+  CHECK    every record with a product has a lineage with one step per version, and its product is one of the steps: True
+  CHECK    every record's label is the label of the catalog version in effect on the day last seen, or v1's when that version lacks the code: True
+  CHECK    no record was dropped, and every stage 6 field but the label and the history is unchanged: True
+  CHECK    every discontinued leftover was read after the catalog moved on: True
+  CHECK    migrating twice changes nothing: True
+  RESULT   stage 7: 7 of 7 catalog changes found, 0 extra; 3 of 3 dropped products still on the shelf; successor right 1 of 1
+
+==== stage 8  serve             python pipeline/serve.py                           5.68 s   exit 0
+STAGE 8  SERVE   data\pipeline\07_golden.jsonl + data\planogram.csv -> data\pipeline\08_realogram.jsonl, data\pipeline\08_compliance.csv
+  planned facings       1812   from 900 planogram positions; records 1763; facings without a record 49
+  verdicts            as planned 1726 | as planned, new size 11 | as planned, catalog dropped it 3 | different product 4 | contested 1 | open 18 | never read 49
+  compliance           planned compliant      %   different  contested  open  never read  not seen on latest walk
+  S001                     604       576  95.4%           2          0     9          17                        8
+  S002                     604       582  96.4%           1          1     4          16                        9
+  S003                     604       582  96.4%           1          0     5          16                       13
+  all                     1812      1740  96.0%           4          1    18          49                       30
+  CHECK    every planned facing has exactly one realogram row: True
+  CHECK    every record stands on exactly one planned facing: True
+  CHECK    the verdicts add up to the planned facings: True
+  CHECK    the shelf rows add up to the verdicts: True
+  CHECK    a compliant row's product is the planned code, or its successor, or the dropped product the planogram still plans: True
+  CHECK    an open row has no product and every one of its reads open: True
+  CHECK    a never-read row has no record: True
+
+  the 18 open spots: read, nothing named
+  S001-A01-S4-019  planned Sprite · Sprite Lemon-Lime · 20oz; 2 reads: 'sprte lemon-lime 20oz' · 'sprte lemon-lime 20oz'
+  S001-A02-S1-021  planned General Mills · Cheerios · 18oz (510g); 3 reads: 'General Mills Cheerios 18' · 'General Mills' · 'General Mills Cheerios'
+  S001-A02-S2-005  planned General Mills · Honey Nut Cheerios · 10.8 oz; 3 reads: 'General Mills Honey Nu' · 'General Mills Honey Nut Chee' · 'General Mills Honey N'
+  S001-A02-S4-014  planned Quaker Oats · Quick 1-Minute Oats · 42 Oz / 1.19 kg; 1 reads: 'QUAKER OATS QUICK 1-MINU'
+  S001-A02-S4-015  planned Quaker Oats · Quick 1-Minute Oats · 42 Oz / 1.19 kg; 1 reads: 'quaer oats quick 1-inute'
+  S001-A03-S2-018  planned Lesser Evil · POPcorn HIMALAYAN GOLD; 3 reads: 'Lesser Eil POPcorn HIMALAYN OLD' · 'Lesser Evil POPcorn HIM' · 'Lesser Evil POPcorn HIM'
+  S001-A04-S1-029  planned Daisy · Cottage Cheese Pure & Natural · 16oz (454g); 2 reads: 'DAISY COTTAGE CHEESE PURE & NATUR' · 'Daisy Cottage Cheese Pue  Natural 16oz (45g)'
+  S001-A04-S3-013  planned Kerrygold · Pure Irish Butter · 8 oz; 3 reads: 'kerrygold pure irish buter 8 z' · 'Kerrygold ure Irish Butter 8 oz' · 'Kerrygold Pure rish Butter 8 oz'
+  S001-A04-S4-016  planned siggi's · simple ingredient skyr · 24oz; 3 reads: "siggi's simple ingredie" · "siggi's simple ingredient skyr 24OZ" · "siggi's simple ingredient"
+  S002-A01-S3-010  planned Olipop · Strawberry Vanilla; 3 reads: 'Olipop Straberry Vanilla' · 'Olipop Strabery Vnilla' · 'oipop srawberr vanilla'
+  S002-A01-S4-021  planned Sprite · Sprite Zero Sugar Lemon-Lime; 3 reads: 'SPRITE ZERO SUGAR LEM' · 'sprite zero sugar emon-lime' · 'Srite Zero Sugar Lemo-Lime'
+  S002-A02-S2-005  planned General Mills · Honey Nut Cheerios · 10.8 oz; 3 reads: 'General Mills Honey' · 'General Mills Honey Nut' · 'general mills honey'
+  S002-A04-S4-015  planned siggi's · simple ingredient skyr · 24 oz; 3 reads: "siggi' imple ingred" · "siggi's imple inredient skyr 24 oz" · "siggi's siple ingredient skr 24 OZ"
+  S003-A01-S1-023  planned Coca-Cola · Diet Coke; 3 reads: 'co-cola d' · 'Coca-ola Die' · 'Coca-Co'
+  S003-A01-S4-010  planned Red Bull · Red Bull Sugarfree · 8.4oz; 3 reads: 'Red Bull Su' · 'Red Bull Sugar' · 'Red Bull Sugarfre'
+  S003-A02-S3-030  planned purely elizabeth. · ORIGINAL ANCIENT GRAIN GRANOLA · 10 dl; 2 reads: 'purely elizabeth. ORIGI' · 'PURELY ELIZABETH. ORIGINAL ANCIEN'
+  S003-A03-S4-001  planned Skinny Pop · Original Popcorn · 18 g; 3 reads: 'sinny pop org' · 'SKNNY POP ORIGINAL' · 'Skinn Pp Ori'
+  S003-A04-S4-014  planned siggi's · simple ingredient skyr · 24 oz; 3 reads: "siggi's simple ingredient skyr 24 oz." · "SIGI'S SIMPLE INGRDIENT S" · "siggi's simple ingredient skyr 24 oz"
+
+  the 3 spots holding a product the catalog dropped, and the planogram still plans
+  S001-A07-S1-004  Attitude · Dishwashing liquid  nature technology · 700 ml. 23.7 Fl. oz by close spelling, 3 reads, last seen 2026-10-04
+  S002-A07-S1-004  Attitude · Dishwashing liquid  nature technology · 700 ml. 23.7 Fl. oz by exact text, 3 reads, last seen 2026-10-04
+  S003-A07-S1-004  Attitude · Dishwashing liquid  nature technology · 700 ml. 23.7 Fl. oz by barcode, 3 reads, last seen 2026-10-04
+
+  the 1 contested spot
+  S002-A01-S3-009  planned OLIPOP · Strawberry Vanilla · 355 mL; OLIPOP · Strawberry Vanilla · 355 mL (1 read) vs Olipop · Strawberry Vanilla (1 read)
+
+  the 4 spots holding a different product than planned
+  S001-A05-S3-003  planned Orgain · Organic Protein · 1.2 kg; stands Great Value · Great Value Steel Wool Soap Pads · 10 pcs by exact text, 4 reads
+  S001-A07-S2-013  planned Kirkland · Bath Tissue · 30 rolls; stands heavenly hunks · heavenly hunks RIDICULOUSLY AMAZING ORGANIC OATMEAL DARK CHOCOLATE · 22 oz by exact text, 4 reads
+  S002-A03-S4-002  planned Skinny Pop · Original Popcorn · 18 g; stands Daisy · Cottage Cheese Pure & Natural · 16oz (454g) by exact text, 3 reads
+  S003-A06-S1-006  planned Boka · Sensitive toothpaste · 3.4oz (96 g); stands Kellogg's · Raisin Bran · 456g by barcode, 3 reads
+
+Wrote data\pipeline\08_realogram.jsonl (1812 rows), data\pipeline\08_compliance.csv (84 shelf rows) and data\pipeline\08_manifest.json
+
+==== score                      python pipeline/score.py serve                     0.25 s   exit 0
+SCORE  stage 8 serve against the shelf truth
+  realogram rows 1812, truth facings 1812, days 3
+  verdict                             rows   against the shelf on day 3
+  as planned                          1726   product on the shelf 1717 | changed since last seen: empty now 8 | changed since last seen: another product now 1
+  never read                            49   empty on every day 49
+  open                                  18   a product stands here 16 | shelf empty now 2
+  as planned, new size                  11   product on the shelf 11
+  different product                      4   that product, misplaced 4
+  as planned, catalog dropped it         3   product on the shelf 3
+  contested                              1   truth is one of the candidates 1
+  not seen on the latest walk           30   product still there 21 | shelf empty now 8 | another product now 1
+
+  compliance planned realogram says truth says
+  S001           604      576 95.4%   581 96.2%
+  S002           604      582 96.4%   585 96.9%
+  S003           604      582 96.4%   583 96.5%
+  all           1812     1740 96.0%  1749 96.5%
+  CHECK    every planned facing has exactly one realogram row: True
+  CHECK    every record stands on exactly one planned facing: True
+  CHECK    the verdicts add up to the planned facings: True
+  CHECK    the shelf rows add up to the verdicts: True
+  CHECK    a compliant row's product is the planned code, or its successor, or the dropped product the planogram still plans: True
+  CHECK    an open row has no product and every one of its reads open: True
+  CHECK    a never-read row has no record: True
+  RESULT   stage 8: 1812 of 1812 verdicts stand against the shelf; the 30 not seen on the latest walk hold 8 empty facings
+
+DONE  19 steps  20.3 s wall clock

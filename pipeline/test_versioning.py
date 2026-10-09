@@ -51,7 +51,8 @@ def records_before_the_change():
     spots = {}
     for r in pre:
         spots.setdefault(spot_key(r), []).append(r)
-    records = [build_record(key, spots[key], v1_only_world, load_labels(), w["effective_from"]) for key in sorted(spots)]
+    labels = load_labels()
+    records = [build_record(key, spots[key], v1_only_world, labels, w["effective_from"]) for key in sorted(spots)]
     return pre, records
 
 
