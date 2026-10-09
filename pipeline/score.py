@@ -5,9 +5,10 @@
     python pipeline/score.py exact        # stage 2 against the truth
     python pipeline/score.py fuzzy        # stage 3 against the truth; --curve re-measures the spelling rule
     python pipeline/score.py crossday     # stage 4; llm, llm --measurement: stage 5; golden: stage 6, the record against the shelf truth
+    python pipeline/score.py versioning   # stage 7: the catalog changes found against the changes made, the records touched against the shelf
 
-This is the only pipeline file that reads a truth file: data/detections_truth.csv, data/malformed_truth.csv
-and data/shelf_truth_day*.csv. A matcher hands over its answers and gets back right / wrong / no answer.
+This is the only pipeline file that reads a truth file: data/detections_truth.csv, data/malformed_truth.csv,
+data/shelf_truth_day*.csv and data/catalog_changes_truth.csv. A matcher hands over its answers and gets back right / wrong / no answer.
 A stage hands over its output and gets back what it kept, lost or let through that it should not have.
 """
 import collections
@@ -19,6 +20,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 DET_TRUTH = ROOT / "data" / "detections_truth.csv"
 MALFORMED_TRUTH = ROOT / "data" / "malformed_truth.csv"
+CATALOG_TRUTH = ROOT / "data" / "catalog_changes_truth.csv"
 PIPELINE = ROOT / "data" / "pipeline"
 
 OUTCOMES = ("right", "wrong", "no answer")
@@ -354,7 +356,9 @@ def main():
         return 0 if score_stage(5, "language model", "language model", 4) else 1
     if stage == "golden":
         return 0 if score_golden() else 1
-    sys.exit("usage: python pipeline/score.py ingest | normalize | exact | fuzzy [--curve] | crossday | llm [--measurement [--model id]] | golden")
+    if stage == "versioning":
+        return 0 if score_versioning() else 1
+    sys.exit("usage: python pipeline/score.py ingest | normalize | exact | fuzzy [--curve] | crossday | llm [--measurement [--model id]] | golden | versioning")
 
 
 def score_llm_measurement(model=None):
@@ -510,6 +514,82 @@ def score_golden():
         print(f"  CHECK    {cname}: {ok}")
     clean = all(manifest["checks"].values()) and correctness.get("wrong on the day last seen", 0) == 0 and history.get("wrong", 0) == 0
     print(f"  RESULT   {'stage 6: ' + str(correctness.get('right on the day last seen', 0)) + ' records right on the day last seen, 0 wrong, ' + str(correctness.get('contested', 0)) + ' contested, ' + str(correctness.get('no answer', 0)) + ' without an answer' if clean else 'stage 6 FAILED'}")
+    return clean
+
+
+def score_versioning():
+    """Stage 7 against the truth: the catalog changes found from the two files against the list of changes the
+    catalog was given; then each record by what the change did to it, against the shelf truth on the last day."""
+    from versioning import STATUS_DISCONTINUED, STATUS_NEW_SIZE, STATUS_OLD_SIZE, STATUS_RENAMED, label, view
+    changes = read_jsonl(PIPELINE / "07_catalog_changes.jsonl")
+    manifest = json.loads((PIPELINE / "07_manifest.json").read_text(encoding="utf-8"))
+    records = read_jsonl(PIPELINE / "07_golden.jsonl")
+    with CATALOG_TRUTH.open(encoding="utf-8") as f:
+        truth_changes = list(csv.DictReader(f))
+    with DET_TRUTH.open(encoding="utf-8") as f:
+        truth = {t["detection_id"]: t for t in csv.DictReader(f)}
+    dates = sorted({d for rec in records for d in rec["days_read"]})
+    day_of = {d: i + 1 for i, d in enumerate(dates)}
+    last_day = max(day_of.values())
+    with (ROOT / "data" / f"shelf_truth_day{last_day}.csv").open(encoding="utf-8") as f:
+        shelf = {(t["store_id"], t["aisle"], t["shelf"], t["position"], t["facing"]): t for t in csv.DictReader(f)}
+    catalogs = {}
+    for version, path in (("v1", ROOT / "data" / "catalog_raw.jsonl"), ("v2", ROOT / "data" / "catalog_v2.jsonl")):
+        catalogs[version] = {p["code"]: p for p in read_jsonl(path)}
+
+    kind_of = {"new size, new barcode": "new_size", "renamed": "renamed", "discontinued": "discontinued", "new": "new"}
+    found = {(kind_of.get(c["change"], c["change"]), c["v1_code"] or "", c["v2_code"] or ""): c for c in changes}
+    wanted = {(t["change"], t["v1_code"], t["v2_code"]): t for t in truth_changes}
+    matched = sorted(set(found) & set(wanted))
+    values_right = sum(1 for k in matched if not wanted[k]["field"] or (found[k]["old"], found[k]["new"]) == (wanted[k]["old_value"], wanted[k]["new_value"]))
+    missed, extra = sorted(set(wanted) - set(found)), sorted(set(found) - set(wanted))
+
+    def facing_of(rid):
+        t = truth[rid]
+        return (t["store_id"], t["aisle"], t["shelf"], t["position"], t["facing"])
+
+    by_status = collections.defaultdict(collections.Counter)
+    for rec in records:
+        if not rec["product_code"]:
+            continue
+        facings = collections.Counter(facing_of(i) for i in rec["source_reads"])
+        on_shelf = shelf[facings.most_common(1)[0][0]]["actual_code"]
+        status = rec["catalog_status"]
+        if status == STATUS_OLD_SIZE:
+            by_status[status]["successor named by the migration is what the shelf holds" if on_shelf == view(rec, "v2") else "successor wrong"] += 1
+        elif status == STATUS_DISCONTINUED:
+            by_status[status]["still on the shelf on the last day" if on_shelf == rec["product_code"] else "gone from the shelf"] += 1
+        else:
+            by_status[status]["product on the shelf on the last day" if on_shelf == rec["product_code"]
+                              else "shelf empty" if on_shelf == "" else "shelf holds another product"] += 1
+        if status in (STATUS_RENAMED, STATUS_NEW_SIZE) and on_shelf == rec["product_code"]:
+            by_status[status]["label is v2's" if rec["product_label"] == label(catalogs["v2"][on_shelf]) else "label is not v2's"] += 1
+
+    print("SCORE  stage 7 versioning against the truth")
+    print(f"  {'catalog changes between v1 and v2':<40} {'truth':>5} {'found':>5} {'matched':>7}")
+    for kind in sorted({k[0] for k in wanted} | {k[0] for k in found}):
+        print(f"  {kind:<40} {sum(1 for k in wanted if k[0] == kind):>5} {sum(1 for k in found if k[0] == kind):>5} "
+              f"{sum(1 for k in matched if k[0] == kind):>7}")
+    print(f"  {'all':<40} {len(wanted):>5} {len(found):>5} {len(matched):>7}   missed {len(missed)}, extra {len(extra)}, "
+          f"old and new values right {values_right} of {len(matched)}")
+    for k in missed:
+        print(f"      missed  {k}")
+    for k in extra:
+        print(f"      extra   {k}")
+    print(f"\n  the records a change touched, against the shelf on day {last_day} (the last day)")
+    for status, counts in sorted(by_status.items(), key=lambda kv: -sum(kv[1].values())):
+        print(f"  {status:<42} " + " | ".join(f"{k} {v}" for k, v in counts.most_common()))
+    for cname, ok in manifest["checks"].items():
+        print(f"  CHECK    {cname}: {ok}")
+    leftovers = by_status[STATUS_DISCONTINUED]
+    old_size = by_status[STATUS_OLD_SIZE]
+    clean = (all(manifest["checks"].values()) and not missed and not extra and values_right == len(matched)
+             and leftovers.get("gone from the shelf", 0) == 0 and old_size.get("successor wrong", 0) == 0
+             and all(c.get("label is not v2's", 0) == 0 for c in by_status.values()))
+    print(f"  RESULT   {'stage 7: ' + str(len(matched)) + ' of ' + str(len(wanted)) + ' catalog changes found, ' + str(len(extra)) + ' extra; '
+                        + str(leftovers.get('still on the shelf on the last day', 0)) + ' of ' + str(sum(leftovers.values()))
+                        + ' dropped products still on the shelf; successor right ' + str(old_size.get('successor named by the migration is what the shelf holds', 0))
+                        + ' of ' + str(sum(old_size.values())) if clean else 'stage 7 FAILED'}")
     return clean
 
 

@@ -1,0 +1,64 @@
+{
+ "stage": 7,
+ "name": "versioning",
+ "input": {
+  "path": "data/pipeline/06_golden.jsonl",
+  "records": 1763,
+  "catalogs": {
+   "v1": "data/catalog_raw.jsonl",
+   "v2": "data/catalog_v2.jsonl"
+  },
+  "catalog_v2_effective_from": "2026-10-03"
+ },
+ "output": {
+  "changes": {
+   "path": "data/pipeline/07_catalog_changes.jsonl",
+   "rows": 7
+  },
+  "records": {
+   "path": "data/pipeline/07_golden.jsonl",
+   "records": 1763
+  }
+ },
+ "rules": {
+  "compared_fields": [
+   "brands",
+   "product_name",
+   "quantity"
+  ],
+  "new_size": "a code only in v1 and a code only in v2, same brand, same name once every token with a digit is removed",
+  "unpaired": "only in v1: discontinued; only in v2: new",
+  "label": "from the catalog version in effect on the day the product was last seen",
+  "dropped_products": "kept, with status 'discontinued in v2, still on the shelf'"
+ },
+ "changes_by_kind": {
+  "renamed": 3,
+  "new size, new barcode": 2,
+  "discontinued": 1,
+  "new": 1
+ },
+ "records_by_catalog_status": {
+  "current": 1707,
+  "new size since v2": 11,
+  "renamed in v2": 22,
+  "old size, successor not read here": 1,
+  "discontinued in v2, still on the shelf": 3
+ },
+ "records_relabelled": 22,
+ "history_explained_by_a_change": 8,
+ "history_not_explained": 0,
+ "leftover_records": [
+  "S001-A07-S1-004",
+  "S002-A07-S1-004",
+  "S003-A07-S1-004"
+ ],
+ "checks": {
+  "the changes applied to v1 rebuild v2, code for code and label for label": true,
+  "every code only in v1 and every code only in v2 appears in exactly one change": true,
+  "every record with a product has a lineage with one step per version, and its product is one of the steps": true,
+  "every record's label is the label of the catalog version in effect on the day last seen, or v1's when that version lacks the code": true,
+  "no record was dropped, and every stage 6 field but the label and the history is unchanged": true,
+  "every discontinued leftover was read after the catalog moved on": true,
+  "migrating twice changes nothing": true
+ }
+}
