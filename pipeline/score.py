@@ -6,6 +6,7 @@
     python pipeline/score.py fuzzy        # stage 3 against the truth; --curve re-measures the spelling rule
     python pipeline/score.py crossday     # stage 4; llm, llm --measurement: stage 5; golden: stage 6, the record against the shelf truth
     python pipeline/score.py versioning   # stage 7: the catalog changes found against the changes made, the records touched against the shelf
+    python pipeline/score.py serve        # stage 8: every verdict against the shelf on the last day, compliance next to the truth's
 
 This is the only pipeline file that reads a truth file: data/detections_truth.csv, data/malformed_truth.csv,
 data/shelf_truth_day*.csv and data/catalog_changes_truth.csv. A matcher hands over its answers and gets back right / wrong / no answer.
@@ -358,7 +359,9 @@ def main():
         return 0 if score_golden() else 1
     if stage == "versioning":
         return 0 if score_versioning() else 1
-    sys.exit("usage: python pipeline/score.py ingest | normalize | exact | fuzzy [--curve] | crossday | llm [--measurement [--model id]] | golden | versioning")
+    if stage == "serve":
+        return 0 if score_serve() else 1
+    sys.exit("usage: python pipeline/score.py ingest | normalize | exact | fuzzy [--curve] | crossday | llm [--measurement [--model id]] | golden | versioning | serve")
 
 
 def score_llm_measurement(model=None):
@@ -590,6 +593,80 @@ def score_versioning():
                         + str(leftovers.get('still on the shelf on the last day', 0)) + ' of ' + str(sum(leftovers.values()))
                         + ' dropped products still on the shelf; successor right ' + str(old_size.get('successor named by the migration is what the shelf holds', 0))
                         + ' of ' + str(sum(old_size.values())) if clean else 'stage 7 FAILED'}")
+    return clean
+
+
+def score_serve():
+    """Stage 8 against the shelf truth: every verdict on the last day's shelf, compliance per store next to the
+    truth's, and what the facings not seen on the latest walk really hold."""
+    rows = read_jsonl(PIPELINE / "08_realogram.jsonl")
+    manifest = json.loads((PIPELINE / "08_manifest.json").read_text(encoding="utf-8"))
+    days = sorted(ROOT.glob("data/shelf_truth_day*.csv"))
+    shelf = {}
+    for day, path in enumerate(days, start=1):
+        with path.open(encoding="utf-8") as f:
+            for t in csv.DictReader(f):
+                shelf.setdefault((t["store_id"], t["aisle"], int(t["shelf"]), int(t["position"]), int(t["facing"])), {})[day] = t
+    last = len(days)
+    products = load_products()
+    successor = {c["v1_code"]: c["v2_code"] for c in read_jsonl(PIPELINE / "07_catalog_changes.jsonl") if c["change"] == "new size, new barcode"}
+
+    def truth_of(r):
+        return shelf[(r["store_id"], r["aisle"], r["shelf"], r["position"], r["facing"])]
+
+    outcome = collections.defaultdict(collections.Counter)
+    stale = collections.Counter()
+    compliance = collections.defaultdict(lambda: {"planned": 0, "realogram": 0, "truth": 0})
+    wrong = []
+    for r in rows:
+        t = truth_of(r)
+        on_shelf = t[last]["actual_code"]
+        v = r["verdict"]
+        if v in ("as planned", "as planned, new size", "as planned, catalog dropped it"):
+            if on_shelf == r["product_code"]:
+                key = "product on the shelf"
+            elif r["seen_on_latest_walk"] is False:   # the record says so itself: a later walk gave no read of this product here
+                key = "changed since last seen: empty now" if on_shelf == "" else "changed since last seen: another product now"
+            else:
+                key = "another product"
+        elif v == "different product":
+            key = "that product, misplaced" if on_shelf == r["product_code"] and t[last]["status"] == "misplaced" else "wrong"
+        elif v == "contested":
+            key = "truth is one of the candidates" if on_shelf in {c["product_code"] for c in r["candidates"]} else "truth is neither"
+        elif v == "open":
+            key = "a product stands here" if on_shelf else "shelf empty now"
+        else:
+            key = "empty on every day" if all(x["actual_code"] == "" for x in t.values()) else "stocked on some day, never read"
+        outcome[v][key] += 1
+        if key in ("another product", "wrong", "truth is neither", "stocked on some day, never read"):
+            wrong.append((r, t))
+        if r["seen_on_latest_walk"] is False:
+            stale["shelf empty now" if on_shelf == "" else "product still there" if on_shelf == r["product_code"] else "another product now"] += 1
+        c = compliance[r["store_id"]]
+        c["planned"] += 1
+        c["realogram"] += v in manifest["compliant_verdicts"]
+        c["truth"] += on_shelf == t[last]["planned_code"] or (on_shelf != "" and successor.get(t[last]["planned_code"]) == on_shelf)
+
+    print("SCORE  stage 8 serve against the shelf truth")
+    print(f"  realogram rows {len(rows)}, truth facings {len(shelf)}, days {last}")
+    print(f"  {'verdict':<34} {'rows':>5}   against the shelf on day {last}")
+    for v, counts in sorted(outcome.items(), key=lambda kv: -sum(kv[1].values())):
+        print(f"  {v:<34} {sum(counts.values()):>5}   " + " | ".join(f"{k} {n}" for k, n in counts.most_common()))
+    print(f"  {'not seen on the latest walk':<34} {sum(stale.values()):>5}   " + " | ".join(f"{k} {n}" for k, n in stale.most_common()))
+    print(f"\n  {'compliance':<10} {'planned':>7} {'realogram says':>14} {'truth says':>10}")
+    for store, c in sorted(compliance.items()):
+        print(f"  {store:<10} {c['planned']:>7} {c['realogram']:>8} {100 * c['realogram'] / c['planned']:>4.1f}% {c['truth']:>5} {100 * c['truth'] / c['planned']:>4.1f}%")
+    tot = {k: sum(c[k] for c in compliance.values()) for k in ("planned", "realogram", "truth")}
+    print(f"  {'all':<10} {tot['planned']:>7} {tot['realogram']:>8} {100 * tot['realogram'] / tot['planned']:>4.1f}% {tot['truth']:>5} {100 * tot['truth'] / tot['planned']:>4.1f}%")
+    if wrong:
+        print("\n  every verdict the shelf contradicts")
+        for r, t in wrong:
+            print(f"  {r['spot_id'] or r['store_id'] + '-' + r['aisle'] + '-S' + str(r['shelf']) + ' slot ' + str(r['slot'])}  {r['verdict']}: "
+                  f"record {r['product_label']}; truth {product_label(products, t[last]['actual_code']) if t[last]['actual_code'] else 'empty'}")
+    for cname, ok in manifest["checks"].items():
+        print(f"  CHECK    {cname}: {ok}")
+    clean = all(manifest["checks"].values()) and not wrong
+    print(f"  RESULT   {'stage 8: ' + str(len(rows) - len(wrong)) + ' of ' + str(len(rows)) + ' verdicts stand against the shelf; the ' + str(sum(stale.values())) + ' not seen on the latest walk hold ' + str(stale.get('shelf empty now', 0)) + ' empty facings' if clean else 'stage 8 FAILED'}")
     return clean
 
 

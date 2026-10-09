@@ -1,0 +1,300 @@
+{
+ "stage": 8,
+ "name": "serve",
+ "input": {
+  "records": "data/pipeline/07_golden.jsonl",
+  "reads": "data/pipeline/05_reads.jsonl",
+  "planogram": "data/planogram.csv",
+  "catalogs": {
+   "v1": "data/catalog_raw.jsonl",
+   "v2": "data/catalog_v2.jsonl"
+  }
+ },
+ "output": {
+  "realogram": {
+   "path": "data/pipeline/08_realogram.jsonl",
+   "rows": 1812
+  },
+  "compliance": {
+   "path": "data/pipeline/08_compliance.csv",
+   "shelf_rows": 84,
+   "store_rows": 3
+  }
+ },
+ "engine": "duckdb 1.5.6, in memory",
+ "verdicts": {
+  "as planned": 1726,
+  "as planned, new size": 11,
+  "as planned, catalog dropped it": 3,
+  "different product": 4,
+  "contested": 1,
+  "open": 18,
+  "never read": 49
+ },
+ "compliant_verdicts": [
+  "as planned",
+  "as planned, new size",
+  "as planned, catalog dropped it"
+ ],
+ "compliance_by_store": {
+  "S001": {
+   "planned_facings": 604,
+   "compliant": 576,
+   "as_planned": 572,
+   "new_size": 3,
+   "catalog_dropped": 1,
+   "different_product": 2,
+   "contested": 0,
+   "open": 9,
+   "never_read": 17,
+   "not_seen_on_latest_walk": 8,
+   "compliance_pct": 95.4
+  },
+  "S002": {
+   "planned_facings": 604,
+   "compliant": 582,
+   "as_planned": 577,
+   "new_size": 4,
+   "catalog_dropped": 1,
+   "different_product": 1,
+   "contested": 1,
+   "open": 4,
+   "never_read": 16,
+   "not_seen_on_latest_walk": 9,
+   "compliance_pct": 96.4
+  },
+  "S003": {
+   "planned_facings": 604,
+   "compliant": 582,
+   "as_planned": 577,
+   "new_size": 4,
+   "catalog_dropped": 1,
+   "different_product": 1,
+   "contested": 0,
+   "open": 5,
+   "never_read": 16,
+   "not_seen_on_latest_walk": 13,
+   "compliance_pct": 96.4
+  }
+ },
+ "compliance_all": {
+  "planned_facings": 1812,
+  "compliant": 1740,
+  "as_planned": 1726,
+  "new_size": 11,
+  "catalog_dropped": 3,
+  "different_product": 4,
+  "contested": 1,
+  "open": 18,
+  "never_read": 49,
+  "not_seen_on_latest_walk": 30,
+  "compliance_pct": 96.0
+ },
+ "open_spots": [
+  {
+   "spot_id": "S001-A01-S4-019",
+   "reads": 2,
+   "texts": [
+    "sprte lemon-lime 20oz",
+    "sprte lemon-lime 20oz"
+   ]
+  },
+  {
+   "spot_id": "S001-A02-S1-021",
+   "reads": 3,
+   "texts": [
+    "General Mills Cheerios 18",
+    "General Mills",
+    "General Mills Cheerios"
+   ]
+  },
+  {
+   "spot_id": "S001-A02-S2-005",
+   "reads": 3,
+   "texts": [
+    "General Mills Honey Nu",
+    "General Mills Honey Nut Chee",
+    "General Mills Honey N"
+   ]
+  },
+  {
+   "spot_id": "S001-A02-S4-014",
+   "reads": 1,
+   "texts": [
+    "QUAKER OATS QUICK 1-MINU"
+   ]
+  },
+  {
+   "spot_id": "S001-A02-S4-015",
+   "reads": 1,
+   "texts": [
+    "quaer oats quick 1-inute"
+   ]
+  },
+  {
+   "spot_id": "S001-A03-S2-018",
+   "reads": 3,
+   "texts": [
+    "Lesser Eil POPcorn HIMALAYN OLD",
+    "Lesser Evil POPcorn HIM",
+    "Lesser Evil POPcorn HIM"
+   ]
+  },
+  {
+   "spot_id": "S001-A04-S1-029",
+   "reads": 2,
+   "texts": [
+    "DAISY COTTAGE CHEESE PURE & NATUR",
+    "Daisy Cottage Cheese Pue  Natural 16oz (45g)"
+   ]
+  },
+  {
+   "spot_id": "S001-A04-S3-013",
+   "reads": 3,
+   "texts": [
+    "kerrygold pure irish buter 8 z",
+    "Kerrygold ure Irish Butter 8 oz",
+    "Kerrygold Pure rish Butter 8 oz"
+   ]
+  },
+  {
+   "spot_id": "S001-A04-S4-016",
+   "reads": 3,
+   "texts": [
+    "siggi's simple ingredie",
+    "siggi's simple ingredient skyr 24OZ",
+    "siggi's simple ingredient"
+   ]
+  },
+  {
+   "spot_id": "S002-A01-S3-010",
+   "reads": 3,
+   "texts": [
+    "Olipop Straberry Vanilla",
+    "Olipop Strabery Vnilla",
+    "oipop srawberr vanilla"
+   ]
+  },
+  {
+   "spot_id": "S002-A01-S4-021",
+   "reads": 3,
+   "texts": [
+    "SPRITE ZERO SUGAR LEM",
+    "sprite zero sugar emon-lime",
+    "Srite Zero Sugar Lemo-Lime"
+   ]
+  },
+  {
+   "spot_id": "S002-A02-S2-005",
+   "reads": 3,
+   "texts": [
+    "General Mills Honey",
+    "General Mills Honey Nut",
+    "general mills honey"
+   ]
+  },
+  {
+   "spot_id": "S002-A04-S4-015",
+   "reads": 3,
+   "texts": [
+    "siggi' imple ingred",
+    "siggi's imple inredient skyr 24 oz",
+    "siggi's siple ingredient skr 24 OZ"
+   ]
+  },
+  {
+   "spot_id": "S003-A01-S1-023",
+   "reads": 3,
+   "texts": [
+    "co-cola d",
+    "Coca-ola Die",
+    "Coca-Co"
+   ]
+  },
+  {
+   "spot_id": "S003-A01-S4-010",
+   "reads": 3,
+   "texts": [
+    "Red Bull Su",
+    "Red Bull Sugar",
+    "Red Bull Sugarfre"
+   ]
+  },
+  {
+   "spot_id": "S003-A02-S3-030",
+   "reads": 2,
+   "texts": [
+    "purely elizabeth. ORIGI",
+    "PURELY ELIZABETH. ORIGINAL ANCIEN"
+   ]
+  },
+  {
+   "spot_id": "S003-A03-S4-001",
+   "reads": 3,
+   "texts": [
+    "sinny pop org",
+    "SKNNY POP ORIGINAL",
+    "Skinn Pp Ori"
+   ]
+  },
+  {
+   "spot_id": "S003-A04-S4-014",
+   "reads": 3,
+   "texts": [
+    "siggi's simple ingredient skyr 24 oz.",
+    "SIGI'S SIMPLE INGRDIENT S",
+    "siggi's simple ingredient skyr 24 oz"
+   ]
+  }
+ ],
+ "catalog_dropped_spots": [
+  "S001-A07-S1-004",
+  "S002-A07-S1-004",
+  "S003-A07-S1-004"
+ ],
+ "contested_spots": [
+  {
+   "spot_id": "S002-A01-S3-009",
+   "candidates": [
+    "0850027702919",
+    "0860439001012"
+   ]
+  }
+ ],
+ "different_product_spots": [
+  {
+   "spot_id": "S001-A05-S3-003",
+   "planned": "0851770008631",
+   "stands": "0078742204666"
+  },
+  {
+   "spot_id": "S001-A07-S2-013",
+   "planned": "0196633816788",
+   "stands": "0857549004248"
+  },
+  {
+   "spot_id": "S002-A03-S4-002",
+   "planned": "0850251004018",
+   "stands": "0073420516208"
+  },
+  {
+   "spot_id": "S003-A06-S1-006",
+   "planned": "0850075780020",
+   "stands": "0041192102110"
+  }
+ ],
+ "sql": {
+  "planned_facing": "select p.store_id, p.aisle, p.shelf, p.position, k as facing, p.before + k as slot, p.code as planned_code from (select *, sum(facings) over (partition by store_id, aisle, shelf order by position rows between unbounded preceding and current row) - facings as before from planogram) p, generate_series(1, p.facings) t(k)",
+  "realogram": "select f.store_id, f.aisle, f.shelf, f.position, f.facing, f.slot, f.planned_code, c1.label as planned_label, r.spot_id, r.product_code, r.product_label, case when r.spot_id is null then 'never read' when r.status = 'contested' then 'contested' when r.product_code is null then 'open' when r.catalog_status = 'discontinued in v2, still on the shelf' and r.product_code = f.planned_code then 'as planned, catalog dropped it' when r.product_code = f.planned_code then 'as planned' when r.v1_code = f.planned_code then 'as planned, new size' else 'different product' end as verdict, r.catalog_status, r.method, r.confidence_rank, r.reads, r.supporting, r.n_open, r.first_seen, r.last_seen, r.last_read, case when r.spot_id is null then null else substr(r.last_read, 1, 10) = l.latest end as read_on_latest_walk, case when r.product_code is null then null else substr(r.last_seen, 1, 10) = l.latest end as seen_on_latest_walk, r.open_reads, r.candidates from planned_facing f left join records r using (store_id, aisle, shelf, slot) left join (select store_id, max(substr(last_read, 1, 10)) as latest from records group by 1) l on l.store_id = f.store_id left join catalog c1 on c1.code = f.planned_code and c1.version = 'v1' order by f.store_id, f.aisle, f.shelf, f.slot",
+  "compliance": "select store_id, aisle, shelf, count(*) as planned_facings, count(*) filter (where verdict in ('as planned', 'as planned, new size', 'as planned, catalog dropped it')) as compliant, count(*) filter (where verdict = 'as planned') as as_planned, count(*) filter (where verdict = 'as planned, new size') as new_size, count(*) filter (where verdict = 'as planned, catalog dropped it') as catalog_dropped, count(*) filter (where verdict = 'different product') as different_product, count(*) filter (where verdict = 'contested') as contested, count(*) filter (where verdict = 'open') as open, count(*) filter (where verdict = 'never read') as never_read, count(*) filter (where seen_on_latest_walk = false) as not_seen_on_latest_walk from realogram group by all order by all"
+ },
+ "checks": {
+  "every planned facing has exactly one realogram row": true,
+  "every record stands on exactly one planned facing": true,
+  "the verdicts add up to the planned facings": true,
+  "the shelf rows add up to the verdicts": true,
+  "a compliant row's product is the planned code, or its successor, or the dropped product the planogram still plans": true,
+  "an open row has no product and every one of its reads open": true,
+  "a never-read row has no record": true
+ }
+}
