@@ -20,6 +20,12 @@
         ]
       },
       {
+        "source": "/web/pipeline/",
+        "headers": [
+          { "key": "Cache-Control", "value": "no-cache" }
+        ]
+      },
+      {
         "source": "/web/",
         "headers": [
           { "key": "Cache-Control", "value": "no-cache" }
@@ -33,7 +39,8 @@
       }
     ],
     "redirects": [
-      { "source": "/", "destination": "/web/", "type": 302 }
+      { "source": "/", "destination": "/web/", "type": 302 },
+      { "source": "/pipeline", "destination": "/web/pipeline/", "type": 302 }
     ]
   }
 }

@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Shelf-scan conflation pipeline — design and results</title>
+<meta name="description" content="Nine stages from a badge camera's reads to one record per shelf spot, served against the planogram. Every number counted from the data files when the page loads.">
+<!--
+  The pipeline report as a page. pipeline.js counts every number from ../../data at load: the stage
+  manifests, the stage outputs, the truth files the scorer reads, and the runner's log. REPORT.md in the
+  repository is the same report from the same run, as a document.
+  Serve the repository root (python -m http.server) and open /web/pipeline/.
+-->
+<style>
+:root{ --paper:#fbfaf7; --ink:#191817; --ink-2:#55524b; --ink-3:#6e6a60; --rule:#ddd8cd; --rule-2:#eae5da; --link:#14508c; }
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{ background:var(--paper); color:var(--ink); font-family:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,"Times New Roman",serif; font-size:17px; line-height:1.62; -webkit-text-size-adjust:100%; }
+.doc{max-width:760px; margin:0 auto; padding:36px 20px 72px}
+h1,h2,h3{font-weight:600; line-height:1.25; margin:0}
+h1{font-size:26px; letter-spacing:-.01em}
+.subtitle{color:var(--ink-2); font-size:15.5px; margin:7px 0 0}
+.runline{color:var(--ink-2); font-size:14.5px; margin:10px 0 0; padding-bottom:22px; border-bottom:1px solid var(--rule)}
+h2{font-size:19px; margin:38px 0 10px}
+h3{font-size:16px; margin:26px 0 7px}
+p{margin:0 0 12px}
+ul{margin:0 0 12px; padding-left:22px}
+li{margin:0 0 5px}
+a{color:var(--link)}
+code,.mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; font-size:.88em}
+.dim{color:var(--ink-3)}
+.tw{overflow-x:auto; margin:0 0 14px}
+table{width:100%; border-collapse:collapse; font-size:14.5px; line-height:1.45; font-variant-numeric:tabular-nums}
+caption{caption-side:bottom; text-align:left; color:var(--ink-3); font-size:13.5px; padding-top:7px; line-height:1.5}
+th,td{text-align:left; padding:7px 10px 7px 0; vertical-align:top; border-bottom:1px solid var(--rule-2)}
+thead th{border-bottom:1px solid var(--ink); font-weight:600; font-size:13px; letter-spacing:.02em; text-transform:uppercase; white-space:nowrap}
+tbody tr:last-child td{border-bottom:1px solid var(--rule)}
+td.n,th.n{text-align:right; white-space:nowrap; padding-right:0}
+table.kv td:first-child{width:36%}
+table.small{font-size:14px}
+td.group{padding-top:14px; border-bottom:1px solid var(--rule)}
+.rule-line{margin:0 0 10px; padding-left:12px; border-left:2px solid var(--ink); color:var(--ink-2); font-size:15px}
+.rule-line b{color:var(--ink); font-weight:600}
+.fileref{color:var(--ink-3); font-size:13.5px; margin:0 0 4px}
+ul.open li{font-size:14.5px}
+figure{margin:0 0 14px}
+#diagram{display:block; width:100%; height:auto}
+figcaption{color:var(--ink-3); font-size:13.5px; padding-top:8px; line-height:1.5}
+.err{color:#8c1d1d; font-size:15px}
+.nav{font-size:14px; color:var(--ink-3); margin:0 0 18px}
+@media (min-width:760px){ body{font-size:17.5px} .doc{padding:56px 24px 90px} h1{font-size:31px} h2{font-size:21px} }
+@media print{ body{background:#fff} .doc{max-width:none; padding:0} h2{page-break-after:avoid} table,figure{page-break-inside:avoid} }
+</style>
+</head>
+<body>
+<div class="doc">
+
+<p class="nav"><a href="../">The simulation</a> · the pipeline · <a href="../?view=full&amp;map=pipeline">the verdict map</a></p>
+<h1>Shelf-scan conflation pipeline</h1>
+<p class="subtitle" id="subtitle"></p>
+<p class="runline" id="runline"></p>
+
+<h2>1. Purpose</h2>
+<p id="s1"></p>
+
+<h2>2. Result</h2>
+<div class="tw"><table class="kv" id="resultTable"></table></div>
+<p>The reads, by the stage that named them. Each stage only touches what the stages before it left open, so the rows are cumulative.</p>
+<div class="tw"><table class="small" id="ladderTable"></table></div>
+<p id="s2a"></p>
+<p id="s2b"></p>
+<p>Served against the planogram:</p>
+<div class="tw"><table class="small" id="verdictTable"></table></div>
+<div class="tw"><table class="small" id="complianceTable"></table></div>
+<p id="s2c"></p>
+
+<h2>3. Overview</h2>
+<figure>
+  <svg id="diagram" role="img" aria-label="The feed, then ingest, normalize, exact match, close spelling, other days, language model, golden record, versioning, serve"></svg>
+  <figcaption>Each read passes once. A stage reads only what the stages before it wrote; the scorer, not shown, reads each stage's output and the truth.</figcaption>
+</figure>
+<p id="s3"></p>
+<div class="tw"><table class="small" id="stepTable"></table></div>
+
+<h2>4. The data</h2>
+<p id="s4"></p>
+<div class="tw"><table class="small" id="dataTable"></table></div>
+
+<h2>5. The nine stages</h2>
+<div id="stages"></div>
+
+<h2>6. Failures, and how they were caught</h2>
+<p id="s6a"></p>
+<div class="tw"><table class="small" id="plantTable"></table></div>
+<p id="s6b"></p>
+
+<h2>7. Bugs found while building</h2>
+<div id="s7"></div>
+
+<h2>8. Limits</h2>
+<div id="s8"></div>
+
+<h2>9. What production would swap in</h2>
+<p id="s9"></p>
+<div class="tw"><table class="small" id="prodTable"></table></div>
+
+<h2>10. Files</h2>
+<div class="tw"><table class="small" id="fileTable"></table></div>
+
+<p class="err" id="err" hidden></p>
+</div>
+<script>
+(function () {
+  // the diagram: the feed and the nine stages in a row, or a column on a narrow screen
+  const BOXES = ["feed", "0 ingest", "1 normalize", "2 exact", "3 spelling", "4 other days", "5 model", "6 record", "7 versions", "8 serve"];
+  function drawDiagram() {
+    const svg = document.getElementById("diagram"), NS = "http://www.w3.org/2000/svg";
+    const wide = window.matchMedia("(min-width:700px)").matches, n = BOXES.length;
+    const gap = wide ? 10 : 12, bw = wide ? 64 : 200, bh = wide ? 44 : 40;
+    const W = wide ? n * bw + (n - 1) * gap : bw, H = wide ? bh : n * bh + (n - 1) * gap;
+    svg.setAttribute("viewBox", `0 0 ${W} ${H}`); svg.setAttribute("height", H); svg.style.maxWidth = W + "px"; svg.innerHTML = "";
+    const add = (t, a, txt) => { const e = document.createElementNS(NS, t); for (const k in a) e.setAttribute(k, a[k]); if (txt !== undefined) e.textContent = txt; svg.appendChild(e); return e; };
+    BOXES.forEach((name, i) => {
+      const x = wide ? i * (bw + gap) : 0, y = wide ? 0 : i * (bh + gap);
+      add("rect", { x: x + .5, y: y + .5, width: bw - 1, height: bh - 1, rx: 2, fill: i === 0 ? "#eae5da" : "none", stroke: "#191817", "stroke-width": 1 });
+      const parts = wide && name.includes(" ") ? [name.slice(0, name.indexOf(" ")), name.slice(name.indexOf(" ") + 1)] : [name];
+      parts.forEach((p, k) => add("text", { x: x + bw / 2, y: y + bh / 2 + (parts.length > 1 ? (k ? 11 : -3) : 4), fill: "#191817", "font-size": wide ? 10.5 : 12,
+        "font-weight": k === 0 && parts.length > 1 ? 600 : 500, "text-anchor": "middle", "font-family": "system-ui,sans-serif" }, p));
+      if (i < n - 1) {
+        if (wide) { const x1 = x + bw + 1, x2 = x + bw + gap - 1, cy = bh / 2;
+          add("line", { x1, y1: cy, x2: x2 - 3, y2: cy, stroke: "#191817", "stroke-width": 1 }); add("polygon", { points: `${x2},${cy} ${x2 - 4},${cy - 2.5} ${x2 - 4},${cy + 2.5}`, fill: "#191817" }); }
+        else { const cx = bw / 2, y1 = y + bh + 2, y2 = y + bh + gap - 2;
+          add("line", { x1: cx, y1, x2: cx, y2: y2 - 3, stroke: "#191817", "stroke-width": 1 }); add("polygon", { points: `${cx},${y2} ${cx - 2.5},${y2 - 4} ${cx + 2.5},${y2 - 4}`, fill: "#191817" }); }
+      }
+    });
+  }
+  drawDiagram();
+  let t; addEventListener("resize", () => { clearTimeout(t); t = setTimeout(drawDiagram, 150); });
+})();
+</script>
+<script src="pipeline.js"></script>
+</body>
+</html>

@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 # Assemble the replay page and its data into public/ and deploy.
-#   /web/   <- web
-#   /data/  <- data
+#   /web/           <- web            the simulation page
+#   /web/pipeline/  <- web/pipeline   the pipeline report page, reached as /pipeline
+#   /data/          <- data
 #
 # The page reads its data from ../data/, so the two folders go up together, side by side,
 # exactly as they sit in the repository. Nothing is built or rewritten on the way.
@@ -13,9 +14,9 @@ set -euo pipefail
 cd "$(dirname "$0")"
 
 missing=0
-for name in $(grep -oE '"[a-z0-9_]+\.(csv|jsonl|json)"' web/index.html | tr -d '"' | sort -u); do
+for name in $(grep -ohE '"(pipeline/)?[a-z0-9_.-]+\.(csv|jsonl|json|txt)"' web/index.html web/pipeline/index.html web/pipeline/pipeline.js | tr -d '"' | sort -u); do
   if [ ! -f "data/$name" ]; then
-    echo "STOP: web/index.html loads data/$name, which does not exist." >&2
+    echo "STOP: a page loads data/$name, which does not exist." >&2
     missing=1
   fi
 done
