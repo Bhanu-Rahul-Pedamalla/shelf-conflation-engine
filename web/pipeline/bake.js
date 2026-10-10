@@ -6,14 +6,16 @@
      node web/pipeline/bake.js web/pipeline/index.html public/web/pipeline/index.html
      node web/pipeline/bake.js --check public/web/pipeline/index.html
 
-   The first form fills every element render() writes, from the empty template. The second form
-   counts again and compares each baked element to the fresh text, and exits 1 on any difference. */
+   The first form fills every element render() writes, and the stage diagram the page's inline script
+   draws, from the empty template. The second form counts and draws again, compares each baked element
+   to the fresh one, and exits 1 on any difference. */
 "use strict";
-const fs = require("fs"), path = require("path");
+const fs = require("fs"), path = require("path"), vm = require("vm");
 require("./pipeline.js");
 const { compute, render, loadAll } = globalThis.PipelinePage;
 
 const escText = s => String(s).replace(/[&<>]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" }[c]));
+const escAttr = s => String(s).replace(/[&"]/g, c => ({ "&": "&amp;", '"': "&quot;" }[c]));
 const unescText = s => s.replace(/&(amp|lt|gt|quot|#39|nbsp);/g, (_, e) => ({ amp: "&", lt: "<", gt: ">", quot: '"', "#39": "'", nbsp: " " }[e]));
 
 // the least of a DOM that render() uses: elements with a class, inner HTML and children, serialised in order
@@ -24,6 +26,29 @@ class El {
   set textContent(t) { this.html = escText(t); this.children = []; }
   appendChild(c) { this.children.push(c); return c; }
   get outerHTML() { return `<${this.tag}${this.className ? ` class="${this.className}"` : ""}>${this.innerHTML}</${this.tag}>`; }
+}
+// the least of an SVG element that the diagram script uses, with the attributes the page's own tag carries
+class SvgEl {
+  constructor(tag, attrs = []) {
+    this.tag = tag; this.attrs = new Map(attrs); this.children = []; this.text = ""; this.style = {};
+    Object.defineProperty(this.style, "maxWidth", { set: v => this.attrs.set("style", `max-width: ${v};`) });
+  }
+  setAttribute(k, v) { this.attrs.set(k, String(v)); }
+  set innerHTML(h) { if (h !== "") throw new Error("the diagram shim takes no markup"); this.children = []; }
+  set textContent(t) { this.text = escText(t); this.children = []; }
+  appendChild(c) { this.children.push(c); return c; }
+  hasChildNodes() { return this.children.length > 0; }
+  get outerHTML() { return `<${this.tag}${[...this.attrs].map(([k, v]) => ` ${k}="${escAttr(v)}"`).join("")}>${this.text}${this.children.map(c => c.outerHTML).join("")}</${this.tag}>`; }
+}
+// the diagram, drawn by the page's own inline script under node, in the wide layout, into an svg carrying the page's tag attributes
+function drawnDiagram(html) {
+  const d = elementAt(html, "diagram"), script = (html.match(/<script>([\s\S]*?)<\/script>/) || [])[1];
+  if (!d || !script) throw new Error("no #diagram or no inline script in the page");
+  const attrs = [...d.open.slice(d.open.indexOf(" ")).matchAll(/([^\s=]+)="([^"]*)"/g)].map(m => [m[1], m[2]]);
+  const svg = new SvgEl("svg", attrs);
+  vm.runInNewContext(script, { document: { getElementById: id => id === "diagram" ? svg : null, createElementNS: (ns, t) => new SvgEl(t) },
+                               window: { matchMedia: () => ({ matches: true }) }, addEventListener() {}, setTimeout() {}, clearTimeout() {} });
+  return { svg: svg.outerHTML, from: d.start - d.open.length, to: d.end + d.close.length, empty: d.content.trim() === "" };
 }
 function renderToElements(N) {
   const byId = new Map();
@@ -70,7 +95,9 @@ async function main(argv) {
       const k = fn.findIndex((x, i) => x !== bn[i]);
       console.error(`DRIFT: #${id}: ${bn.length} numbers baked, ${fn.length} counted` + (k >= 0 ? `; first difference at number ${k + 1}: baked ${bn[k]}, counted ${fn[k]}` : "; the text differs"));
     }
-    console.log(`checked ${byId.size} elements, ${n} numbers, ${bad} differ`);
+    const d = drawnDiagram(html);
+    if (html.slice(d.from, d.to) !== d.svg) { console.error("DRIFT: #diagram: the diagram drawn now differs from the baked one"); bad++; }
+    console.log(`checked ${byId.size + 1} elements, ${n} numbers, ${bad} differ`);
     return bad ? 1 : 0;
   }
 
@@ -82,8 +109,11 @@ async function main(argv) {
     out = out.slice(0, m.start) + e.innerHTML + out.slice(m.end);
     filled++;
   }
+  const d = drawnDiagram(out);
+  if (!d.empty) throw new Error(`#diagram is not empty in ${src}; bake from the template, not a baked page`);
+  out = out.slice(0, d.from) + d.svg + out.slice(d.to);
   fs.writeFileSync(dst, out);
-  console.log(`baked ${filled} elements into ${dst}`);
+  console.log(`baked ${filled + 1} elements into ${dst}`);
   return 0;
 }
 

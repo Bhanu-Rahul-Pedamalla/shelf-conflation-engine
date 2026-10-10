@@ -116,9 +116,8 @@ mark.drift{background:#fde68a; color:var(--ink); padding:0 3px; border-radius:2p
 (function () {
   // the diagram: the feed and the nine stages in a row, or a column on a narrow screen
   const BOXES = ["feed", "0 ingest", "1 normalize", "2 exact", "3 spelling", "4 other days", "5 model", "6 record", "7 versions", "8 serve"];
-  function drawDiagram() {
-    const svg = document.getElementById("diagram"), NS = "http://www.w3.org/2000/svg";
-    const wide = window.matchMedia("(min-width:700px)").matches, n = BOXES.length;
+  function drawDiagram(svg, wide) {
+    const NS = "http://www.w3.org/2000/svg", n = BOXES.length;
     const gap = wide ? 10 : 12, bw = wide ? 64 : 200, bh = wide ? 44 : 40;
     const W = wide ? n * bw + (n - 1) * gap : bw, H = wide ? bh : n * bh + (n - 1) * gap;
     svg.setAttribute("viewBox", `0 0 ${W} ${H}`); svg.setAttribute("height", H); svg.style.maxWidth = W + "px"; svg.innerHTML = "";
@@ -137,8 +136,18 @@ mark.drift{background:#fde68a; color:var(--ink); padding:0 3px; border-radius:2p
       }
     });
   }
-  drawDiagram();
-  let t; addEventListener("resize", () => { clearTimeout(t); t = setTimeout(drawDiagram, 150); });
+  // The deployed page carries the diagram drawn at deploy by bake.js, in the wide layout; the template carries an
+  // empty svg. The wide layout is drawn again into a detached copy and compared with what the HTML carried: equal
+  // leaves the figure as it is; different outlines the figure and draws. A narrow screen is drawn either way.
+  const svg = document.getElementById("diagram"), wide = () => window.matchMedia("(min-width:700px)").matches;
+  const draw = () => drawDiagram(svg, wide());
+  if (svg.hasChildNodes()) {
+    const probe = svg.cloneNode(false); drawDiagram(probe, true);
+    const same = ["viewBox", "height"].every(a => probe.getAttribute(a) === svg.getAttribute(a)) && probe.style.maxWidth === svg.style.maxWidth && probe.innerHTML === svg.innerHTML;
+    if (!same) { const f = svg.closest("figure"); f.classList.add("drift"); f.title = "the diagram baked into the page differs from the one drawn at load"; }
+    if (!same || !wide()) draw();
+  } else draw();
+  let t; addEventListener("resize", () => { clearTimeout(t); t = setTimeout(draw, 150); });
 })();
 </script>
 <script src="pipeline.js"></script>
