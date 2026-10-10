@@ -23,7 +23,7 @@ h1{font-size:26px; letter-spacing:-.01em}
 .runline{color:var(--ink-2); font-size:14.5px; margin:10px 0 0; padding-bottom:22px; border-bottom:1px solid var(--rule)}
 h2{font-size:19px; margin:38px 0 10px}
 h3{font-size:16px; margin:26px 0 7px}
-p{margin:0 0 12px}
+p,#s2a,#s6b{margin:0 0 12px}
 ul{margin:0 0 12px; padding-left:22px}
 li{margin:0 0 5px}
 a{color:var(--link)}
@@ -47,6 +47,9 @@ figure{margin:0 0 14px}
 #diagram{display:block; width:100%; height:auto}
 figcaption{color:var(--ink-3); font-size:13.5px; padding-top:8px; line-height:1.5}
 .err{color:#8c1d1d; font-size:15px}
+mark.drift{background:#fde68a; color:var(--ink); padding:0 3px; border-radius:2px}
+.drift .was{color:#8c1d1d; font-size:.85em}
+.drift:not(mark){outline:2px solid #fde68a; outline-offset:2px}
 .nav{font-size:14px; color:var(--ink-3); margin:0 0 18px}
 @media (min-width:760px){ body{font-size:17.5px} .doc{padding:56px 24px 90px} h1{font-size:31px} h2{font-size:21px} }
 @media print{ body{background:#fff} .doc{max-width:none; padding:0} h2{page-break-after:avoid} table,figure{page-break-inside:avoid} }
@@ -67,7 +70,7 @@ figcaption{color:var(--ink-3); font-size:13.5px; padding-top:8px; line-height:1.
 <div class="tw"><table class="kv" id="resultTable"></table></div>
 <p>The reads, by the stage that named them. Each stage only touches what the stages before it left open, so the rows are cumulative.</p>
 <div class="tw"><table class="small" id="ladderTable"></table></div>
-<p id="s2a"></p>
+<div id="s2a"></div>
 <p id="s2b"></p>
 <p>Served against the planogram:</p>
 <div class="tw"><table class="small" id="verdictTable"></table></div>
@@ -92,7 +95,7 @@ figcaption{color:var(--ink-3); font-size:13.5px; padding-top:8px; line-height:1.
 <h2>6. Failures, and how they were caught</h2>
 <p id="s6a"></p>
 <div class="tw"><table class="small" id="plantTable"></table></div>
-<p id="s6b"></p>
+<div id="s6b"></div>
 
 <h2>7. Bugs found while building</h2>
 <div id="s7"></div>

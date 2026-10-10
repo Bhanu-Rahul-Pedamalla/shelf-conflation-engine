@@ -477,10 +477,51 @@ async function loadAll(fetchText) {
   return F;
 }
 
+/* The deployed page is baked: bake.js ran the same counting under node and wrote the result into the
+   HTML as text, so a reader without JavaScript sees the numbers. The count at load is still the source
+   of truth. The page is rendered into a detached copy and each filled element is compared with what the
+   HTML carried: equal text, and the page is left as it is; different, and the fresh element replaces it
+   with every number that moved marked, the baked value beside it. An empty element, as in the template
+   served from the repository, is simply filled. */
+const NUM = /\d[\d,.]*\d|\d/g;
+function reconcile(baked, fresh, doc) {
+  if (baked.textContent === fresh.textContent) return 0;
+  if (!baked.hasChildNodes()) { baked.replaceWith(fresh); return 0; }
+  const bn = baked.textContent.match(NUM) || [], fn = fresh.textContent.match(NUM) || [];
+  const aligned = baked.textContent.replace(NUM, "#") === fresh.textContent.replace(NUM, "#");
+  const walker = doc.createTreeWalker(fresh, 4 /* NodeFilter.SHOW_TEXT */), texts = [];
+  while (walker.nextNode()) texts.push(walker.currentNode);
+  let i = 0, marked = 0;
+  for (const t of texts) {
+    const s = t.data, frag = doc.createDocumentFragment(); let last = 0, m, touched = false;
+    NUM.lastIndex = 0;
+    while ((m = NUM.exec(s))) {
+      const k = i++, was = aligned ? bn[k] : null;
+      if (aligned && was === m[0]) continue;
+      touched = true; marked++;
+      frag.appendChild(doc.createTextNode(s.slice(last, m.index)));
+      const mark = doc.createElement("mark"); mark.className = "drift";
+      mark.title = was === null ? "the text baked into the page differs from the count at load" : `baked into the page: ${was}; counted at load: ${m[0]}`;
+      mark.textContent = m[0];
+      if (was !== null) { const w = doc.createElement("span"); w.className = "was"; w.textContent = ` baked ${was}`; mark.appendChild(w); }
+      frag.appendChild(mark); last = m.index + m[0].length;
+    }
+    if (touched) { frag.appendChild(doc.createTextNode(s.slice(last))); t.parentNode.replaceChild(frag, t); }
+  }
+  if (!aligned) { fresh.classList.add("drift"); fresh.title = "the text baked into the page differs from the count at load"; }
+  baked.replaceWith(fresh);
+  return marked;
+}
+
 async function boot() {
   try {
     const F = await loadAll(async url => { const r = await fetch(url, { cache: "no-store" }); if (!r.ok) throw new Error(`${url} — HTTP ${r.status}`); return r.text(); });
-    render(compute(F), document);
+    const N = compute(F);
+    const copy = document.querySelector(".doc").cloneNode(true), ids = new Set();
+    render(N, { getElementById: id => { ids.add(id); return copy.querySelector("#" + id); }, createElement: t => document.createElement(t) });
+    let marked = 0;
+    for (const id of ids) marked += reconcile(document.getElementById(id), copy.querySelector("#" + id), document);
+    if (marked) console.warn(`${marked} numbers on the page differ from the ones baked into it`);
   } catch (e) {
     const err = document.getElementById("err"); err.hidden = false;
     err.textContent = `Could not load the run: ${e.message}. Run python pipeline/run.py, then serve the repository root over http and open /web/pipeline/.`;
