@@ -1064,7 +1064,7 @@ function showCard(html, anchor) {
 }
 function hideCard(force) {
   if (S.pinned && !force) return;
-  if (S.pinned) scene.el.get(S.pinned)?.classList.remove("pinned");
+  if (S.pinned && scene.el) scene.el.get(S.pinned)?.classList.remove("pinned");   // no el yet when a new store or day is being drawn
   S.pinned = null; $("card").hidden = true;
 }
 function pin(key) {
